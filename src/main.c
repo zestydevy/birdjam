@@ -1,33 +1,4 @@
 
-/**************************************************************************
- *                                                                        *
- *               Copyright (C) 1995, Silicon Graphics, Inc.               *
- *                                                                        *
- *  These coded instructions, statements, and computer programs  contain  *
- *  unpublished  proprietary  information of Silicon Graphics, Inc., and  *
- *  are protected by Federal copyright  law.  They  may not be disclosed  *
- *  to  third  parties  or copied or duplicated in any form, in whole or  *
- *  in part, without the prior written consent of Silicon Graphics, Inc.  *
- *                                                                        *
- *************************************************************************/
-
-/*---------------------------------------------------------------------*
-        Copyright (C) 1997,1998 Nintendo. (Originated by SGI)
-        
-        $RCSfile: letters.c,v $
-        $Revision: 1.26 $
-        $Date: 1999/01/13 01:40:01 $
- *---------------------------------------------------------------------*/
-
-/*
- * File:	letters.c
- * Creator:	hsa@sgi.com
- * Create Date:	Sun Jun  4 18:40:31 PDT 1995
- *
- * VERY simple app, draws spinning letters, demonstrating simple 
- * reflection mapping techniques.
- *
- */
 
 #define DTHETA (2.0)
 
@@ -203,30 +174,6 @@ mainproc(void *arg)
     u32		clearcolor;
 
     int iter;
-
-#ifdef DEBUG
-    argp = (u32 *)RAMROM_APP_WRITE_ADDR;
-    for (i=0; i<sizeof(argbuf)/4; i++, argp++) {
-	osEPiReadIo(handler, (u32)argp, &argbuf[i]); /* Assume no DMA */
-    }
-    /* Parse the options */
-    ap = (char *)argbuf;
-    while (*ap != '\0') {
-	while (*ap == ' ')
-	    ap++;
-	if ( *ap == '-' && *(ap+1) == 'r') {
-	    rdp_flag = 0;
-	    ap += 2;
-	} else if ( *ap == '-' && *(ap+1) == '1') {
-	    use_chrome1D = 1;
-	    ap += 2;
-	} else if ( *ap == '-' && *(ap+1) == '2') {
-	    use_chrome1D = 0;
-	    ap += 2;
-	}
-	else ap++;
-    }
-#endif
 
     cfb_ptrs[0] = &(cfb_16_a[0]);
     cfb_ptrs[1] = &(cfb_16_b[0]);
