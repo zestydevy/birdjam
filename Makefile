@@ -5,9 +5,11 @@ PROJECT = bird
 
 FINAL = YES
 ifeq ($(FINAL), YES)
-OPTIMIZER       = -O2 -std=gnu90
+OPTIMIZER       = -O2
 LCDEFS          = -DNDEBUG -D_FINALROM -DF3DEX_GBI_2
 N64LIB          = -lultra_rom
+CFLAGS := $(CFLAGS) -std=gnu90 -Iinclude -G 0
+CXXFLAGS := $(CXXFLAGS) -std=c++17 -Iinclude -G 0
 else
 OPTIMIZER       = -g -std=gnu90
 LCDEFS          = -DDEBUG -DF3DEX_GBI_2
@@ -21,9 +23,10 @@ TARGETS =	$(PROJECT).n64
 HFILES  := $(wildcard include/*.h)
 
 CODEFILES   := $(wildcard src/*.c)
+CXXFILES    := $(wildcard src/*.cpp)
 DATAFILES   := $(wildcard data/*.c)
 
-CODEOBJECTS =	$(CODEFILES:.c=.o)
+CODEOBJECTS =	$(CODEFILES:.c=.o) $(CXXFILES:.cpp=.o)
 CODEOBJNAME =   $(notdir $(CODEOBJECTS))
 CODEOBJPATH =   $(addprefix build/obj/,$(CODEOBJNAME))
 
@@ -35,7 +38,7 @@ CODESEGMENT =	codesegment.o
 
 OBJECTS =	$(TEXHFILES) $(CODESEGMENT) $(DATAOBJECTS)
 
-LCINCS =	-I./include
+#LCINCS =	-I./include
 LCOPTS =	-G 0
 LDIRT  =	$(APP) *.so
 
