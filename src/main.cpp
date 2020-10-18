@@ -80,3 +80,13 @@ void operator delete(void * block)
 {
   MEMFree(block);
 }
+
+void * operator new[](size_t count)
+{
+  return MEMAlloc(count);
+}
+
+void operator delete[](void * block)
+{
+  MEMFree(block);
+}
