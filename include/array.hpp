@@ -1,6 +1,6 @@
 
-#ifndef INCLUDE_ARRAY_H
-#define INCLUDE_ARRAY_h
+#ifndef INCLUDE_ARRAY_HPP
+#define INCLUDE_ARRAY_HPP
 
 template<typename T>
 class TArray {
