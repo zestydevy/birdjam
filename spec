@@ -8,7 +8,7 @@ beginseg
 	name "code"
 	flags BOOT OBJECT
 	entry boot
-	stack bootStack + STACKSIZE
+	stack gBootStack + STACKSIZE
 	include "codesegment.o"
 	include "$(ROOT)/usr/lib/PR/rspboot.o"
 	include "$(ROOT)/usr/lib/PR/gspF3DEX2.xbus.o"
