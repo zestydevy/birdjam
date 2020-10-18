@@ -2,6 +2,8 @@
 #ifndef INCLUDE_ARRAY_HPP
 #define INCLUDE_ARRAY_HPP
 
+#include <ultra64.h>
+
 template<typename T>
 class TArray {
 
@@ -12,24 +14,24 @@ class TArray {
   using TConstIterator = TValue const *;
 
   TArray() = default;
-  TArray(size_t n);
-  TArray(size_t n, TValue const & v);
+  TArray(u32 n);
+  TArray(u32 n, TValue const & v);
   ~TArray();
 
   inline bool empty() const {
     return (mBegin == mEnd);
   }
 
-  inline size_t size() const {
-    return static_cast<size_t>(mEnd - mBegin);
+  inline u32 size() const {
+    return static_cast<u32>(mEnd - mBegin);
   }
 
-  inline size_t capacity() const {
-    return static_cast<size_t>(mCap - mBegin);
+  inline u32 capacity() const {
+    return static_cast<u32>(mCap - mBegin);
   }
 
-  inline TValue & operator[](size_t i) { return *(mBegin + i); }
-  inline TValue const & operator[](size_t i) const { return *(mBegin + i); }
+  inline TValue & operator[](u32 i) { return *(mBegin + i); }
+  inline TValue const & operator[](u32 i) const { return *(mBegin + i); }
 
   inline TIterator begin() { return mBegin; }
   inline TConstIterator begin() const { return mBegin; }
@@ -39,12 +41,12 @@ class TArray {
   inline TConstIterator end() const { return mBegin; }
   inline TConstIterator cend() const { return mBegin; }
 
-  void reserve(size_t n);
-  void resize(size_t n, TValue const & v = TValue());
+  void reserve(u32 n);
+  void resize(u32 n, TValue const & v = TValue());
   void shrink();
 
   inline void clear() { mEnd = mBegin; }
-  TIterator insert(TConstIterator it, TValue const & v, size_t n = 1);
+  TIterator insert(TConstIterator it, TValue const & v, u32 n = 1);
   inline void push(TValue const & v) { insert(end(), v); }
   inline void pop() { erase(end() - 1); }
   TIterator erase(TConstIterator it);
@@ -59,12 +61,12 @@ class TArray {
 };
 
 template<typename T>
-TArray<T>::TArray(size_t n) {
+TArray<T>::TArray(u32 n) {
   reserve(n);
 }
 
 template<typename T>
-TArray<T>::TArray(size_t n, TValue const & v) {
+TArray<T>::TArray(u32 n, TValue const & v) {
   resize(n, v);
 }
 
@@ -74,15 +76,15 @@ TArray<T>::~TArray() {
 }
 
 template<typename T>
-void TArray<T>::reserve(size_t n) {
+void TArray<T>::reserve(u32 n) {
   if (capacity() >= n) {
     return;
   }
 
-  size_t old_size = size();
+  u32 old_size = size();
   TValue * begin = new TValue[n];
 
-  for (size_t i = 0; i < old_size; ++i) {
+  for (u32 i = 0; i < old_size; ++i) {
     begin[i] = mBegin[i];
   }
 
@@ -93,7 +95,7 @@ void TArray<T>::reserve(size_t n) {
 }
 
 template<typename T>
-void TArray<T>::resize(size_t n, TValue const & v) {
+void TArray<T>::resize(u32 n, TValue const & v) {
   if (size() > n) {
     erase((begin() + n), end());
   } else if (size() < n) {
@@ -103,7 +105,7 @@ void TArray<T>::resize(size_t n, TValue const & v) {
 
 template<typename T>
 void TArray<T>::shrink() {
-  size_t n = size();
+  u32 n = size();
 
   if (capacity() == n) {
     return;
@@ -111,7 +113,7 @@ void TArray<T>::shrink() {
 
   TValue * begin = new TValue[n];
 
-  for (size_t i = 0; i < n; ++i) {
+  for (u32 i = 0; i < n; ++i) {
     begin[i] = mBegin[i];
   }
 
@@ -122,17 +124,17 @@ void TArray<T>::shrink() {
 
 template<typename T>
 typename TArray<T>::TIterator
-TArray<T>::insert(TConstIterator it, TValue const & v, size_t n) {
-  size_t a = static_cast<size_t>(it - mBegin);
+TArray<T>::insert(TConstIterator it, TValue const & v, u32 n) {
+  u32 a = static_cast<u32>(it - mBegin);
 
   if (n == 0) {
     return (mBegin + a);
   }
 
-  size_t b = static_cast<size_t>(a + n);
-  size_t old_size = size();
-  size_t new_size = (old_size + n);
-  size_t m = (old_size - b);
+  u32 b = static_cast<u32>(a + n);
+  u32 old_size = size();
+  u32 new_size = (old_size + n);
+  u32 m = (old_size - b);
   TValue const * pv = &v;
 
   if (it <= pv && pv < mEnd) {
@@ -140,11 +142,11 @@ TArray<T>::insert(TConstIterator it, TValue const & v, size_t n) {
   }
 
   if (capacity() >= new_size) {
-    for (size_t i = 0; i < m; ++i) {
+    for (u32 i = 0; i < m; ++i) {
       mBegin[b + m + n - (i + 1)] = mBegin[b + m - (i + 1)];
     }
 
-    for (size_t i = 0; i < n; ++i) {
+    for (u32 i = 0; i < n; ++i) {
       mBegin[a + i] = *pv;
     }
 
@@ -152,15 +154,15 @@ TArray<T>::insert(TConstIterator it, TValue const & v, size_t n) {
   } else {
     TValue * begin = new TValue[new_size];
 
-    for (size_t i = 0; i < a; ++i) {
+    for (u32 i = 0; i < a; ++i) {
       begin[i] = mBegin[i];
     }
 
-    for (size_t i = 0; i < m; ++i) {
+    for (u32 i = 0; i < m; ++i) {
       begin[a + n + i] = mBegin[a + i];
     }
 
-    for (size_t i = 0; i < n; ++i) {
+    for (u32 i = 0; i < n; ++i) {
       begin[a + i] = *pv;
     }
 
@@ -191,11 +193,11 @@ TArray<T>::erase(TConstIterator first, TConstIterator last) {
     return end();
   }
 
-  size_t a = static_cast<size_t>(first - mBegin);
-  size_t b = static_cast<size_t>(last - mBegin);
-  size_t n = (size() - b);
+  u32 a = static_cast<u32>(first - mBegin);
+  u32 b = static_cast<u32>(last - mBegin);
+  u32 n = (size() - b);
 
-  for (size_t i = 0; i < n; ++i) {
+  for (u32 i = 0; i < n; ++i) {
     mBegin[a + i] = mBegin[b + i];
   }
 
