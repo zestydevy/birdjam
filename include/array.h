@@ -2,8 +2,6 @@
 #ifndef INCLUDE_ARRAY_H
 #define INCLUDE_ARRAY_h
 
-#include <cstddef>
-
 template<typename T>
 class TArray {
 
@@ -123,7 +121,7 @@ void TArray<T>::shrink() {
 }
 
 template<typename T>
-TArray<T>::TIterator
+typename TArray<T>::TIterator
 TArray<T>::insert(TConstIterator it, TValue const & v, size_t n) {
   size_t a = static_cast<size_t>(it - mBegin);
 
@@ -176,13 +174,13 @@ TArray<T>::insert(TConstIterator it, TValue const & v, size_t n) {
 }
 
 template<typename T>
-TArray<T>::TIterator
+typename TArray<T>::TIterator
 TArray<T>::erase(TConstIterator it) {
   return erase(it, (it + 1));
 }
 
 template<typename T>
-TArray<T>::TIterator
+typename TArray<T>::TIterator
 TArray<T>::erase(TConstIterator first, TConstIterator last) {
   if (first == last) {
     return last;
