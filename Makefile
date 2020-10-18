@@ -5,11 +5,11 @@ PROJECT = bird
 
 FINAL = YES
 ifeq ($(FINAL), YES)
-OPTIMIZER       = -O2
+OPTIMIZER       = -O1
 LCDEFS          = -DNDEBUG -D_FINALROM -DF3DEX_GBI_2
 N64LIB          = -lultra_rom
 CFLAGS := $(CFLAGS) -std=gnu90 -Iinclude -G 0
-CXXFLAGS := $(CXXFLAGS) -std=c++17 -Iinclude -G 0
+CXXFLAGS := $(CXXFLAGS) -std=c++17 -Iinclude -G 0 -fno-unroll-loops -ffast-math -fno-exceptions -fno-rtti
 else
 OPTIMIZER       = -g -std=gnu90
 LCDEFS          = -DDEBUG -DF3DEX_GBI_2
