@@ -1,4 +1,5 @@
 #include <ultra64.h>
+#include <string.h>
 
 // ========================================================================== //
 
@@ -35,7 +36,7 @@ static u32 sHeapSize;
 
 // -------------------------------------------------------------------------- //
 
-void * memset(void *b, int c, int len)
+void * memset(void *b, int c, size_t len)
 {
   int i = 0;
   unsigned char * p = b;
