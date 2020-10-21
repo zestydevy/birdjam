@@ -26,13 +26,15 @@ CODEFILES   := $(wildcard src/*.c)
 CXXFILES    := $(wildcard src/*.cpp)
 DATAFILES   := $(wildcard data/*.c)
 
+OBJPATH		= 	./build/obj
+
 CODEOBJECTS =	$(CODEFILES:.c=.o) $(CXXFILES:.cpp=.o)
 CODEOBJNAME =   $(notdir $(CODEOBJECTS))
-CODEOBJPATH =   $(addprefix build/obj/,$(CODEOBJNAME))
+CODEOBJPATH =   $(addprefix $(OBJPATH)/,$(CODEOBJNAME))
 
 DATAOBJECTS =	$(DATAFILES:.c=.o)
 DATAOBJNAME =   $(notdir $(DATAOBJECTS))
-DATAOBJPATH =   $(addprefix build/obj/,$(DATAOBJECTS))
+DATAOBJPATH =   $(addprefix $(OBJPATH),$(DATAOBJECTS))
 
 CODESEGMENT =	codesegment.o
 
@@ -46,16 +48,17 @@ LDFLAGS =	$(MKDEPOPT)  -L$(ROOT)/usr/lib -L$(ROOT)/usr/lib/PR $(N64LIB) -L$(N64_
 
 default:	$(TARGETS)
 
-include $(COMMONRULES)
+%.o: %.c
+	$(CC) $(CFLAGS) -c -o $(OBJPATH)/$(notdir $@) $<
+	
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c -o $(OBJPATH)/$(notdir $@) $<
 
 $(CODESEGMENT):	$(TEXHFILES) $(CODEOBJECTS)
-		@mkdir -p "build/obj"
-		@mv $(CODEOBJECTS) "build/obj/"
 		$(LD) -o $(CODESEGMENT) -r $(CODEOBJPATH) $(LDFLAGS)
 
 ifeq ($(FINAL), YES)
 $(TARGETS) $(APP):      spec $(OBJECTS)
-	@mv $(DATAOBJECTS) "build/obj/"
 	$(MAKEROM) -s 9 -r $(TARGETS) -e $(APP) spec
 	makemask $(TARGETS)
 	@mv codesegment.o a.out $(APP) $(TARGETS) "./build"

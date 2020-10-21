@@ -15,6 +15,9 @@ class TGame
         return sGameInstance;
     }
 
+    void init();
+    void update();
+
     protected:
     static TGame * sGameInstance;
 };

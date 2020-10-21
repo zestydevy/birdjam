@@ -27,10 +27,10 @@ static u64 sIdleThreadStack[STACKSIZE/sizeof(u64)];
 static OSMesg PiMessages[NUM_PI_MSGS];
 static OSMesgQueue PiMessageQ;
 
+OSPiHandle * gHandler;
+
 int constexpr kHeapLocation = 0x80200000;
 int constexpr kHeapSize     = 0x1FFFFF;
-
-OSPiHandle * gHandler;
 
 extern "C" {
 
@@ -68,7 +68,18 @@ void idle(void * arg)
 void bootApp(void * arg)
 {
     CApp * app = reinterpret_cast<CApp *>(arg);
-    app->init(OS_VI_NTSC_LAN1, GPACK_RGBA5551(0, 0, 0, 1), true);
+    
+    app->init(
+      OS_VI_NTSC_LAN1, 
+      GPACK_RGBA5551(0, 0, 0, 1), 
+      OS_VI_DITHER_FILTER_ON, 
+      true);
+
+    app->setupStaticSegment(
+      _codeSegmentEnd, 
+      reinterpret_cast<u32>(_staticSegmentRomStart));
+    
+    app->update();
 }
 
 void * operator new(size_t count)

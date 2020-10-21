@@ -7,4 +7,5 @@ export N64_NEWLIBINCDIR="$HOME/n64chain/mips64-elf/include"
 export ROOT=/etc/n64
 
 rm -rf ./build
+mkdir -p ./build/obj
 make
