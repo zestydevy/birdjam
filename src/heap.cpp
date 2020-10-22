@@ -471,7 +471,46 @@ bool TBlockHeap::splitBlockTail(
   TBlock * splits[2],
   u32 amt, s32 aln
 ) {
-  return false; // TODO
+  void * end = getBlockEnd(blk);
+  void * ptr = roundDownB(subPtr(end, amt), aln);
+  void * start = getBlockPtr(blk);
+
+  if (ptr < start) {
+    return false;
+  }
+
+  u32 size = ((u32)end - (u32)ptr);
+  u32 ofs = ((u32)ptr - (u32)start);
+
+  if (size < amt) {
+    return false;
+  }
+
+  TBlock * a = nullptr;
+  removeBlock(blk, &mFreeList);
+
+  if (ofs > sizeof(TBlock)) {
+    a = blk;
+    blk = addPtr(blk, ofs);
+    a->init(kBlockFree, (ofs - sizeof(TBlock)));
+    ofs = 0;
+  } else {
+    blk = addPtr(blk, ofs);
+  }
+
+  blk->init(kBlockTail, size, ofs);
+  insertBlock(blk, &mAllocTail);
+
+  if (a != nullptr) {
+    insertBlock(a, &mFreeList);
+  }
+
+  if (splits != nullptr) {
+    splits[0] = a;
+    splits[1] = blk;
+  }
+
+  return true;
 }
 
 // -------------------------------------------------------------------------- //
