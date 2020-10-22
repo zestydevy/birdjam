@@ -40,6 +40,10 @@ bool THeap::initHeapBase(
 
 // -------------------------------------------------------------------------- //
 
+TStackHeap::~TStackHeap() {}
+
+// -------------------------------------------------------------------------- //
+
 bool TStackHeap::init(
   void * head, u32 size
 ) {
@@ -160,6 +164,58 @@ void * TStackHeap::allocTail(
   ++mNumAllocTail;
   ++mNumAlloc;
   return ptr;
+}
+
+// -------------------------------------------------------------------------- //
+
+void * operator new(
+  size_t amt, THeap * heap, s32 aln
+) throw() {
+  if (heap == nullptr) {
+    return nullptr;
+  }
+
+  return heap->alloc((u32)amt, aln);
+}
+
+// -------------------------------------------------------------------------- //
+
+void * operator new[](
+  size_t amt, THeap * heap, s32 aln
+) throw() {
+  if (heap == nullptr) {
+    return nullptr;
+  }
+
+  return heap->alloc((u32)amt, aln);
+}
+
+// -------------------------------------------------------------------------- //
+
+void operator delete(void *, size_t) {}
+
+// -------------------------------------------------------------------------- //
+
+void operator delete(
+  void * ptr, THeap * heap, s32
+) {
+  if (heap == nullptr) {
+    return;
+  }
+
+  heap->free(ptr);
+}
+
+// -------------------------------------------------------------------------- //
+
+void operator delete[](
+  void * ptr, THeap * heap, s32
+) {
+  if (heap == nullptr) {
+    return;
+  }
+
+  heap->free(ptr);
 }
 
 // -------------------------------------------------------------------------- //

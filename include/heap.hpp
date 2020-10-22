@@ -82,6 +82,7 @@ class TStackHeap final :
 
   TStackHeap() = default;
   inline TStackHeap(void * heap, u32 size) { init(heap, size); }
+  virtual ~TStackHeap() override;
 
   bool init(void * heap, u32 size);
 
@@ -179,6 +180,7 @@ class TBlockHeap final :
 void * operator new(size_t amt, THeap * heap, s32 aln = 0) throw();
 void * operator new[](size_t amt, THeap * heap, s32 aln = 0) throw();
 
+void operator delete(void * ptr, size_t);
 void operator delete(void * ptr, THeap * heap, s32 aln = 0);
 void operator delete[](void * ptr, THeap * heap, s32 aln = 0);
 
