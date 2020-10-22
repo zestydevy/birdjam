@@ -15,7 +15,6 @@ class THeap {
   inline u32 getHeapSize() const { return mHeapSize; }
 
   inline u32 getNumAlloc() const { return mNumAlloc; }
-  virtual u32 getAllocSize(s32 align = 0) const = 0; // max allocation
   virtual u32 getUsedSize() const = 0; // total used size
   virtual u32 getFreeSize() const = 0; // total free size
 
@@ -86,7 +85,6 @@ class TStackHeap final :
 
   bool init(void * heap, u32 size);
 
-  virtual u32 getAllocSize(s32 aln = 0) const override;
   virtual u32 getUsedSize() const override;
   virtual u32 getFreeSize() const override;
 
@@ -119,7 +117,6 @@ class TBlockHeap final :
 
   bool init(void * head, u32 size);
 
-  virtual u32 getAllocSize(s32 align = 0) const override;
   virtual u32 getUsedSize() const override;
   virtual u32 getFreeSize() const override;
 

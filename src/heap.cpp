@@ -59,12 +59,6 @@ bool TStackHeap::init(
 
 // -------------------------------------------------------------------------- //
 
-u32 TStackHeap::getAllocSize(s32) const {
-  return 0; // TODO
-}
-
-// -------------------------------------------------------------------------- //
-
 u32 TStackHeap::getUsedSize() const {
   u32 head = ((u32)mAllocHead - (u32)mHeapHead);
   u32 tail = ((u32)mAllocTail - (u32)mHeapTail);
