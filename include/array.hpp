@@ -4,6 +4,8 @@
 
 #include <ultra64.h>
 
+#include "heap.hpp"
+
 template<typename T>
 class TArray {
 
@@ -17,6 +19,10 @@ class TArray {
   TArray(u32 n);
   TArray(u32 n, TValue const & v);
   ~TArray();
+
+  inline THeap * getHeap() { return mHeap; }
+  inline THeap const * getHeap() const { return mHeap; }
+  inline void setHeap(THeap * heap) { mHeap = heap; }
 
   inline bool empty() const {
     return (mBegin == mEnd);
@@ -54,6 +60,7 @@ class TArray {
 
   private:
 
+  THeap * mHeap { nullptr };
   TValue * mBegin { nullptr };
   TValue * mEnd { nullptr };
   TValue * mCap { nullptr };
@@ -82,7 +89,7 @@ void TArray<T>::reserve(u32 n) {
   }
 
   u32 old_size = size();
-  TValue * begin = new TValue[n];
+  TValue * begin = new(mHeap) TValue[n];
 
   for (u32 i = 0; i < old_size; ++i) {
     begin[i] = mBegin[i];
@@ -111,7 +118,7 @@ void TArray<T>::shrink() {
     return;
   }
 
-  TValue * begin = new TValue[n];
+  TValue * begin = new(mHeap) TValue[n];
 
   for (u32 i = 0; i < n; ++i) {
     begin[i] = mBegin[i];
@@ -152,7 +159,7 @@ TArray<T>::insert(TConstIterator it, TValue const & v, u32 n) {
 
     mEnd += n;
   } else {
-    TValue * begin = new TValue[new_size];
+    TValue * begin = new(mHeap) TValue[new_size];
 
     for (u32 i = 0; i < a; ++i) {
       begin[i] = mBegin[i];
