@@ -6,6 +6,8 @@
 
 #include "heap.hpp"
 
+// -------------------------------------------------------------------------- //
+
 template<typename T>
 class TArray {
 
@@ -15,9 +17,9 @@ class TArray {
   using TIterator = TValue *;
   using TConstIterator = TValue const *;
 
-  TArray() = default;
-  TArray(u32 n);
-  TArray(u32 n, TValue const & v);
+  TArray(THeap * heap = nullptr);
+  TArray(u32 n, THeap * heap = nullptr);
+  TArray(u32 n, TValue const & v, THeap * heap = nullptr);
   ~TArray();
 
   inline THeap * getHeap() { return mHeap; }
@@ -67,20 +69,39 @@ class TArray {
 
 };
 
+// -------------------------------------------------------------------------- //
+
 template<typename T>
-TArray<T>::TArray(u32 n) {
+TArray<T>::TArray(THeap * heap) :
+  mHeap { heap }
+{}
+
+// -------------------------------------------------------------------------- //
+
+template<typename T>
+TArray<T>::TArray(u32 n, THeap * heap) :
+  TArray { heap }
+{
   reserve(n);
 }
 
+// -------------------------------------------------------------------------- //
+
 template<typename T>
-TArray<T>::TArray(u32 n, TValue const & v) {
+TArray<T>::TArray(u32 n, TValue const & v, THeap * heap) :
+  TArray { heap }
+{
   resize(n, v);
 }
+
+// -------------------------------------------------------------------------- //
 
 template<typename T>
 TArray<T>::~TArray() {
   delete[] mBegin;
 }
+
+// -------------------------------------------------------------------------- //
 
 template<typename T>
 void TArray<T>::reserve(u32 n) {
@@ -101,6 +122,8 @@ void TArray<T>::reserve(u32 n) {
   mCap = (mBegin + n);
 }
 
+// -------------------------------------------------------------------------- //
+
 template<typename T>
 void TArray<T>::resize(u32 n, TValue const & v) {
   if (size() > n) {
@@ -109,6 +132,8 @@ void TArray<T>::resize(u32 n, TValue const & v) {
     insert(end(), v, (n - size()));
   }
 }
+
+// -------------------------------------------------------------------------- //
 
 template<typename T>
 void TArray<T>::shrink() {
@@ -128,6 +153,8 @@ void TArray<T>::shrink() {
   mBegin = begin;
   mCap = mEnd = (mBegin + n);
 }
+
+// -------------------------------------------------------------------------- //
 
 template<typename T>
 typename TArray<T>::TIterator
@@ -182,11 +209,15 @@ TArray<T>::insert(TConstIterator it, TValue const & v, u32 n) {
   return (mBegin + b);
 }
 
+// -------------------------------------------------------------------------- //
+
 template<typename T>
 typename TArray<T>::TIterator
 TArray<T>::erase(TConstIterator it) {
   return erase(it, (it + 1));
 }
+
+// -------------------------------------------------------------------------- //
 
 template<typename T>
 typename TArray<T>::TIterator
@@ -212,5 +243,6 @@ TArray<T>::erase(TConstIterator first, TConstIterator last) {
   return (mBegin + a);
 }
 
+// -------------------------------------------------------------------------- //
 
 #endif
