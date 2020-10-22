@@ -114,13 +114,14 @@ class TBlockHeap final :
 
   TBlockHeap() = default;
   inline TBlockHeap(void * head, u32 size) { init(head, size); }
+  virtual ~TBlockHeap() override;
 
   bool init(void * head, u32 size);
 
   virtual u32 getUsedSize() const override;
   virtual u32 getFreeSize() const override;
 
-  virtual void * alloc(u32 amt, s32 align = 0) override;
+  virtual void * alloc(u32 amt, s32 aln = 0) override;
   virtual bool free(void * ptr) override;
   virtual void freeTail() override;
   virtual void freeAll() override;
@@ -159,7 +160,7 @@ class TBlockHeap final :
   void * allocTail(u32, s32);
 
   TBlock * insertBlock(TBlock *, TBlock **);
-  bool removeBlock(TBlock *, TBlock **);
+  TBlock * removeBlock(TBlock *, TBlock **);
   bool splitBlockHead(TBlock *, TBlock * [3], u32, s32);
   bool splitBlockTail(TBlock *, TBlock * [2], u32, s32);
   static bool joinBlock(TBlock *);
