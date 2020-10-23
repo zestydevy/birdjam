@@ -256,6 +256,9 @@ bool TBlockHeap::free(void * ptr) {
     }
   }
 
+  u32 size = (blk->size + blk->ofs);
+  blk = subPtr(blk, blk->ofs);
+  blk->init(kBlockFree, size, 0);
   prev = insertBlock(blk, &mFreeList);
   joinBlock(blk);
 
