@@ -396,7 +396,12 @@ TBlockHeap::removeBlock(
       continue;
     }
 
-    prev->next = b->next;
+    if (prev != nullptr) {
+      prev->next = b->next;
+    } else {
+      *list = b->next;
+    }
+
     return prev;
   }
 
