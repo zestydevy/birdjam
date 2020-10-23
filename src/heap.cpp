@@ -258,7 +258,7 @@ bool TBlockHeap::free(void * ptr) {
 
   u32 size = (blk->size + blk->ofs);
   blk = subPtr(blk, blk->ofs);
-  blk->init(kBlockFree, size, 0);
+  blk->init(kBlockFree, size);
   prev = insertBlock(blk, &mFreeList);
   joinBlock(blk);
 
@@ -363,7 +363,7 @@ TBlockHeap::insertBlock(
   TBlock * prev = nullptr;
 
   while (b != nullptr) {
-    if (blk > b) {
+    if (b > blk) {
       break;
     }
 
