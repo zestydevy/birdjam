@@ -538,6 +538,7 @@ bool TBlockHeap::joinBlock(TBlock * blk) {
 
   blk->next->type = 0;
   blk->size += calcBlockSize(blk->next);
+  blk->next = blk->next->next;
   return true;
 }
 
