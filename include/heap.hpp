@@ -33,7 +33,7 @@ class THeap {
   static constexpr s32 kMaxAlign = 128;
 
   THeap() = default;
-  virtual ~THeap() = default;
+  virtual ~THeap();
 
   static THeap * sCurrentHeap;
   void * mHeapHead { nullptr };

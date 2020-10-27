@@ -44,11 +44,23 @@ THeap * THeap::setCurrentHeap(
 
 // -------------------------------------------------------------------------- //
 
+THeap::~THeap() {
+  if (sCurrentHeap == this) {
+    sCurrentHeap = nullptr;
+  }
+}
+
+// -------------------------------------------------------------------------- //
+
 bool THeap::initHeapBase(
   void * head, u32 size
 ) {
   if (head == nullptr || size == 0) {
     return false;
+  }
+
+  if (sCurrentHeap == nullptr) {
+    sCurrentHeap = this;
   }
 
   mHeapHead = head;
