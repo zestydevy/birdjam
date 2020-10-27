@@ -24,6 +24,9 @@ class THeap {
   virtual void freeTail() = 0;
   virtual void freeAll() = 0;
 
+  static THeap * getCurrentHeap();
+  static THeap * setCurrentHeap(THeap *);
+
   protected:
 
   static constexpr s32 kStdAlign = 8; // 64-bit N64 alignment
@@ -32,6 +35,7 @@ class THeap {
   THeap() = default;
   virtual ~THeap() = default;
 
+  static THeap * sCurrentHeap;
   void * mHeapHead { nullptr };
   void * mHeapTail { nullptr };
   u32 mHeapSize { 0 };
@@ -175,12 +179,22 @@ class TBlockHeap final :
 
 // -------------------------------------------------------------------------- //
 
-void * operator new(size_t amt, THeap * heap, s32 aln = 0) throw();
-void * operator new[](size_t amt, THeap * heap, s32 aln = 0) throw();
+void * operator new(size_t amt);
+void * operator new(size_t amt, s32 aln);
+void * operator new(size_t amt, THeap * heap, s32 aln = 0);
 
+void * operator new[](size_t amt);
+void * operator new[](size_t amt, s32 aln);
+void * operator new[](size_t amt, THeap * heap, s32 aln = 0);
+
+void operator delete(void * ptr);
 void operator delete(void * ptr, size_t);
-void operator delete(void * ptr, THeap * heap, s32 aln = 0);
-void operator delete[](void * ptr, THeap * heap, s32 aln = 0);
+void operator delete(void * ptr, s32);
+void operator delete(void * ptr, THeap * heap, s32 = 0);
+
+void operator delete[](void * ptr);
+void operator delete[](void * ptr, s32);
+void operator delete[](void * ptr, THeap * heap, s32 = 0);
 
 // -------------------------------------------------------------------------- //
 

@@ -9,6 +9,10 @@ extern "C" void bzero(void *, int);
 
 // -------------------------------------------------------------------------- //
 
+THeap * THeap::sCurrentHeap;
+
+// -------------------------------------------------------------------------- //
+
 void * THeap::calloc(
   u32 amt, s32 aln
 ) {
@@ -20,6 +24,22 @@ void * THeap::calloc(
 
   bzero(ptr, (int)amt);
   return ptr;
+}
+
+// -------------------------------------------------------------------------- //
+
+THeap * THeap::getCurrentHeap() {
+  return sCurrentHeap;
+}
+
+// -------------------------------------------------------------------------- //
+
+THeap * THeap::setCurrentHeap(
+  THeap * heap
+) {
+  THeap * old = sCurrentHeap;
+  sCurrentHeap = heap;
+  return old;
 }
 
 // -------------------------------------------------------------------------- //
@@ -602,23 +622,47 @@ u32 TBlockHeap::calcBlockSize(
 
 // -------------------------------------------------------------------------- //
 
+void * operator new(size_t amt) {
+  return operator new(amt, nullptr, 0);
+}
+
+// -------------------------------------------------------------------------- //
+
+void * operator new(size_t amt, s32 aln) {
+  return operator new(amt, nullptr, aln);
+}
+
+// -------------------------------------------------------------------------- //
+
 void * operator new(
   size_t amt, THeap * heap, s32 aln
-) throw() {
+) {
   if (heap == nullptr) {
-    return nullptr;
+    heap = THeap::getCurrentHeap();
   }
 
   return heap->alloc((u32)amt, aln);
+}
+
+// -------------------------------------------------------------------------- //
+
+void * operator new[](size_t amt) {
+  return operator new[](amt, nullptr, 0);
+}
+
+// -------------------------------------------------------------------------- //
+
+void * operator new[](size_t amt, s32 aln) {
+  return operator new[](amt, nullptr, aln);
 }
 
 // -------------------------------------------------------------------------- //
 
 void * operator new[](
   size_t amt, THeap * heap, s32 aln
-) throw() {
+) {
   if (heap == nullptr) {
-    return nullptr;
+    heap = THeap::getCurrentHeap();
   }
 
   return heap->alloc((u32)amt, aln);
@@ -626,7 +670,21 @@ void * operator new[](
 
 // -------------------------------------------------------------------------- //
 
-void operator delete(void *, size_t) {}
+void operator delete(void * ptr) {
+  operator delete(ptr, nullptr, 0);
+}
+
+// -------------------------------------------------------------------------- //
+
+void operator delete(void * ptr, size_t) {
+  operator delete(ptr, nullptr, 0);
+}
+
+// -------------------------------------------------------------------------- //
+
+void operator delete(void * ptr, s32 aln) {
+  operator delete(ptr, nullptr, aln);
+}
 
 // -------------------------------------------------------------------------- //
 
@@ -634,10 +692,22 @@ void operator delete(
   void * ptr, THeap * heap, s32
 ) {
   if (heap == nullptr) {
-    return;
+    heap = THeap::getCurrentHeap();
   }
 
   heap->free(ptr);
+}
+
+// -------------------------------------------------------------------------- //
+
+void operator delete[](void * ptr) {
+  operator delete[](ptr, nullptr, 0);
+}
+
+// -------------------------------------------------------------------------- //
+
+void operator delete[](void * ptr, s32 aln) {
+  operator delete[](ptr, nullptr, aln);
 }
 
 // -------------------------------------------------------------------------- //
@@ -646,7 +716,7 @@ void operator delete[](
   void * ptr, THeap * heap, s32
 ) {
   if (heap == nullptr) {
-    return;
+    heap = THeap::getCurrentHeap();
   }
 
   heap->free(ptr);
