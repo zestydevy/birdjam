@@ -96,12 +96,6 @@ void CApp::run()
     while (true)
     {
         mGame->update();
-
-        // draw functions should be here
-        mGame->draw();
-
-        // done with this frame
-
     }
 }
 
