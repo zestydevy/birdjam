@@ -57,6 +57,7 @@ class TGame
     OSTask * mTask{nullptr};
     TDynList * mDynList{nullptr};
     Gfx * mDynDl{nullptr};
+    float mTheta{0.0f};
     
     // OS messages and queues
     OSMesg * mDmaMessageBuffer{nullptr};
