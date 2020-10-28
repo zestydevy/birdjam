@@ -20,15 +20,16 @@ APP =		$(PROJECT).out
 
 TARGETS =	$(PROJECT).n64
 
-HFILES  := $(wildcard include/*.h)
+HFILES  := $(wildcard include/*.h) $(wildcard models/*.h) $(wildcard models/*/*.h)
 
 CODEFILES   := $(wildcard src/*.c)
 CXXFILES    := $(wildcard src/*.cpp)
 DATAFILES   := $(wildcard data/*.c)
+MODELFILES  := $(wildcard models/*.c) $(wildcard models/*/*.c)
 
 OBJPATH		= 	./build/obj
 
-CODEOBJECTS =	$(CODEFILES:.c=.o) $(CXXFILES:.cpp=.o)
+CODEOBJECTS =	$(CODEFILES:.c=.o) $(CXXFILES:.cpp=.o) $(MODELFILES:.c=.o)
 CODEOBJNAME =   $(notdir $(CODEOBJECTS))
 CODEOBJPATH =   $(addprefix $(OBJPATH)/,$(CODEOBJNAME))
 
