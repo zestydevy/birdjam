@@ -2,13 +2,20 @@
 #include <ultra64.h>
 
 #include "game.hpp"
+#include "heap.hpp"
+
+// -------------------------------------------------------------------------- //
 
 size_t constexpr kStackSize = 0x2000;
 size_t constexpr kMaxPiMsg = 8;
+size_t constexpr kHeapLocation = 0x80200000;
+size_t constexpr kHeapSize     = 0x1FFFFF;
 
 extern u16 cfb_16_a[];
 extern u16 cfb_16_b[];
 extern u16 zbuffer[];
+extern Gfx 	rspinit_dl[];
+extern Gfx 	rdpinit_dl[];
 
 extern char _codeSegmentEnd[];
 extern char _staticSegmentRomStart[], _staticSegmentRomEnd[];
@@ -18,6 +25,8 @@ extern OSPiHandle * gHandler;
 void idle(void * arg);
 void bootApp(void * arg);
 
+// -------------------------------------------------------------------------- //
+
 class CApp
 {
     public:
@@ -26,7 +35,7 @@ class CApp
     ~CApp();
     void init(u32 mode, u32 color, u32 feature, bool useFifo);
     void setupStaticSegment(void * dest, u32 const & src);
-    void update();
+    void run();
 
     OSThread mMainThread{};
     u64 mMainThreadStack[kStackSize/sizeof(u64)];
@@ -47,6 +56,9 @@ class CApp
     OSMesgQueue mRdpMessageQ{};
     OSMesgQueue mVblankMessageQ{};
 
+    static TBlockHeap * sCurrentHeap;
     TGame * mGame{nullptr};
     void * mFrameBuffers[2];
 };
+
+// -------------------------------------------------------------------------- //

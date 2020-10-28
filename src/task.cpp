@@ -1,7 +1,11 @@
 #include "task.hpp"
 
+// -------------------------------------------------------------------------- //
+
 extern u64 rdp_output[];
 extern u64 dram_stack[];
+
+// -------------------------------------------------------------------------- //
 
 // has to be in BSS
 OSTask tlist
@@ -23,3 +27,5 @@ OSTask tlist
     NULL,			/* task yield buffer ptr (not used here) */
     0				/* task yield buffer size (not used here) */
 };
+
+// -------------------------------------------------------------------------- //

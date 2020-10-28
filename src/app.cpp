@@ -4,6 +4,10 @@
 #include "app.hpp"
 #include "game.hpp"
 
+TBlockHeap * CApp::sCurrentHeap;
+
+// -------------------------------------------------------------------------- //
+
 CApp::CApp()
 : mMainThreadStack{}, mPiMessages{},
 mFrameBuffers{}
@@ -13,6 +17,8 @@ mFrameBuffers{}
 CApp::~CApp()
 {
 }
+
+// -------------------------------------------------------------------------- //
 
 void CApp::init(u32 mode, u32 color, u32 feature, bool useFifo)
 {
@@ -44,10 +50,12 @@ void CApp::init(u32 mode, u32 color, u32 feature, bool useFifo)
 
     // VI features
     osViSetSpecialFeatures(feature);
-
+    
     mClearColor = color;
     mFifo = useFifo;
 }
+
+// -------------------------------------------------------------------------- //
 
 void CApp::setupStaticSegment(void * dest, u32 const & src)
 {
@@ -65,7 +73,36 @@ void CApp::setupStaticSegment(void * dest, u32 const & src)
     osRecvMesg(&mDmaMessageQ, &mDummyMessage, OS_MESG_BLOCK);
 }
 
-void CApp::update()
-{
+// -------------------------------------------------------------------------- //
 
+void CApp::run()
+{   
+    OSMesg * messages [4] = { 
+        &mDmaMessageBuffer, 
+        &mRdpMessageBuffer, 
+        &mDummyMessage, 
+        &mVblankMessageBuffer};
+
+    OSMesgQueue * queues [4] = { 
+        &mPiMessageQ, 
+        &mDmaMessageQ, 
+        &mRdpMessageQ, 
+        &mVblankMessageQ}; 
+
+    mGame->init();
+    mGame->setMessages(messages);
+    mGame->setMessageQueues(queues);
+
+    while (true)
+    {
+        mGame->update();
+
+        // draw functions should be here
+        mGame->draw();
+
+        // done with this frame
+
+    }
 }
+
+// -------------------------------------------------------------------------- //
