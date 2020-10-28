@@ -4,10 +4,13 @@
 #include "task.hpp"
 #include "app.hpp"
 
+#include "logo.h"
+
 // -------------------------------------------------------------------------- //
 extern OSTask tlist;
 
 TGame * TGame::sGameInstance{nullptr};
+Dyn dyn;
 
 // -------------------------------------------------------------------------- //
 
@@ -61,11 +64,40 @@ void TGame::update()
 	
     mDrawBuffer ^= 1;
 
+    mTheta += 0.4f;
+
 }
 
 void TGame::draw()
 {
+    u16 perspNorm{0};
+	
+    guPerspective(&dyn.projection, &perspNorm,
+		      44, 320.0/240.0, 100, 8000, 1.0);
+    guLookAtReflect(&dyn.viewing, &(dyn.lookat[0]),
+		       50, 0, 400,
+		       0, 0, 0,
+		       0, 1, 0);
+	
+    gSPLookAt(mDynDl++, &(dyn.lookat[0]));
+    gSPPerspNormalize(mDynDl++, perspNorm);
+    gSPMatrix(mDynDl++, OS_K0_TO_PHYSICAL(&(dyn.projection)),
+		  G_MTX_PROJECTION|G_MTX_LOAD|G_MTX_NOPUSH);
+    gSPMatrix(mDynDl++, OS_K0_TO_PHYSICAL(&(dyn.viewing)),
+		  G_MTX_PROJECTION|G_MTX_MUL|G_MTX_NOPUSH);
+	
+    guTranslate(&dyn.letters_trans, -250.0f, 0.0f, -2000.0f);
+    guScale(&dyn.letters_scale, 0.5f, 0.5f, 0.5f);
+    guRotate(&dyn.letters_rotate, mTheta, 0.2, mTheta, 0.0);
+    gSPMatrix(mDynDl++, OS_K0_TO_PHYSICAL(&(dyn.letters_trans)),
+	      G_MTX_MODELVIEW|G_MTX_LOAD|G_MTX_NOPUSH);
+    gSPMatrix(mDynDl++, OS_K0_TO_PHYSICAL(&(dyn.letters_scale)),
+	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
+    gSPMatrix(mDynDl++, OS_K0_TO_PHYSICAL(&(dyn.letters_rotate)),
+	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
+    gSPDisplayList(mDynDl++, letters_setup_dl);
 
+    gSPDisplayList(mDynDl++, logo_N64_Logo_mesh);
 }
 
 void TGame::setMessages(OSMesg * messages[4])
