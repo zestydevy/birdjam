@@ -4,7 +4,9 @@
 #include "task.hpp"
 #include "app.hpp"
 
-#include "logo.h"
+#include "../models/bird2/model_bird.h"
+#include "../models/bird2_eyes/model_birdeyes.h"
+#include "../models/bird2_wingso/model_wingso.h"
 
 // -------------------------------------------------------------------------- //
 extern OSTask tlist;
@@ -54,6 +56,17 @@ void TGame::update()
 
     osRecvMesg(mRdpMessageQ, mDummyMessage, OS_MESG_BLOCK);
 
+    //auto fb = (u16 *)mFrameBuffers[mDrawBuffer ^= 1];
+    //auto ptr = fb;
+    //for (int i = 0; i < 32; ++i) {
+    //    for (int j = 0; j < 32; ++j)
+    //    {
+    //        *ptr = 0x0000;
+    //        ++ptr;
+    //    }
+    //    ptr += SCREEN_WD - 32;
+    //}
+    
     osViSwapBuffer(mFrameBuffers[mDrawBuffer]);
     
     if (MQ_IS_FULL(mVblankMessageQ))
@@ -64,7 +77,7 @@ void TGame::update()
 	
     mDrawBuffer ^= 1;
 
-    mTheta += 0.4f;
+    mTheta += 0.6f;
 
 }
 
@@ -86,7 +99,7 @@ void TGame::draw()
     gSPMatrix(mDynDl++, OS_K0_TO_PHYSICAL(&(dyn.viewing)),
 		  G_MTX_PROJECTION|G_MTX_MUL|G_MTX_NOPUSH);
 	
-    guTranslate(&dyn.letters_trans, -250.0f, 0.0f, -2000.0f);
+    guTranslate(&dyn.letters_trans, -150.0f, 0.0f, -1000.0f);
     guScale(&dyn.letters_scale, 0.5f, 0.5f, 0.5f);
     guRotate(&dyn.letters_rotate, mTheta, 0.2, mTheta, 0.0);
     gSPMatrix(mDynDl++, OS_K0_TO_PHYSICAL(&(dyn.letters_trans)),
@@ -97,7 +110,9 @@ void TGame::draw()
 	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
     gSPDisplayList(mDynDl++, letters_setup_dl);
 
-    gSPDisplayList(mDynDl++, logo_N64_Logo_mesh);
+    gSPDisplayList(mDynDl++, bird2_Bird_mesh);
+    gSPDisplayList(mDynDl++, bird2_eyes_Eyes_mesh);
+    gSPDisplayList(mDynDl++, bird2_wingso_WingsOpen_mesh);
 }
 
 void TGame::setMessages(OSMesg * messages[4])
