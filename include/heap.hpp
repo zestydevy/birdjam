@@ -4,11 +4,16 @@
 
 #include <ultra64.h>
 
+#include "linklist.hpp"
+
 // -------------------------------------------------------------------------- //
 
 class THeap {
 
   public:
+
+  bool isPtrInHeap(void const *) const;
+  static THeap * getPtrHeap(void const *);
 
   inline void * getHeapHead() const { return mHeapHead; }
   inline void * getHeapTail() const { return mHeapTail; }
@@ -32,10 +37,12 @@ class THeap {
   static constexpr s32 kStdAlign = 8; // 64-bit N64 alignment
   static constexpr s32 kMaxAlign = 128;
 
-  THeap() = default;
+  THeap();
   virtual ~THeap();
 
   static THeap * sCurrentHeap;
+  static TDoubleLinkList<THeap> sHeapList;
+  TDoubleLinkListNode<THeap> mHeapNode { this };
   void * mHeapHead { nullptr };
   void * mHeapTail { nullptr };
   u32 mHeapSize { 0 };

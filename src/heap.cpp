@@ -2,6 +2,7 @@
 #include <ultra64.h>
 
 #include "heap.hpp"
+#include "linklist.hpp"
 
 // -------------------------------------------------------------------------- //
 
@@ -9,7 +10,42 @@ extern "C" void bzero(void *, int);
 
 // -------------------------------------------------------------------------- //
 
+TDoubleLinkList<THeap> THeap::sHeapList;
 THeap * THeap::sCurrentHeap;
+
+// -------------------------------------------------------------------------- //
+
+bool THeap::isPtrInHeap(
+  void const * ptr
+) const {
+  if (ptr == nullptr) {
+    return false;
+  }
+
+  return (mHeapHead <= ptr && ptr < mHeapTail);
+}
+
+// -------------------------------------------------------------------------- //
+
+THeap * THeap::getPtrHeap(
+  void const * ptr
+) {
+  if (ptr == nullptr) {
+    return nullptr;
+  }
+
+  auto node = sHeapList.begin();
+
+  while (node != nullptr) {
+    if (node->data->isPtrInHeap(ptr)) {
+      return node->data;
+    }
+
+    node = node->next;
+  }
+
+  return nullptr;
+}
 
 // -------------------------------------------------------------------------- //
 
@@ -44,10 +80,18 @@ THeap * THeap::setCurrentHeap(
 
 // -------------------------------------------------------------------------- //
 
+THeap::THeap() {
+  sHeapList.link(sHeapList.end(), &mHeapNode);
+}
+
+// -------------------------------------------------------------------------- //
+
 THeap::~THeap() {
   if (sCurrentHeap == this) {
     sCurrentHeap = nullptr;
   }
+
+  sHeapList.unlink(&mHeapNode);
 }
 
 // -------------------------------------------------------------------------- //
@@ -703,8 +747,12 @@ void operator delete(void * ptr, s32 aln) {
 void operator delete(
   void * ptr, THeap * heap, s32
 ) {
+  if (ptr == nullptr) {
+    return;
+  }
+
   if (heap == nullptr) {
-    heap = THeap::getCurrentHeap();
+    heap = THeap::getPtrHeap(ptr);
   }
 
   heap->free(ptr);
@@ -727,8 +775,12 @@ void operator delete[](void * ptr, s32 aln) {
 void operator delete[](
   void * ptr, THeap * heap, s32
 ) {
+  if (ptr == nullptr) {
+    return;
+  }
+
   if (heap == nullptr) {
-    heap = THeap::getCurrentHeap();
+    heap = THeap::getPtrHeap(ptr);
   }
 
   heap->free(ptr);
