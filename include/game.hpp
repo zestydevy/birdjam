@@ -3,6 +3,8 @@
 #include <ultra64.h>
 
 #include "dynlist.hpp"
+#include "scene.hpp"
+#include "array.hpp"
 
 // ========================================================================== //
 
@@ -58,6 +60,8 @@ class TGame
     TDynList * mDynList{nullptr};
     Gfx * mDynDl{nullptr};
     float mTheta{0.0f};
+    
+    TArray<TScene *> mSceneList{};
     
     // OS messages and queues
     OSMesg * mDmaMessageBuffer{nullptr};

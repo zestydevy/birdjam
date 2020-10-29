@@ -33,6 +33,9 @@ void TGame::init()
     mFrameBuffers[0] = cfb_16_a;
     mFrameBuffers[1] = cfb_16_b;
 
+    // set scene array's heap for TArray
+    mSceneList.setHeap(THeap::getCurrentHeap());
+
     //TTask::build(ETaskCode::F3DEX2, true);
 }
 
@@ -110,6 +113,10 @@ void TGame::draw()
 	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
     gSPDisplayList(mDynDl++, letters_setup_dl);
 
+    bird2_wingso_WingsOpen_mesh_vtx_0[15] = {{{0, 0, 0},0, {970, 426},{0x70, 0x20, 0x34, 0xFF}}};
+    bird2_wingso_WingsOpen_mesh_vtx_0[16] = {{{0, 0, 0},0, {970, 426},{0x70, 0x20, 0x34, 0xFF}}};
+    bird2_wingso_WingsOpen_mesh_vtx_0[17] = {{{0, 0, 0},0, {970, 426},{0x70, 0x20, 0x34, 0xFF}}};
+    bird2_wingso_WingsOpen_mesh_vtx_0[18] = {{{0, 0, 0},0, {970, 426},{0x70, 0x20, 0x34, 0xFF}}};
     gSPDisplayList(mDynDl++, bird2_Bird_mesh);
     gSPDisplayList(mDynDl++, bird2_eyes_Eyes_mesh);
     gSPDisplayList(mDynDl++, bird2_wingso_WingsOpen_mesh);
