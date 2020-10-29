@@ -76,6 +76,7 @@ class TGame
 
 
     protected:
+    int mCurrentFrame = 0;
 
     static TGame * sGameInstance;
 };
