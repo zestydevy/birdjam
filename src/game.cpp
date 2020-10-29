@@ -4,9 +4,7 @@
 #include "task.hpp"
 #include "app.hpp"
 
-#include "../models/bird2/model_bird.h"
-#include "../models/bird2_eyes/model_birdeyes.h"
-#include "../models/bird2_wingso/model_wingso.h"
+#include "../models/bird/model_bird2.h"
 
 // -------------------------------------------------------------------------- //
 extern OSTask tlist;
@@ -81,6 +79,14 @@ void TGame::update()
 
 }
 
+static void updateVertexPos(int size, Vtx* vtx, VtxPos** anim, int frame){
+    for (int i = 0; i < size; i++){
+        vtx[i].v.ob[0] = anim[frame][i].v.ob[0];
+        vtx[i].v.ob[1] = anim[frame][i].v.ob[1];
+        vtx[i].v.ob[2] = anim[frame][i].v.ob[2];
+    }
+}
+
 void TGame::draw()
 {
     u16 perspNorm{0};
@@ -110,9 +116,14 @@ void TGame::draw()
 	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
     gSPDisplayList(mDynDl++, letters_setup_dl);
 
-    gSPDisplayList(mDynDl++, bird2_Bird_mesh);
-    gSPDisplayList(mDynDl++, bird2_eyes_Eyes_mesh);
-    gSPDisplayList(mDynDl++, bird2_wingso_WingsOpen_mesh);
+    updateVertexPos(636, wingstest_Bird_mesh_vtx_0, wingstest_Bird_WingsOpen_0, (mCurrentFrame / 2) % 24);
+    updateVertexPos(162, wingstest_Bird_mesh_vtx_1, wingstest_Bird_WingsOpen_1, (mCurrentFrame / 2) % 24);
+    updateVertexPos(180, wingstest_Bird_mesh_vtx_2, wingstest_Bird_WingsOpen_2, (mCurrentFrame / 2) % 24);
+    updateVertexPos(18, wingstest_Bird_mesh_vtx_3, wingstest_Bird_WingsOpen_3, (mCurrentFrame / 2) % 24);
+
+    gSPDisplayList(mDynDl++, wingstest_Bird_mesh);
+
+    mCurrentFrame++;
 }
 
 void TGame::setMessages(OSMesg * messages[4])
