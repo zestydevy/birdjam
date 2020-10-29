@@ -84,7 +84,7 @@ bool TModelKeeper::unloadModel(u32 id) {
   if (data->load_num == 0) {
     unloadModelData(data);
     mModelList.unlink(&data->node);
-    mHeap->free(data);
+    delete data;
   }
 
   return true;
@@ -98,7 +98,7 @@ void TModelKeeper::unloadAll() {
   while (node != nullptr) {
     auto next = node->next;
     unloadModelData(node->data);
-    mHeap->free(node->data);
+    delete node->data;
     node = next;
   }
 
