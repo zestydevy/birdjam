@@ -4,7 +4,7 @@
 #include "task.hpp"
 #include "app.hpp"
 
-#include "../models/bird/model_bird2.h"
+#include "../models/bird/model_bird.h"
 
 // -------------------------------------------------------------------------- //
 extern OSTask tlist;
@@ -116,12 +116,12 @@ void TGame::draw()
 	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
     gSPDisplayList(mDynDl++, letters_setup_dl);
 
-    updateVertexPos(636, wingstest_Bird_mesh_vtx_0, wingstest_Bird_WingsOpen_0, (mCurrentFrame / 2) % 24);
-    updateVertexPos(162, wingstest_Bird_mesh_vtx_1, wingstest_Bird_WingsOpen_1, (mCurrentFrame / 2) % 24);
-    updateVertexPos(180, wingstest_Bird_mesh_vtx_2, wingstest_Bird_WingsOpen_2, (mCurrentFrame / 2) % 24);
-    updateVertexPos(18, wingstest_Bird_mesh_vtx_3, wingstest_Bird_WingsOpen_3, (mCurrentFrame / 2) % 24);
+    updateVertexPos(636, bird_Bird_mesh_vtx_0, bird_Bird_Walk_0, (mCurrentFrame / 4) % bird_Bird_Walk_Length);
+    updateVertexPos(162, bird_Bird_mesh_vtx_1, bird_Bird_Walk_1, (mCurrentFrame / 4) % bird_Bird_Walk_Length);
+    updateVertexPos(180, bird_Bird_mesh_vtx_2, bird_Bird_Walk_2, (mCurrentFrame / 4) % bird_Bird_Walk_Length);
+    updateVertexPos(18, bird_Bird_mesh_vtx_3, bird_Bird_Walk_3, (mCurrentFrame / 4) % bird_Bird_Walk_Length);
 
-    gSPDisplayList(mDynDl++, wingstest_Bird_mesh);
+    gSPDisplayList(mDynDl++, bird_Bird_mesh);
 
     mCurrentFrame++;
 }
