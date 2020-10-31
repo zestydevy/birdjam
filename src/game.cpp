@@ -2,9 +2,12 @@
 
 #include "game.hpp"
 #include "task.hpp"
+#include "sprite.hpp"
 #include "app.hpp"
 
 #include "../models/bird/model_bird2.h"
+#include "../models/sprites/black_sprite.h"
+#include "../models/sprites/white_sprite.h"
 
 // -------------------------------------------------------------------------- //
 extern OSTask tlist;
@@ -56,23 +59,12 @@ void TGame::update()
     TTask::build(ETaskCode::F3DEX2, mTask, true);
 
     osRecvMesg(mRdpMessageQ, mDummyMessage, OS_MESG_BLOCK);
-
-    //auto fb = (u16 *)mFrameBuffers[mDrawBuffer ^= 1];
-    //auto ptr = fb;
-    //for (int i = 0; i < 32; ++i) {
-    //    for (int j = 0; j < 32; ++j)
-    //    {
-    //        *ptr = 0x0000;
-    //        ++ptr;
-    //    }
-    //    ptr += SCREEN_WD - 32;
-    //}
     
     osViSwapBuffer(mFrameBuffers[mDrawBuffer]);
     
     if (MQ_IS_FULL(mVblankMessageQ))
 	    osRecvMesg(mVblankMessageQ, mDummyMessage, OS_MESG_BLOCK);
-
+    
     // wait for Vertical retrace to finish swap buffers
 	osRecvMesg(mVblankMessageQ, mDummyMessage, OS_MESG_BLOCK);
 	
@@ -93,9 +85,9 @@ static void updateVertexPos(int size, Vtx* vtx, VtxPos** anim, int frame){
 void TGame::draw()
 {
     u16 perspNorm{0};
-	
+    
     guPerspective(&dyn.projection, &perspNorm,
-		      44, 320.0/240.0, 100, 8000, 1.0);
+		      mFov, 320.0/240.0, 100, 8000, 1.0);
     guLookAtReflect(&dyn.viewing, &(dyn.lookat[0]),
 		       50, 0, 400,
 		       0, 0, 0,
@@ -119,15 +111,6 @@ void TGame::draw()
 	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
     gSPDisplayList(mDynDl++, letters_setup_dl);
 
-<<<<<<< HEAD
-    bird2_wingso_WingsOpen_mesh_vtx_0[15] = {{{0, 0, 0},0, {970, 426},{0x70, 0x20, 0x34, 0xFF}}};
-    bird2_wingso_WingsOpen_mesh_vtx_0[16] = {{{0, 0, 0},0, {970, 426},{0x70, 0x20, 0x34, 0xFF}}};
-    bird2_wingso_WingsOpen_mesh_vtx_0[17] = {{{0, 0, 0},0, {970, 426},{0x70, 0x20, 0x34, 0xFF}}};
-    bird2_wingso_WingsOpen_mesh_vtx_0[18] = {{{0, 0, 0},0, {970, 426},{0x70, 0x20, 0x34, 0xFF}}};
-    gSPDisplayList(mDynDl++, bird2_Bird_mesh);
-    gSPDisplayList(mDynDl++, bird2_eyes_Eyes_mesh);
-    gSPDisplayList(mDynDl++, bird2_wingso_WingsOpen_mesh);
-=======
     updateVertexPos(636, wingstest_Bird_mesh_vtx_0, wingstest_Bird_WingsOpen_0, (mCurrentFrame / 2) % 24);
     updateVertexPos(162, wingstest_Bird_mesh_vtx_1, wingstest_Bird_WingsOpen_1, (mCurrentFrame / 2) % 24);
     updateVertexPos(180, wingstest_Bird_mesh_vtx_2, wingstest_Bird_WingsOpen_2, (mCurrentFrame / 2) % 24);
@@ -135,8 +118,46 @@ void TGame::draw()
 
     gSPDisplayList(mDynDl++, wingstest_Bird_mesh);
 
+    TSprite::init();
+    
+    TSprite bo(&white_sprite, 0, 0);
+    bo.mScale = {320.0f,240.0f};
+    bo.mColor = {255,255,255,mWhiteAlpha};
+    
+    TSprite wo(&black_sprite, 0, 0);
+    wo.mScale = {320.0f,240.0f};
+    wo.mColor = {255,255,255,mBlackAlpha};
+    
+    bo.render();
+    wo.render();
+   
+    TSprite::finalize();
+
+    if (mCurrentFrame >= 80) {
+        if (mBlackAlpha > 0) {
+            mBlackAlpha -= 4;
+        }
+        if (mBlackAlpha < 4) {
+            mBlackAlpha = 0;
+        }
+    }
+
+    if (mCurrentFrame >= 110) {
+        if (mWhiteAlpha > 0) {
+            mWhiteAlpha -= 4;
+        }
+        if (mWhiteAlpha < 4) {
+            mWhiteAlpha = 0;
+        }
+    }
+
+    if (mCurrentFrame >= 115) {
+            mFov -= 0.5f;
+    }
+
+    if (mFov < 40.0f) mFov = 40.0f;
+
     mCurrentFrame++;
->>>>>>> 1fe2d855a09512b8663a487a539615adb54d30d7
 }
 
 void TGame::setMessages(OSMesg * messages[4])
@@ -198,9 +219,9 @@ OSTask * TGame::getTask()
     return mTask;
 }
 
-Gfx * TGame::getDynDL()
+Gfx ** TGame::getDynDL()
 {
-    return mDynDl;
+    return &mDynDl;
 }
 
 TDynList * TGame::getDynList()

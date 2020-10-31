@@ -53,7 +53,7 @@ class TTask
         }
         
         task->t.data_ptr = (u64 *) dynList->mDl;
-	    task->t.data_size = ((int)(dynDl - dynList->mDl) *
+	    task->t.data_size = ((int)(*dynDl - dynList->mDl) *
 			       sizeof (Gfx));
 
         osWritebackDCacheAll();

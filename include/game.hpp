@@ -49,7 +49,7 @@ class TGame
     void initFrameBuffer();
 
     OSTask * getTask();
-    Gfx * getDynDL();
+    Gfx ** getDynDL();
     TDynList * getDynList();
 
     private:
@@ -77,6 +77,9 @@ class TGame
 
     protected:
     int mCurrentFrame = 0;
+    u8 mBlackAlpha{255};
+    u8 mWhiteAlpha{255};
+    float mFov{84.0f};
 
     static TGame * sGameInstance;
 };
