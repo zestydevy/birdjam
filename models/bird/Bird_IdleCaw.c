@@ -1,7 +1,7 @@
 #include <ultra64.h>
 #include "../models/bird/model_bird.h"
 
-/*
+/* probably not putting back in
 
 VtxPos bird_Bird_IdleCaw_vtx_0_0[636] = {
 	{{-123, -50, 166}},

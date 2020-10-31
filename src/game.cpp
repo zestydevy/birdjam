@@ -79,11 +79,10 @@ void TGame::update()
 
 }
 
-static void updateVertexPos(int size, Vtx* vtx, VtxPos** anim, int frame){
+static void updateVertexPos(int size, Vtx vtx[], Vtx* anim[], int frame){
+    int shake = (frame % 3) - 1;
     for (int i = 0; i < size; i++){
-        vtx[i].v.ob[0] = anim[frame][i].v.ob[0];
-        vtx[i].v.ob[1] = anim[frame][i].v.ob[1];
-        vtx[i].v.ob[2] = anim[frame][i].v.ob[2];
+        vtx[i] = anim[frame][i];
     }
 }
 
@@ -116,10 +115,10 @@ void TGame::draw()
 	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
     gSPDisplayList(mDynDl++, letters_setup_dl);
 
-    updateVertexPos(636, bird_Bird_mesh_vtx_0, bird_Bird_Walk_0, (mCurrentFrame / 4) % bird_Bird_Walk_Length);
-    updateVertexPos(162, bird_Bird_mesh_vtx_1, bird_Bird_Walk_1, (mCurrentFrame / 4) % bird_Bird_Walk_Length);
-    updateVertexPos(180, bird_Bird_mesh_vtx_2, bird_Bird_Walk_2, (mCurrentFrame / 4) % bird_Bird_Walk_Length);
-    updateVertexPos(18, bird_Bird_mesh_vtx_3, bird_Bird_Walk_3, (mCurrentFrame / 4) % bird_Bird_Walk_Length);
+    updateVertexPos(265, bird_Bird_mesh_vtx_0, bird_Bird_Walk_0, (mCurrentFrame / 4) % bird_Bird_Walk_Length);
+    updateVertexPos(75, bird_Bird_mesh_vtx_1, bird_Bird_Walk_1, (mCurrentFrame / 4) % bird_Bird_Walk_Length);
+    updateVertexPos(59, bird_Bird_mesh_vtx_2, bird_Bird_Walk_2, (mCurrentFrame / 4) % bird_Bird_Walk_Length);
+    updateVertexPos(8, bird_Bird_mesh_vtx_3, bird_Bird_Walk_3, (mCurrentFrame / 4) % bird_Bird_Walk_Length);
 
     gSPDisplayList(mDynDl++, bird_Bird_mesh);
 
