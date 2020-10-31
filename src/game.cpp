@@ -5,9 +5,13 @@
 #include "sprite.hpp"
 #include "app.hpp"
 
+<<<<<<< HEAD
 #include "../models/bird/model_bird2.h"
 #include "../models/sprites/black_sprite.h"
 #include "../models/sprites/white_sprite.h"
+=======
+#include "../models/bird/model_bird.h"
+>>>>>>> a91fbcf060922dc10043c3bd4eb9c5b865923d9c
 
 // -------------------------------------------------------------------------- //
 extern OSTask tlist;
@@ -74,11 +78,10 @@ void TGame::update()
 
 }
 
-static void updateVertexPos(int size, Vtx* vtx, VtxPos** anim, int frame){
+static void updateVertexPos(int size, Vtx vtx[], Vtx* anim[], int frame){
+    int shake = (frame % 3) - 1;
     for (int i = 0; i < size; i++){
-        vtx[i].v.ob[0] = anim[frame][i].v.ob[0];
-        vtx[i].v.ob[1] = anim[frame][i].v.ob[1];
-        vtx[i].v.ob[2] = anim[frame][i].v.ob[2];
+        vtx[i] = anim[frame][i];
     }
 }
 
@@ -111,12 +114,12 @@ void TGame::draw()
 	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
     gSPDisplayList(mDynDl++, letters_setup_dl);
 
-    updateVertexPos(636, wingstest_Bird_mesh_vtx_0, wingstest_Bird_WingsOpen_0, (mCurrentFrame / 2) % 24);
-    updateVertexPos(162, wingstest_Bird_mesh_vtx_1, wingstest_Bird_WingsOpen_1, (mCurrentFrame / 2) % 24);
-    updateVertexPos(180, wingstest_Bird_mesh_vtx_2, wingstest_Bird_WingsOpen_2, (mCurrentFrame / 2) % 24);
-    updateVertexPos(18, wingstest_Bird_mesh_vtx_3, wingstest_Bird_WingsOpen_3, (mCurrentFrame / 2) % 24);
+    updateVertexPos(265, bird_Bird_mesh_vtx_0, bird_Bird_Walk_0, (mCurrentFrame / 4) % bird_Bird_Walk_Length);
+    updateVertexPos(75, bird_Bird_mesh_vtx_1, bird_Bird_Walk_1, (mCurrentFrame / 4) % bird_Bird_Walk_Length);
+    updateVertexPos(59, bird_Bird_mesh_vtx_2, bird_Bird_Walk_2, (mCurrentFrame / 4) % bird_Bird_Walk_Length);
+    updateVertexPos(8, bird_Bird_mesh_vtx_3, bird_Bird_Walk_3, (mCurrentFrame / 4) % bird_Bird_Walk_Length);
 
-    gSPDisplayList(mDynDl++, wingstest_Bird_mesh);
+    gSPDisplayList(mDynDl++, bird_Bird_mesh);
 
     TSprite::init();
     
