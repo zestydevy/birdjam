@@ -15,6 +15,7 @@ TAnimator::TAnimator(int meshCount, Vtx* meshes[], int sizes[]){
     mTime = 0.0f;
 }
 TAnimator::~TAnimator(){
+    delete[] mMeshSizes;
     delete[] mMeshes;
     delete[] mAnim;
 }
@@ -52,8 +53,6 @@ void TAnimator::lerpVertexPos(int size, Vtx vtx[], Vtx* anim[], float frame){
     float rem = 1.0f - irem;
 
     int nframe = (f + 1) % mLength;
-    if (nframe >= mLength)
-        nframe -= mLength;
 
     for (int i = 0; i < size; i++){
         vtx[i].n.ob[0] = (short)(((float)anim[nframe][i].n.ob[0] * irem) + ((float)anim[f][i].n.ob[0] * rem));
