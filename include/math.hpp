@@ -21,6 +21,8 @@ class TMath {
 
   static inline T sqrt(T x) { return x; } // TODO integer sqrt
 
+  static inline T mod(T x, T y) { return (x % y); }
+
 };
 
 // -------------------------------------------------------------------------- //
@@ -37,6 +39,10 @@ class TMath<float> {
   static float abs(float x) { return (x >= 0.0F ? x : -x); }
 
   static inline float sqrt(float x) { return sqrtf(x); }
+
+  static inline float mod(float x, float y) {
+    return (x - static_cast<u64>(x / y) * y);
+  }
 
 };
 
@@ -68,6 +74,9 @@ class TVec2 {
 
   T * data() { return mData; }
   T const * data() const { return mData; }
+
+  T & operator[](u32 n) { return mData[n]; }
+  T operator[](u32 n) const { return mData[n]; }
 
   template<typename T2>
   void set(T2 x, T2 y) {
@@ -158,7 +167,7 @@ class TVec2 {
 
   void setLength(T x) { setLength(*this, x); }
 
-  void setLength(TVec2<f32> const & v, T x) {
+  void setLength(TVec2<float> const & v, T x) {
     T const len = v.getLength();
 
     if (len != TMath<T>::zero()) {
@@ -190,6 +199,9 @@ class TVec2 {
   T mData[2];
 
 };
+
+using TVec2S = TVec2<s16>;
+using TVec2F = TVec2<float>;
 
 // -------------------------------------------------------------------------- //
 
@@ -279,6 +291,9 @@ class TVec3 {
   T * data() { return mData; }
   T const * data() const { return mData; }
 
+  T & operator[](u32 n) { return mData[n]; }
+  T operator[](u32 n) const { return mData[n]; }
+
   template<typename T2>
   void set(T2 x, T2 y, T2 z) {
     mData[0] = x;
@@ -360,15 +375,17 @@ class TVec3 {
 
   // operators
 
+  void cross(TVec3<T> const & a, TVec3<T> const & b) {
+    set(
+      (a.y() * b.z() - a.z() * b.y()),
+      (a.z() * b.x() - a.x() * b.z()),
+      (a.x() * b.y() - a.y() * b.x())
+    );
+  }
+
   TVec3<T> cross(TVec3<T> const & v) const {
     TVec3<T> p;
-
-    p.set(
-      (y() * v.z() - z() * v.y()),
-      (z() * v.x() - x() * v.z()),
-      (x() * v.y() - y() * v.x())
-    );
-
+    p.cross(*this, v);
     return p;
   }
 
@@ -381,7 +398,7 @@ class TVec3 {
 
   void setLength(T x) { setLength(*this, x); }
 
-  void setLength(TVec3<f32> const & v, T x) {
+  void setLength(TVec3<float> const & v, T x) {
     T const len = v.getLength();
 
     if (len != TMath<T>::zero()) {
@@ -437,6 +454,9 @@ class TVec3 {
   T mData[3];
 
 };
+
+using TVec3S = TVec3<s16>;
+using TVec3F = TVec3<float>;
 
 // -------------------------------------------------------------------------- //
 
@@ -501,67 +521,66 @@ TVec3<T> operator/(TVec3<T> const & lhs, TVec3<T> const & rhs) {
 
 // -------------------------------------------------------------------------- //
 
-template<typename T>
 class TMtx44 {
 
   public:
 
   TMtx44() = default;
 
-  T & operator()(u32 r, u32 c) { return mCl[r][c]; }
-  T operator()(u32 r, u32 c) const { return mCl[r][c]; }
+  float & operator()(u32 r, u32 c) { return mData[r][c]; }
+  float operator()(u32 r, u32 c) const { return mData[r][c]; }
 
   void set(
-    T m00, T m01, T m02, T m03,
-    T m10, T m11, T m12, T m13,
-    T m20, T m21, T m22, T m23,
-    T m30, T m31, T m32, T m33
-  ) {
-    mCl[0][0] = m00; mCl[0][1] = m01; mCl[0][2] = m02; mCl[0][3] = m03;
-    mCl[1][0] = m10; mCl[1][1] = m11; mCl[1][2] = m12; mCl[1][3] = m13;
-    mCl[2][0] = m20; mCl[2][1] = m21; mCl[2][2] = m22; mCl[2][3] = m23;
-    mCl[3][0] = m30; mCl[3][1] = m31; mCl[3][2] = m32; mCl[3][3] = m33;
-  }
+    float m00, float m01, float m02, float m03,
+    float m10, float m11, float m12, float m13,
+    float m20, float m21, float m22, float m23,
+    float m30, float m31, float m32, float m33
+  );
 
-  void identity() {
-    auto const zero = TMath<T>::zero();
-    auto const one  = TMath<T>::one();
+  void identity();
 
-    set(
-       one, zero, zero, zero,
-      zero,  one, zero, zero,
-      zero, zero,  one, zero,
-      zero, zero, zero,  one
-    );
-  }
+  // model matrix
 
-  void scale(TVec3<T> const & v) {
-    auto const zero = TMath<T>::zero();
-    auto const one  = TMath<T>::one();
+  void scale(TVec3F const &);
+  void translate(TVec3F const &);
+  void rotateEuler(TVec3S const &);
+  void rotateAxis(TVec3F const &, s16);
+  void rotateAxisX(s16);
+  void rotateAxisY(s16);
+  void rotateAxisZ(s16);
 
-    set(
-      v.x(),  zero,  zero, zero,
-       zero, v.y(),  zero, zero,
-       zero,  zero, v.z(), zero,
-       zero,  zero,  zero,  one
-    );
-  }
+  void transform(
+    TVec3F const & t,
+    TVec3S const & r,
+    TVec3F const & s
+  );
 
-  void translate(TVec3<T> const & v) {
-    auto const zero = TMath<T>::zero();
-    auto const one  = TMath<T>::one();
+  // view matrix
 
-    set(
-       one, zero, zero, v.x(),
-      zero,  one, zero, v.y(),
-      zero, zero,  one, v.z(),
-      zero, zero, zero, one
-    );
-  }
+  void lookAt(TVec3F const & pos, TVec3F const & at, TVec3F const & up);
+  void lookDir(TVec3F const & pos, TVec3F const & fw, TVec3F const & up);
+
+  // projection matrix
+
+  void ortho(float l, float r, float b, float t, float n, float f);
+  void frustrum(float l, float r, float b, float t, float n, float f);
+  void perspective(s16 fov_y, float aspect, float n, float f);
+
+  // operators
+
+  void add(TMtx44 const & m) { add(*this, m); }
+  void add(TMtx44 const & a, TMtx44 const & b);
+
+  void sub(TMtx44 const & m) { sub(*this, m); }
+  void sub(TMtx44 const & a, TMtx44 const & b);
+
+  static void concat(TMtx44 const & a, TMtx44 const & b, TMtx44 & dst);
+
+  TVec3F mul(TVec3F const & v) const;
 
   private:
 
-  T mCl[4][4];
+  float mData[4][4];
 
 };
 
@@ -576,8 +595,10 @@ class TSine {
 
   static float ssin(s16 x);
   static float scos(s16 x);
+  static float stan(s16 x);
+  static float scot(s16 x);
 
-  static inline float toRad(s16 x) {
+  static constexpr float toRad(s16 x) {
     constexpr auto kRatio = (
       static_cast<float>(65536.0 / (M_PI * 2.0))
     );
@@ -585,7 +606,7 @@ class TSine {
     return (static_cast<float>(x) * kRatio);
   }
 
-  static inline float toDeg(s16 x) {
+  static constexpr float toDeg(s16 x) {
     constexpr auto kRatio = (
       static_cast<float>(65536.0 / 360.0)
     );
@@ -593,7 +614,7 @@ class TSine {
     return (static_cast<float>(x) * kRatio);
   }
 
-  static inline float toRad(float x) {
+  static constexpr float toRad(float x) {
     constexpr auto kRatio = (
       1.0F / static_cast<float>(360.0 / (M_PI * 2.0))
     );
@@ -601,7 +622,7 @@ class TSine {
     return (x * kRatio);
   }
 
-  static inline float toDeg(float x) {
+  static constexpr float toDeg(float x) {
     constexpr auto kRatio = (
       static_cast<float>(360.0 / (M_PI * 2.0))
     );
@@ -609,7 +630,7 @@ class TSine {
     return (x * kRatio);
   }
 
-  static inline s16 fromRad(float x) {
+  static constexpr s16 fromRad(float x) {
     constexpr auto kRatio = (
       1.0F / static_cast<float>(65536.0 / (M_PI * 2.0))
     );
@@ -617,7 +638,7 @@ class TSine {
     return static_cast<s16>(x * kRatio);
   }
 
-  static inline s16 fromDeg(float x) {
+  static constexpr s16 fromDeg(float x) {
     constexpr auto kRatio = (
       1.0F / static_cast<float>(65536.0 / 360.0)
     );
