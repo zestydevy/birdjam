@@ -3,8 +3,10 @@
 #include "app.hpp"
 #include "sprite.hpp"
 
+#include "../models/bird/model_bird.h"
 #include "../models/sprites/black_sprite.h"
 #include "../models/sprites/white_sprite.h"
+
 // -------------------------------------------------------------------------- //
 TGame * TGame::sGameInstance{nullptr};
 
@@ -35,6 +37,14 @@ void TGame::init()
     //initAudio();
 
     //TTask::build(ETaskCode::F3DEX2, true);
+
+    //Set up model animator
+    Vtx* birdMeshes[] = {bird_Bird_mesh_vtx_0, bird_Bird_mesh_vtx_1, bird_Bird_mesh_vtx_2, bird_Bird_mesh_vtx_3};
+    Vtx** birdAnims[] = {bird_Bird_Walk_0, bird_Bird_Walk_1, bird_Bird_Walk_2, bird_Bird_Walk_3};
+    int meshSizes[] = {265, 75, 59, 8};
+
+    mBirdAnim = new TAnimator(4, birdMeshes, meshSizes);
+    mBirdAnim->setAnimation(bird_Bird_Walk_Length, birdAnims);
 }
 
 void TGame::update()
@@ -104,10 +114,7 @@ void TGame::draw()
 	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
     gSPDisplayList(mDynDl++, letters_setup_dl);
 
-    updateVertexPos(265, bird_Bird_mesh_vtx_0, bird_Bird_Walk_0, (mCurrentFrame / 4) % bird_Bird_Walk_Length);
-    updateVertexPos(75, bird_Bird_mesh_vtx_1, bird_Bird_Walk_1, (mCurrentFrame / 4) % bird_Bird_Walk_Length);
-    updateVertexPos(59, bird_Bird_mesh_vtx_2, bird_Bird_Walk_2, (mCurrentFrame / 4) % bird_Bird_Walk_Length);
-    updateVertexPos(8, bird_Bird_mesh_vtx_3, bird_Bird_Walk_3, (mCurrentFrame / 4) % bird_Bird_Walk_Length);
+    mBirdAnim->update();
 
     gSPDisplayList(mDynDl++, bird_Bird_mesh);
 

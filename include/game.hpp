@@ -7,6 +7,8 @@
 #include "array.hpp"
 #include "dynlist.hpp"
 
+#include "animator.hpp"
+
 // ========================================================================== //
 
 class TGame
@@ -43,6 +45,8 @@ class TGame
     u8 mBlackAlpha{255};
     u8 mWhiteAlpha{255};
     float mFov{84.0f};
+
+    TAnimator * mBirdAnim;
 
     static TGame * sGameInstance;
 };
