@@ -1,20 +1,21 @@
-
 include $(ROOT)/usr/include/make/PRdefs
 
 PROJECT = bird
 
-FINAL = YES
-ifeq ($(FINAL), YES)
+NUSYSINCDIR  = /usr/include/n64/nusys
+NUSYSLIBDIR  = /usr/lib/n64/nusys
+
+LIB = $(ROOT)/usr/lib
+LPR = $(LIB)/PR
+INC = $(ROOT)/usr/include
+
+NUAUDIOLIB = -lnualstl_n_d -ln_mus_d -ln_audio_sc
+
 OPTIMIZER       = -O1
-LCDEFS          = -DNDEBUG -D_FINALROM -DF3DEX_GBI_2
+LCDEFS          = -DNDEBUG -DF3DEX_GBI_2
 N64LIB          = -lultra_rom
-CFLAGS := $(CFLAGS) -std=gnu90 -Iinclude -G 0
-CXXFLAGS := $(CXXFLAGS) -std=c++17 -Iinclude -G 0 -fno-builtin -fno-exceptions -fno-rtti $(LCDEFS)
-else
-OPTIMIZER       = -g -std=gnu90
-LCDEFS          = -DDEBUG -DF3DEX_GBI_2
-N64LIB          = -lultra_d
-endif
+CFLAGS := $(CFLAGS) -G 0 -I. -Iinclude -I$(NUSYSINCDIR) -I$(ROOT)/usr/include/PR
+CXXFLAGS := $(CXXFLAGS) -DNDEBUG -DF3DEX_GBI_2 -G 0 -std=c++17 -Iinclude -I$(NUSYSINCDIR) -I$(ROOT)/usr/include/PR
 
 APP =		$(PROJECT).out
 
@@ -26,11 +27,12 @@ CODEFILES   := $(wildcard src/*.c)
 CXXFILES    := $(wildcard src/*.cpp)
 DATAFILES   := $(wildcard data/*.c)
 MODELFILES  := $(wildcard models/*.c) $(wildcard models/*/*.c)
+LIBFILES    := $(wildcard lib/*.o)
 
 OBJPATH		= 	./build/obj
 
-CODEOBJECTS =	$(CODEFILES:.c=.o) $(CXXFILES:.cpp=.o) $(MODELFILES:.c=.o)
-CODEOBJNAME =   $(notdir $(CODEOBJECTS))
+CODEOBJECTS =	$(CODEFILES:.c=.o) $(CXXFILES:.cpp=.o) $(MODELFILES:.c=.o) 
+CODEOBJNAME =   $(notdir $(CODEOBJECTS)) 
 CODEOBJPATH =   $(addprefix $(OBJPATH)/,$(CODEOBJNAME))
 
 DATAOBJECTS =	$(DATAFILES:.c=.o)
@@ -41,13 +43,15 @@ CODESEGMENT =	codesegment.o
 
 OBJECTS =	$(TEXHFILES) $(CODESEGMENT) $(DATAOBJECTS)
 
-#LCINCS =	-I./include
+LCINCS =	-I. -I$(NUSYSINCDIR) -I$(ROOT)/usr/include/PR
 LCOPTS =	-G 0
-LDIRT  =	$(APP) *.so
+LDIRT  =	$(APP) $(TARGETS)
 
-LDFLAGS =	$(MKDEPOPT)  -L$(ROOT)/usr/lib -L$(ROOT)/usr/lib/PR $(N64LIB) -L$(N64_LIBGCCDIR) -lgcc 
+LDFLAGS =	$(MKDEPOPT) -L$(LIB) -L$(NUSYSLIBDIR) $(NUAUDIOLIB) -lnusys_d -lultra_d -L$(N64_LIBGCCDIR) -lgcc  -lnustd
 
-default:	$(TARGETS)
+default: $(TARGETS)
+
+include $(COMMONRULES)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $(OBJPATH)/$(notdir $@) $<
@@ -56,16 +60,9 @@ default:	$(TARGETS)
 	$(CXX) $(CXXFLAGS) -c -o $(OBJPATH)/$(notdir $@) $<
 
 $(CODESEGMENT):	$(TEXHFILES) $(CODEOBJECTS)
-		$(LD) -o $(CODESEGMENT) -r $(CODEOBJPATH) $(LDFLAGS)
+		$(LD) -o $(CODESEGMENT) -r $(CODEOBJPATH) $(LIBFILES) $(LDFLAGS)
 
-ifeq ($(FINAL), YES)
 $(TARGETS) $(APP):      spec $(OBJECTS)
-	$(MAKEROM) -s 9 -r $(TARGETS) -e $(APP) spec
+	$(MAKEROM) spec -I$(NUSYSINCDIR) -r $(TARGETS) -s 10 -e $(APP)
 	makemask $(TARGETS)
 	@mv codesegment.o a.out $(APP) $(TARGETS) "./build"
-else
-$(TARGETS) $(APP):      spec $(OBJECTS)
-	$(MAKEROM) -r $(TARGETS) -e $(APP) spec
-endif
-
-
