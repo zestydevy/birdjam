@@ -6,6 +6,11 @@
 
 // -------------------------------------------------------------------------- //
 
+float * TSine::sSinTable;
+u16 TSine::sSinShift;
+
+// -------------------------------------------------------------------------- //
+
 void TMtx44::set(
   float m00, float m01, float m02, float m03,
   float m10, float m11, float m12, float m13,
