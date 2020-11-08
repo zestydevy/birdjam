@@ -1,44 +1,48 @@
-#include <ultra64.h>
-#include <PR/ramrom.h>
+#include <nusys.h>
+#include <os_internal.h>
 
 #include "app.hpp"
-#include "game.hpp"
 
 TBlockHeap * CApp::sCurrentHeap;
 
 // -------------------------------------------------------------------------- //
 
-CApp::CApp()
-: mMainThreadStack{}, mPiMessages{},
-mFrameBuffers{}
-{
-}
-
-CApp::~CApp()
-{
-}
+static OSMesgQueue sErrorMsgQ;
+static OSMesg  sErrorMsg; 
+static OSThread sErrorThread;
+static u8 sErrorStack[kStackSize];
 
 // -------------------------------------------------------------------------- //
 
-void CApp::init(u32 mode, u32 color, u32 feature, bool useFifo)
+void CApp::init()
 {
+    nuGfxInit();
+    nuContInit();
+    
+    // instantiate main game
+    mGame = new TGame;
+
+    osCreateMesgQueue(&sErrorMsgQ, &sErrorMsg, 1);
+    osCreateThread(&sErrorThread, 5, (void(*)(void *))appError, nullptr,
+           sErrorStack+kStackSize/8, (OSPri)OS_PRIORITY_APPMAX);
+
+    osStartThread(&sErrorThread);
+    
+    /*
     // initialize VI manager
-    osCreateViManager(OS_PRIORITY_VIMGR);
-    osViSetMode(&osViModeTable[mode]);
+    //osCreateViManager(OS_PRIORITY_VIMGR);
+    //osViSetMode(&osViModeTable[mode]);
     
     // initialize PI manager for PI access
     osCreatePiManager((OSPri)OS_PRIORITY_PIMGR, &mPiMessageQ, mPiMessages, 
 		      kMaxPiMsg);
-
-    // instantiate main game
-    mGame = new TGame;
 
     // set framebuffer pointers
     mFrameBuffers[0] = cfb_16_a;
     mFrameBuffers[1] = cfb_16_b;
 
     // create DMA message queue
-    osCreateMesgQueue(&mDmaMessageQ, &mDmaMessageBuffer, 1);
+    osCreateMesgQueue(&DmaMessageQ, &DmaMessageBuffer, 1);
 
     // create RDP message queue and interrupt
     osCreateMesgQueue(&mRdpMessageQ, &mRdpMessageBuffer, 1);
@@ -49,20 +53,22 @@ void CApp::init(u32 mode, u32 color, u32 feature, bool useFifo)
     osViSetEvent(&mVblankMessageQ, mDummyMessage, 1);
 
     // VI features
-    osViSetSpecialFeatures(feature);
+    //osViSetSpecialFeatures(feature);
     
     mClearColor = color;
     mFifo = useFifo;
+    */
 }
 
 // -------------------------------------------------------------------------- //
 
 void CApp::setupStaticSegment(void * dest, u32 const & src)
 {
+    /*
     OSIoMesg dmaIOMessageBuf{};
 
     dmaIOMessageBuf.hdr.pri      = OS_MESG_PRI_NORMAL;
-    dmaIOMessageBuf.hdr.retQueue = &mDmaMessageQ;
+    dmaIOMessageBuf.hdr.retQueue = &DmaMessageQ;
     dmaIOMessageBuf.dramAddr     = dest;
     dmaIOMessageBuf.devAddr      = src;
     dmaIOMessageBuf.size         = _staticSegmentRomEnd-_staticSegmentRomStart;
@@ -70,33 +76,42 @@ void CApp::setupStaticSegment(void * dest, u32 const & src)
     osEPiStartDma(gHandler, &dmaIOMessageBuf, OS_READ);
     
     // wait for DMA to finish
-    osRecvMesg(&mDmaMessageQ, &mDummyMessage, OS_MESG_BLOCK);
+    osRecvMesg(&DmaMessageQ, &mDummyMessage, OS_MESG_BLOCK);
+    */
 }
 
 // -------------------------------------------------------------------------- //
 
 void CApp::run()
 {   
-    OSMesg * messages [4] = { 
-        &mDmaMessageBuffer, 
-        &mRdpMessageBuffer, 
-        &mDummyMessage, 
-        &mVblankMessageBuffer};
-
-    OSMesgQueue * queues [4] = { 
-        &mPiMessageQ, 
-        &mDmaMessageQ, 
-        &mRdpMessageQ, 
-        &mVblankMessageQ}; 
-
     mGame->init();
-    mGame->setMessages(messages);
-    mGame->setMessageQueues(queues);
+
+    nuGfxFuncSet(TGame::testRender);
+    nuGfxDisplayOn();
 
     while (true)
     {
-        mGame->update();
+        // ...
     }
 }
 
 // -------------------------------------------------------------------------- //
+
+void CApp::appError(void * arg)
+{
+    OSMesg msg;
+    
+    osSetEventMesg(OS_EVENT_FAULT, &sErrorMsgQ, (OSMesg)0x10);
+
+    auto last = (OSThread *)NULL;
+    while (true) {
+        // before error...
+        (void) osRecvMesg(&sErrorMsgQ, (OSMesg *)&msg, OS_MESG_BLOCK);
+
+        // after error...
+        auto curr = __osGetCurrFaultedThread();
+        if (curr) {
+            //printFaultData(curr);
+        }
+    }
+}

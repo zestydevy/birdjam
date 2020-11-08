@@ -2,7 +2,7 @@
 #ifndef INCLUDE_LINKLIST_HPP
 #define INCLUDE_LINKLIST_HPP
 
-#include <ultra64.h>
+#include <nusys.h>
 
 template<typename T>
 class TDoubleLinkList {

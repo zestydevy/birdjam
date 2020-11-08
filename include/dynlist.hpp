@@ -2,40 +2,9 @@
 #ifndef INCLUDE_DYNLIST2_HPP
 #define INCLUDE_DYNLIST2_HPP
 
-#include <ultra64.h>
+#include <nusys.h>
 
 #include "heap.hpp"
-
-// -------------------------------------------------------------------------- //
-
-class TDynList
-{
-    public:
-
-    TDynList()
-    {
-        mDl = new Gfx[2048];
-    }
-
-    ~TDynList()
-    {
-        delete mDl;
-    }
-
-    Mtx mProjectionMtx{};
-    Mtx mViewMtx{};
-    Mtx mIdentityMtx{};
-
-    Mtx mBgProjMtx{};
-    Mtx mViewBgMtx{};
-
-    LookAt mLookAtMtx[2];
-    Hilite mHilite[2];
-
-    Gfx * mDl;
-
-    private:
-};
 
 // -------------------------------------------------------------------------- //
 
@@ -47,9 +16,11 @@ class TDynList2 {
   ~TDynList2();
 
   void reset();
+  u32 fetchCmdIndex();
 
   Gfx * getDL() const;
   Gfx * pushDL();
+  Gfx * getHead();
 
   static Mtx const & getIdentityMtx();
 

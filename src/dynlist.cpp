@@ -1,5 +1,5 @@
 
-#include <ultra64.h>
+#include <nusys.h>
 
 #include "dynlist.hpp"
 #include "heap.hpp"
@@ -35,6 +35,12 @@ void TDynList2::reset() {
 
 // -------------------------------------------------------------------------- //
 
+u32 TDynList2::fetchCmdIndex() {
+  return mNumGfx;
+}
+
+// -------------------------------------------------------------------------- //
+
 Gfx * TDynList2::getDL() const {
   if (mNumGfx >= mMaxNumGfx) {
     return nullptr;
@@ -53,6 +59,12 @@ Gfx * TDynList2::pushDL() {
   }
 
   return list;
+}
+
+// -------------------------------------------------------------------------- //
+
+Gfx * TDynList2::getHead() {
+  return mGfxAry;
 }
 
 // -------------------------------------------------------------------------- //

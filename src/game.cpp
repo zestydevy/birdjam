@@ -1,24 +1,15 @@
-#include <ultra64.h>
+#include <nusys.h>
 
-#include "game.hpp"
-#include "task.hpp"
-#include "sprite.hpp"
 #include "app.hpp"
+#include "sprite.hpp"
 
-<<<<<<< HEAD
-#include "../models/bird/model_bird2.h"
 #include "../models/sprites/black_sprite.h"
 #include "../models/sprites/white_sprite.h"
-=======
-#include "../models/bird/model_bird.h"
->>>>>>> a91fbcf060922dc10043c3bd4eb9c5b865923d9c
-
 // -------------------------------------------------------------------------- //
-extern OSTask tlist;
-
 TGame * TGame::sGameInstance{nullptr};
-Dyn dyn;
 
+extern Gfx setup_rdpstate[];
+extern Gfx setup_rspstate[];
 // -------------------------------------------------------------------------- //
 
 TGame::TGame()
@@ -29,24 +20,26 @@ TGame::TGame()
 void TGame::init()
 {
     // allocate dynamic display list
-    mDynList = new TDynList;
+    mDynList = new TDynList2(2048, nullptr);
 
     // set current task to graphics task
-    mTask = &tlist;
+    //mTask = &tlist;
 
     // set framebuffer pointers
-    mFrameBuffers[0] = cfb_16_a;
-    mFrameBuffers[1] = cfb_16_b;
+    //mFrameBuffers[0] = cfb_16_a;
+    //mFrameBuffers[1] = cfb_16_b;
 
     // set scene array's heap for TArray
     mSceneList.setHeap(THeap::getCurrentHeap());
+
+    //initAudio();
 
     //TTask::build(ETaskCode::F3DEX2, true);
 }
 
 void TGame::update()
 {
-    mDynDl = mDynList->mDl;
+    mDynList->reset();
 
     initRcpSegment();
     initZBuffer();
@@ -54,27 +47,23 @@ void TGame::update()
 
     // do rendering here
     
-    draw();
+    TSprite::init(mDynList);
+    
+    TSprite bo(&white_sprite, 0, 0);
+    bo.mScale = {320.0f,240.0f};
+    bo.mColor = {255,255,255,255};
+
+    bo.render();
+    
+    TSprite::finalize();
 
     // that's a wrap for this frame. finalize
-    gDPFullSync(mDynDl++);
-	gSPEndDisplayList(mDynDl++);
-    
-    TTask::build(ETaskCode::F3DEX2, mTask, true);
+    gDPFullSync(mDynList->pushDL());
+	gSPEndDisplayList(mDynList->pushDL());
 
-    osRecvMesg(mRdpMessageQ, mDummyMessage, OS_MESG_BLOCK);
-    
-    osViSwapBuffer(mFrameBuffers[mDrawBuffer]);
-    
-    if (MQ_IS_FULL(mVblankMessageQ))
-	    osRecvMesg(mVblankMessageQ, mDummyMessage, OS_MESG_BLOCK);
-    
-    // wait for Vertical retrace to finish swap buffers
-	osRecvMesg(mVblankMessageQ, mDummyMessage, OS_MESG_BLOCK);
-	
-    mDrawBuffer ^= 1;
-
-    mTheta += 0.6f;
+    nuGfxTaskStart(mDynList->getHead(),
+        (s32)(mDynList->fetchCmdIndex()) * sizeof (Gfx),
+	    NU_GFX_UCODE_F3DEX , NU_SC_NOSWAPBUFFER);
 
 }
 
@@ -87,6 +76,7 @@ static void updateVertexPos(int size, Vtx vtx[], Vtx* anim[], int frame){
 
 void TGame::draw()
 {
+    /*
     u16 perspNorm{0};
     
     guPerspective(&dyn.projection, &perspNorm,
@@ -161,27 +151,22 @@ void TGame::draw()
     if (mFov < 40.0f) mFov = 40.0f;
 
     mCurrentFrame++;
-}
-
-void TGame::setMessages(OSMesg * messages[4])
-{
-    mDmaMessageBuffer = messages[0];
-    mRdpMessageBuffer = messages[1];
-    mDummyMessage     = messages[2];
-    mVblankMessageBuffer = messages[3];
-}
-
-void TGame::setMessageQueues(OSMesgQueue * queues[4])
-{
-    mPiMessageQ = queues[0];
-    mDmaMessageQ = queues[1];
-    mRdpMessageQ = queues[2];
-    mVblankMessageQ = queues[3];
+    */
 }
 
 // tell the RCP where each segment is
 void TGame::initRcpSegment()
 {
+    /* Setting the RSP segment register  */
+    gSPSegment(mDynList->pushDL(), 0, 0x0);  /* For the CPU virtual address  */
+
+    /* Setting RSP  */
+    gSPDisplayList(mDynList->pushDL(), OS_K0_TO_PHYSICAL(setup_rspstate));
+
+    /* Setting RDP  */
+    gSPDisplayList(mDynList->pushDL(), OS_K0_TO_PHYSICAL(setup_rdpstate));
+    
+    /*
     gSPSegment(mDynDl++, 0, 0x0);	// K0 (physical) address segment
 	gSPSegment(
         mDynDl++, STATIC_SEGMENT,
@@ -190,44 +175,35 @@ void TGame::initRcpSegment()
 	gSPDisplayList(mDynDl++, rdpinit_dl);
 	gSPDisplayList(mDynDl++, rspinit_dl);
 	gDPSetDepthImage(mDynDl++, OS_K0_TO_PHYSICAL(zbuffer));
+    */
 }
 
 void TGame::initZBuffer()
 {
-    gDPSetCycleType(mDynDl++, G_CYC_FILL);
-	gDPSetColorImage(mDynDl++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD,
-			 OS_K0_TO_PHYSICAL(zbuffer));
-	gDPSetFillColor(mDynDl++, 
-			GPACK_ZDZ(G_MAXFBZ,0) << 16 | GPACK_ZDZ(G_MAXFBZ,0));
-	gDPFillRectangle(mDynDl++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
+    gDPSetDepthImage(mDynList->pushDL(), OS_K0_TO_PHYSICAL(nuGfxZBuffer));
+    gDPSetCycleType(mDynList->pushDL(), G_CYC_FILL);
+    gDPSetColorImage(mDynList->pushDL(), G_IM_FMT_RGBA, G_IM_SIZ_16b,kResWidth,
+        OS_K0_TO_PHYSICAL(nuGfxZBuffer));
+    gDPSetFillColor(mDynList->pushDL(),(GPACK_ZDZ(G_MAXFBZ,0) << 16 |
+        GPACK_ZDZ(G_MAXFBZ,0)));
+    gDPFillRectangle(mDynList->pushDL(), 0, 0, kResWidth-1, kResHeight-1);
+    gDPPipeSync(mDynList->pushDL());
 }
 
 void TGame::initFrameBuffer()
 {
-    gDPPipeSync(mDynDl++);
-	gDPSetCycleType(mDynDl++, G_CYC_FILL);
-
-	gDPSetColorImage(mDynDl++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WD, 
-			 OS_K0_TO_PHYSICAL(mFrameBuffers[mDrawBuffer]));
-	u32 clearcolor = ((GPACK_RGBA5551(255, 255, 255, 1) << 16) |
-		      (GPACK_RGBA5551(255, 255, 255, 1)));
-	gDPSetFillColor(mDynDl++, clearcolor);
-	gDPFillRectangle(mDynDl++, 0, 0, SCREEN_WD-1, SCREEN_HT-1);
-	gDPPipeSync(mDynDl++);
-	gDPSetCycleType(mDynDl++, G_CYC_1CYCLE);
+    gDPSetColorImage(mDynList->pushDL(), G_IM_FMT_RGBA, G_IM_SIZ_16b, kResWidth,
+        osVirtualToPhysical(nuGfxCfb_ptr));
+    gDPSetFillColor(mDynList->pushDL(), (GPACK_RGBA5551(0, 0, 0, 1) << 16 | 
+        GPACK_RGBA5551(0, 0, 0, 1)));
+    gDPFillRectangle(mDynList->pushDL(), 0, 0, kResWidth-1, kResHeight-1);
+    gDPPipeSync(mDynList->pushDL());
 }
 
-OSTask * TGame::getTask()
+void TGame::testRender(u32 taskNum)
 {
-    return mTask;
-}
-
-Gfx ** TGame::getDynDL()
-{
-    return &mDynDl;
-}
-
-TDynList * TGame::getDynList()
-{
-    return mDynList;
+    if(taskNum < 3)
+    {
+        TGame::getInstance()->update();
+    }
 }

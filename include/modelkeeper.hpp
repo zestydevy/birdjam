@@ -2,7 +2,7 @@
 #ifndef INCLUDE_MODELKEEPER_HPP
 #define INCLUDE_MODELKEEPER_HPP
 
-#include <ultra64.h>
+#include <nusys.h>
 
 #include "heap.hpp"
 #include "linklist.hpp"

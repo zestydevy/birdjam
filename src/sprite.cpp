@@ -1,6 +1,10 @@
-#include <ultra64.h>
+#include <nusys.h>
 
 #include "sprite.hpp"
+
+// -------------------------------------------------------------------------- //
+
+TDynList2 * TSprite::sDynList{nullptr};
 
 // -------------------------------------------------------------------------- //
 
@@ -13,8 +17,5 @@ void TSprite::render()
     spColor(mSprite, mColor.r, mColor.g, mColor.b, mColor.a);
     spSetAttribute( mSprite, mAttributes);
     
-    auto dl = TGame::getInstance()->getDynDL();
-    auto gp = *dl;
-    gSPDisplayList(gp++, spDraw(mSprite));
-    *dl = gp;
+    gSPDisplayList(sDynList->pushDL(), spDraw(mSprite));
 }

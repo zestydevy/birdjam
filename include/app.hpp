@@ -1,5 +1,6 @@
 #pragma once
-#include <ultra64.h>
+
+#include <nusys.h>
 
 #include "game.hpp"
 #include "heap.hpp"
@@ -9,21 +10,14 @@
 size_t constexpr kStackSize = 0x2000;
 size_t constexpr kMaxPiMsg = 8;
 size_t constexpr kHeapLocation = 0x80200000;
-size_t constexpr kHeapSize     = 0x1FFFFF;
+size_t constexpr kHeapSize     = 1024*512;      // 0.5 MB
 
-extern u16 cfb_16_a[];
-extern u16 cfb_16_b[];
-extern u16 zbuffer[];
-extern Gfx 	rspinit_dl[];
-extern Gfx 	rdpinit_dl[];
+size_t constexpr kResWidth = 320;
+size_t constexpr kResHeight = 240;
 
-extern char _codeSegmentEnd[];
-extern char _staticSegmentRomStart[], _staticSegmentRomEnd[];
-
-extern OSPiHandle * gHandler;
 
 void idle(void * arg);
-void bootApp(void * arg);
+void bootApp();
 
 // -------------------------------------------------------------------------- //
 
@@ -31,34 +25,21 @@ class CApp
 {
     public:
     
-    CApp();
-    ~CApp();
-    void init(u32 mode, u32 color, u32 feature, bool useFifo);
+    CApp() = default;
+    ~CApp() = default;
+    void init();
     void setupStaticSegment(void * dest, u32 const & src);
     void run();
 
-    OSThread mMainThread{};
-    u64 mMainThreadStack[kStackSize/sizeof(u64)];
-
     private:
 
+    static void appError(void * arg);
+    
     u32 mClearColor{0};
     bool mFifo{false}; 
-    
-    OSMesg mPiMessages[kMaxPiMsg];
-    OSMesg mDmaMessageBuffer{};
-    OSMesg mRdpMessageBuffer{};
-    OSMesg mDummyMessage{};
-    OSMesg mVblankMessageBuffer{};
-
-    OSMesgQueue mPiMessageQ{};
-    OSMesgQueue	mDmaMessageQ{};
-    OSMesgQueue mRdpMessageQ{};
-    OSMesgQueue mVblankMessageQ{};
 
     static TBlockHeap * sCurrentHeap;
     TGame * mGame{nullptr};
-    void * mFrameBuffers[2];
 };
 
 // -------------------------------------------------------------------------- //

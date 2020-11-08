@@ -1,8 +1,8 @@
 #pragma once
 
-#include <ultra64.h>
+#include <nusys.h>
 
-#include "game.hpp"
+#include "dynlist.hpp"
 #include "app.hpp"
 
 // -------------------------------------------------------------------------- //
@@ -35,21 +35,18 @@ class TSprite
     ~TSprite() = default;
 
     // initializes S2DEX. call before utilizing sprites
-    static inline void init()
+    static inline void init(TDynList2 * list)
     {
-        auto dl = TGame::getInstance()->getDynDL();
-        spInit(dl);
+        sDynList = list;
+        auto dl = sDynList->getDL();
+        spInit(&dl);
     }
 
     // call after sprites are finished rendering.
-    // S2DEX's spFinish is broken so this is necessary
     static inline void finalize()
     {
-        auto dl = TGame::getInstance()->getDynDL();
-        auto gp = *dl;
-        gSPDisplayList(gp++, rdpinit_dl);
-	    gSPDisplayList(gp++, rspinit_dl);
-        *dl = gp;
+        auto dl = sDynList->getDL();
+        spFinish(&dl);
     }
 
     void render();
@@ -61,6 +58,7 @@ class TSprite
     private:
     
     Sprite * mSprite{nullptr};
+    static TDynList2 * sDynList;
 
     u32 mAttributes{SP_TRANSPARENT};
 

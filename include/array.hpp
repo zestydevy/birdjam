@@ -2,7 +2,7 @@
 #ifndef INCLUDE_ARRAY_HPP
 #define INCLUDE_ARRAY_HPP
 
-#include <ultra64.h>
+#include <nusys.h>
 
 #include "heap.hpp"
 
