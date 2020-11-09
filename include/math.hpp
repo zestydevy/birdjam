@@ -404,7 +404,7 @@ class TVec3 {
     if (len != TMath<T>::zero()) {
       mul(v, (x / len));
     } else {
-      set(0, 0);
+      set(0, 0, 0);
     }
   }
 
