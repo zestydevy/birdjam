@@ -1,3 +1,11 @@
+
+typedef struct {
+   short ob[3]; /* x, y, z */
+} VtxPos_t;
+typedef union {
+   VtxPos_t v;
+} VtxPos;
+
 extern Vtx bird_Bird_mesh_vtx_0[265];
 extern Gfx bird_Bird_mesh_tri_0[];
 extern Vtx bird_Bird_mesh_vtx_1[75];
