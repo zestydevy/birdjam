@@ -21,12 +21,12 @@ APP =		$(PROJECT).out
 
 TARGETS =	$(PROJECT).n64
 
-HFILES  := $(wildcard include/*.h) $(wildcard models/*.h) $(wildcard models/*/*.h)
+HFILES  := $(wildcard include/*.h) $(wildcard models/*.h) $(wildcard models/*/*.h) $(wildcard models/objects/*/*.h)
 
 CODEFILES   := $(wildcard src/*.c)
 CXXFILES    := $(wildcard src/*.cpp)
 DATAFILES   := $(wildcard data/*.c)
-MODELFILES  := $(wildcard models/*.c) $(wildcard models/*/*.c)
+MODELFILES  := $(wildcard models/*.c) $(wildcard models/*/*.c) $(wildcard models/objects/*/*.c)
 LIBFILES    := $(wildcard lib/*.o)
 
 OBJPATH		= 	./build/obj
