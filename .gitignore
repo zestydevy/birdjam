@@ -1,3 +1,7 @@
 
 build/
 .vscode/
+
+*.o
+*.out
+*.n64
