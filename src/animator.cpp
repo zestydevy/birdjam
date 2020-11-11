@@ -22,10 +22,19 @@ TAnimator::~TAnimator(){
 
 void TAnimator::update(){
     mTime += mTimescale;
-    if (mTime >= mLength)
-        mTime -= mLength;
-    if (mTime < 0)
-        mTime += mLength;
+    if (loop){
+        if (mTime >= mLength)
+            mTime -= mLength;
+        if (mTime < 0)
+            mTime += mLength;
+    }
+    else
+    {
+        if (mTime >= mLength - 1)
+            mTime = mLength - 1;
+        if (mTime < 0)
+            mTime = 0.0f;
+    }
 
     for (int i = 0; i < mMeshCount; i++)
         lerpVertexPos(mMeshSizes[i], mMeshes[i], mAnim[i], mTime);
@@ -35,7 +44,15 @@ void TAnimator::setTimescale(float dt){
     mTimescale = dt;
 }
 
-void TAnimator::setAnimation(int length, Vtx** animation[]){
+bool TAnimator::isAnimationCompleted(){
+    return !loop && mTime >= mLength;
+}
+bool TAnimator::isAnimationLooping(){
+    return loop;
+}
+
+void TAnimator::setAnimation(int length, Vtx** animation[], bool loop){
+    this->loop = loop;
     mLength = length;
     for (int i = 0; i < mMeshCount; i++)
         mAnim[i] = animation[i];

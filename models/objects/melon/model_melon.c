@@ -1,0 +1,132 @@
+#include <ultra64.h>
+
+Lights1 melon_melon_f3d_lights = gdSPDefLights1(
+	0x7F, 0x7F, 0x7F,
+	0xFE, 0xFE, 0xFE, 0x28, 0x28, 0x28);
+
+Gfx melon_melon_ci4_aligner[] = {gsSPEndDisplayList()};
+u8 melon_melon_ci4[] = {
+	0x0, 0x0, 0x10, 0x0, 0x12, 0x22, 0x22, 0x32, 0x10, 
+	0x0, 0x1, 0x0, 0x12, 0x23, 0x22, 0x22, 0x1, 0x10, 
+	0x1, 0x0, 0x12, 0x22, 0x22, 0x32, 0x0, 0x1, 0x0, 
+	0x10, 0x12, 0x22, 0x23, 0x22, 0x11, 0x0, 0x10, 0x10, 
+	0x12, 0x23, 0x22, 0x22, 0x0, 0x11, 0x11, 0x11, 0x12, 
+	0x22, 0x22, 0x32, 0x0, 0x0, 0x1, 0x11, 0x12, 0x32, 
+	0x32, 0x22, 0x11, 0x11, 0x11, 0x11, 0x12, 0x22, 0x22, 
+	0x22, 0x0, 0x0, 0x1, 0x11, 0x10, 0x0, 0x0, 0x0, 
+	0x0, 0x11, 0x11, 0x11, 0x10, 0x0, 0x0, 0x0, 0x11, 
+	0x0, 0x10, 0x11, 0x10, 0x0, 0x0, 0x0, 0x0, 0x1, 
+	0x1, 0x1, 0x10, 0x0, 0x0, 0x0, 0x1, 0x10, 0x1, 
+	0x1, 0x10, 0x0, 0x0, 0x0, 0x10, 0x0, 0x10, 0x1, 
+	0x10, 0x0, 0x0, 0x0, 0x0, 0x0, 0x10, 0x10, 0x10, 
+	0x0, 0x0, 0x0, 0x0, 0x1, 0x0, 0x10, 0x10, 0x0, 
+	0x0, 0x0, 
+};
+
+Gfx melon_melon_ci4_pal_rgba16_aligner[] = {gsSPEndDisplayList()};
+u8 melon_melon_ci4_pal_rgba16[] = {
+	0x65, 0xCB, 0x54, 0x89, 0xC9, 0x9, 0x50, 0x43, 
+};
+
+Vtx melon_Melon_mesh_vtx_0[26] = {
+	{{{0, 320, -150},0, {111, 445},{0x0, 0x4F, 0x9D, 0xFF}}},
+	{{{0, 383, 0},0, {250, 483},{0x0, 0x70, 0x3D, 0xFF}}},
+	{{{150, 320, 0},0, {251, 357},{0x5C, 0x4A, 0x2E, 0xFF}}},
+	{{{213, 170, 0},0, {258, 236},{0x7D, 0x14, 0xE, 0xFF}}},
+	{{{0, 170, -213},0, {17, 360},{0x0, 0x0, 0x81, 0xFF}}},
+	{{{150, 20, 0},0, {118, 177},{0x63, 0xB1, 0x0, 0xFF}}},
+	{{{0, 20, 150},0, {134, 35},{0x0, 0xB1, 0x63, 0xFF}}},
+	{{{0, 170, 213},0, {257, -14},{0x0, 0x37, 0x73, 0xFF}}},
+	{{{0, -43, 0},0, {31, 113},{0x0, 0x81, 0x0, 0xFF}}},
+	{{{0, 20, -150},0, {-13, 233},{0x0, 0xB1, 0x9D, 0xFF}}},
+	{{{213, 170, 0},0, {478, 219},{0x7D, 0x14, 0xE, 0xFF}}},
+	{{{-213, 170, 0},0, {282, 27},{0x83, 0x14, 0xE, 0xFF}}},
+	{{{0, 170, 213},0, {274, 218},{0x0, 0x37, 0x73, 0xFF}}},
+	{{{150, 320, 0},0, {494, 123},{0x5C, 0x4A, 0x2E, 0xFF}}},
+	{{{0, 383, 0},0, {454, 27},{0x0, 0x70, 0x3D, 0xFF}}},
+	{{{-150, 320, 0},0, {359, -13},{0xA4, 0x4A, 0x2E, 0xFF}}},
+	{{{-150, 320, 0},0, {251, 359},{0xA4, 0x4A, 0x2E, 0xFF}}},
+	{{{0, 383, 0},0, {253, 480},{0x0, 0x70, 0x3D, 0xFF}}},
+	{{{0, 320, -150},0, {118, 447},{0x0, 0x4F, 0x9D, 0xFF}}},
+	{{{0, 170, -213},0, {25, 367},{0x0, 0x0, 0x81, 0xFF}}},
+	{{{-213, 170, 0},0, {256, 242},{0x83, 0x14, 0xE, 0xFF}}},
+	{{{0, 20, -150},0, {-13, 251},{0x0, 0xB1, 0x9D, 0xFF}}},
+	{{{-150, 20, 0},0, {115, 179},{0x9D, 0xB1, 0x0, 0xFF}}},
+	{{{0, -43, 0},0, {22, 118},{0x0, 0x81, 0x0, 0xFF}}},
+	{{{0, 20, 150},0, {129, 32},{0x0, 0xB1, 0x63, 0xFF}}},
+	{{{0, 170, 213},0, {257, -17},{0x0, 0x37, 0x73, 0xFF}}},
+};
+
+Gfx melon_Melon_mesh_tri_0[] = {
+	gsSPVertex(melon_Melon_mesh_vtx_0 + 0, 16, 0),
+	gsSP1Triangle(0, 1, 2, 0),
+	gsSP1Triangle(0, 2, 3, 0),
+	gsSP1Triangle(0, 3, 4, 0),
+	gsSP1Triangle(4, 3, 5, 0),
+	gsSP1Triangle(3, 6, 5, 0),
+	gsSP1Triangle(3, 7, 6, 0),
+	gsSP1Triangle(8, 5, 6, 0),
+	gsSP1Triangle(8, 9, 5, 0),
+	gsSP1Triangle(4, 5, 9, 0),
+	gsSP1Triangle(10, 11, 12, 0),
+	gsSP1Triangle(10, 13, 11, 0),
+	gsSP1Triangle(13, 14, 11, 0),
+	gsSP1Triangle(11, 14, 15, 0),
+	gsSPVertex(melon_Melon_mesh_vtx_0 + 16, 10, 0),
+	gsSP1Triangle(0, 1, 2, 0),
+	gsSP1Triangle(0, 2, 3, 0),
+	gsSP1Triangle(0, 3, 4, 0),
+	gsSP1Triangle(4, 3, 5, 0),
+	gsSP1Triangle(4, 5, 6, 0),
+	gsSP1Triangle(7, 6, 5, 0),
+	gsSP1Triangle(7, 8, 6, 0),
+	gsSP1Triangle(8, 4, 6, 0),
+	gsSP1Triangle(8, 9, 4, 0),
+	gsSPEndDisplayList(),
+};
+
+
+Gfx mat_melon_melon_f3d[] = {
+	gsDPPipeSync(),
+	gsDPSetCombineLERP(TEXEL0, 0, SHADE, 0, 0, 0, 0, ENVIRONMENT, TEXEL0, 0, SHADE, 0, 0, 0, 0, ENVIRONMENT),
+	gsSPTexture(65535, 65535, 0, 0, 1),
+	gsDPSetTextureLUT(G_TT_RGBA16),
+	gsDPSetTextureImage(G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, melon_melon_ci4_pal_rgba16),
+	gsDPTileSync(),
+	gsDPSetTile(0, 0, 0, 256, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0),
+	gsDPLoadSync(),
+	gsDPLoadTLUTCmd(7, 3),
+	gsDPPipeSync(),
+	gsDPTileSync(),
+	gsDPSetTextureImage(G_IM_FMT_CI, G_IM_SIZ_8b, 8, melon_melon_ci4),
+	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_8b, 1, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0),
+	gsDPLoadSync(),
+	gsDPLoadTile(7, 0, 0, 30, 60),
+	gsDPPipeSync(),
+	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_4b, 1, 0, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0),
+	gsDPSetTileSize(0, 0, 0, 60, 60),
+	gsSPSetLights1(melon_melon_f3d_lights),
+	gsSPEndDisplayList(),
+};
+
+Gfx mat_revert_melon_melon_f3d[] = {
+	gsDPPipeSync(),
+	gsDPSetTextureLUT(G_TT_NONE),
+	gsSPEndDisplayList(),
+};
+
+
+Gfx melon_Melon_mesh[] = {
+	gsSPDisplayList(mat_melon_melon_f3d),
+	gsSPDisplayList(melon_Melon_mesh_tri_0),
+	gsSPDisplayList(mat_revert_melon_melon_f3d),
+	gsDPPipeSync(),
+	gsSPSetGeometryMode(G_LIGHTING),
+	gsSPClearGeometryMode(G_TEXTURE_GEN),
+	gsDPSetCombineLERP(0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT, 0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT),
+	gsSPTexture(65535, 65535, 0, 0, 0),
+	gsSPEndDisplayList(),
+};
+
+
+

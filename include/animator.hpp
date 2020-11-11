@@ -10,14 +10,19 @@ class TAnimator
 
     void update();
     
-    void setAnimation(int length, Vtx** animation[]);
+    void setAnimation(int length, Vtx** animation[], bool loop = true);
     void setTimescale(float dt);
+
+    bool isAnimationCompleted();
+    bool isAnimationLooping();
 
     protected:
     int mMeshCount;
     int* mMeshSizes;
     Vtx** mMeshes;
     Vtx*** mAnim;
+
+    bool loop;
 
     int mLength;
     float mTime;
