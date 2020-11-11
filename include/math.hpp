@@ -598,6 +598,8 @@ class TSine {
   static float stan(s16 x);
   static float scot(s16 x);
 
+  static s16 atan2(float y, float x);
+
   static constexpr float toRad(s16 x) {
     constexpr auto kRatio = (
       static_cast<float>(65536.0 / (M_PI * 2.0))

@@ -1,5 +1,6 @@
 
-#include <ultra64.h>
+#include <math.h>
+#include <nusys.h>
 
 #include "heap.hpp"
 #include "math.hpp"
@@ -455,6 +456,12 @@ float TSine::stan(s16 x) {
 
 float TSine::scot(s16 x) {
   return (scos(x) / ssin(x));
+}
+
+// -------------------------------------------------------------------------- //
+
+s16 TSine::atan2(float y, float x) {
+  return fromRad(atan2f(y, x));
 }
 
 // -------------------------------------------------------------------------- //
