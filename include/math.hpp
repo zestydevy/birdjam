@@ -633,19 +633,11 @@ class TSine {
   }
 
   static constexpr s16 fromRad(float x) {
-    constexpr auto kRatio = (
-      1.0F / static_cast<float>(65536.0 / (M_PI * 2.0))
-    );
-
-    return static_cast<s16>(x * kRatio);
+    return static_cast<s16>(x / (M_PI * 2.0) * 65536.0);
   }
 
   static constexpr s16 fromDeg(float x) {
-    constexpr auto kRatio = (
-      1.0F / static_cast<float>(65536.0 / 360.0)
-    );
-
-    return static_cast<s16>(x * kRatio);
+    return static_cast<s16>(x / 360.0F * 65536.0);
   }
 
   private:
