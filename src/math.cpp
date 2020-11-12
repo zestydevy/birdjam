@@ -397,6 +397,22 @@ TVec3F TMtx44::mul(TVec3F const & v) const {
 
 // -------------------------------------------------------------------------- //
 
+void TMtx44::floatToFixed(
+  TMtx44 const & src, Mtx & dst
+) {
+  guMtxF2L(const_cast<TMtx44 &>(src).mData, &dst);
+}
+
+// -------------------------------------------------------------------------- //
+
+void TMtx44::fixedToFloat(
+  Mtx const & src, TMtx44 & dst
+) {
+  guMtxL2F(dst.mData, const_cast<Mtx *>(&src));
+}
+
+// -------------------------------------------------------------------------- //
+
 bool TSine::startup(
   u32 bits, THeap * heap
 ) {

@@ -578,6 +578,9 @@ class TMtx44 {
 
   TVec3F mul(TVec3F const & v) const;
 
+  static void floatToFixed(TMtx44 const & src, Mtx & dst);
+  static void fixedToFloat(Mtx const & src, TMtx44 & dst);
+
   private:
 
   float mData[4][4];
