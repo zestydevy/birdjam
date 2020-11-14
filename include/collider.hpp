@@ -181,6 +181,20 @@ struct TCollideUtil {
   template<typename T>
   static inline T squared(T x) { return (x * x); }
 
+  template<typename T>
+  static inline T clamp(T x, T min, T max) {
+    if (x < min) {
+      return min;
+    }
+
+    if (x > max) {
+      return max;
+    }
+
+    return x;
+  }
+
+  static float calcSqrDist(TVec2F const & from, TVec2F const & to);
   static float calcSqrDist(TVec3F const & from, TVec3F const & to);
   static bool doRangesOverlap(float a0, float b0, float a1, float b1);
 

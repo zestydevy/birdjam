@@ -341,6 +341,17 @@ bool TCylinderCollider::onCheckCollide(
 // -------------------------------------------------------------------------- //
 
 float TCollideUtil::calcSqrDist(
+  TVec2F const & from,
+  TVec2F const & to
+) {
+  TVec2F dist;
+  dist.sub(to, from);
+  return dist.getSqrLength();
+}
+
+// -------------------------------------------------------------------------- //
+
+float TCollideUtil::calcSqrDist(
   TVec3F const & from,
   TVec3F const & to
 ) {
@@ -539,7 +550,28 @@ bool TCollideUtil::testColliders(
   TSphereCollider const * sphere,
   TCylinderCollider const * cylinder
 ) {
-  return false; // TODO
+  float d, r, m, min_y, max_y;
+  TVec2F a, b;
+  TVec3F c;
+
+  c = sphere->getCollideCenter();
+  a = cylinder->getCollideCenter().xz();
+  b = (c.xz() - a);
+  d = b.getSqrLength();
+  r = squared(cylinder->getCollideRadius());
+
+  if (d > r) {
+    b.normalize();
+    c.x() = (a.x() + b.x() * cylinder->getCollideRadius());
+    c.z() = (a.y() + b.y() * cylinder->getCollideRadius());
+  }
+
+  min_y = cylinder->getCollideMinY();
+  max_y = cylinder->getCollideMaxY();
+  c.y() = clamp(c.y(), min_y, max_y);
+  m = (r + squared(sphere->getCollideRadius()));
+
+  return (calcSqrDist(c, sphere->getCollideCenter()) <= m);
 }
 
 // -------------------------------------------------------------------------- //
