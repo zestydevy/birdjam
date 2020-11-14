@@ -41,6 +41,29 @@ void TCollider::initCollider(
 
 // -------------------------------------------------------------------------- //
 
+void TCollider::calcCollideMinMax(
+  TVec3F * const min,
+  TVec3F * const max
+) const {
+  if (min != nullptr) {
+    min->set(
+      getCollideMinX(),
+      getCollideMinY(),
+      getCollideMinZ()
+    );
+  }
+
+  if (max != nullptr) {
+    max->set(
+      getCollideMaxX(),
+      getCollideMaxY(),
+      getCollideMaxZ()
+    );
+  }
+}
+
+// -------------------------------------------------------------------------- //
+
 void TCollider::frameBegin() {
   auto node = sColliderList.begin();
   TCollider * collider;
@@ -126,20 +149,38 @@ TBoxCollider::getCollideType() const {
 
 // -------------------------------------------------------------------------- //
 
-void TBoxCollider::calcCollideMinMax(
-  TVec3F * const min,
-  TVec3F * const max
-) const {
-  TVec3F half;
-  half.mul(mSize, 0.5F);
+float TBoxCollider::getCollideMinX() const {
+  return (mCenter.x() - mSize.x() * 0.5F);
+}
 
-  if (min != nullptr) {
-    min->sub(mCenter, half);
-  }
+// -------------------------------------------------------------------------- //
 
-  if (max != nullptr) {
-    max->add(mCenter, half);
-  }
+float TBoxCollider::getCollideMinY() const {
+  return (mCenter.y() - mSize.y() * 0.5F);
+}
+
+// -------------------------------------------------------------------------- //
+
+float TBoxCollider::getCollideMinZ() const {
+  return (mCenter.z() - mSize.z() * 0.5F);
+}
+
+// -------------------------------------------------------------------------- //
+
+float TBoxCollider::getCollideMaxX() const {
+  return (mCenter.x() + mSize.x() * 0.5F);
+}
+
+// -------------------------------------------------------------------------- //
+
+float TBoxCollider::getCollideMaxY() const {
+  return (mCenter.y() + mSize.y() * 0.5F);
+}
+
+// -------------------------------------------------------------------------- //
+
+float TBoxCollider::getCollideMaxZ() const {
+  return (mCenter.z() + mSize.z() * 0.5F);
 }
 
 // -------------------------------------------------------------------------- //
@@ -174,6 +215,42 @@ TSphereCollider::getCollideType() const {
 
 // -------------------------------------------------------------------------- //
 
+float TSphereCollider::getCollideMinX() const {
+  return (mCenter.x() - mRadius);
+}
+
+// -------------------------------------------------------------------------- //
+
+float TSphereCollider::getCollideMinY() const {
+  return (mCenter.y() - mRadius);
+}
+
+// -------------------------------------------------------------------------- //
+
+float TSphereCollider::getCollideMinZ() const {
+  return (mCenter.z() - mRadius);
+}
+
+// -------------------------------------------------------------------------- //
+
+float TSphereCollider::getCollideMaxX() const {
+  return (mCenter.x() + mRadius);
+}
+
+// -------------------------------------------------------------------------- //
+
+float TSphereCollider::getCollideMaxY() const {
+  return (mCenter.y() + mRadius);
+}
+
+// -------------------------------------------------------------------------- //
+
+float TSphereCollider::getCollideMaxZ() const {
+  return (mCenter.z() + mRadius);
+}
+
+// -------------------------------------------------------------------------- //
+
 bool TSphereCollider::onCheckCollide(
   TCollider const * const other
 ) const {
@@ -200,6 +277,42 @@ bool TSphereCollider::onCheckCollide(
 ECollideType
 TCylinderCollider::getCollideType() const {
   return ECollideType::CYLINDER;
+}
+
+// -------------------------------------------------------------------------- //
+
+float TCylinderCollider::getCollideMinX() const {
+  return (mCenter.x() - mRadius);
+}
+
+// -------------------------------------------------------------------------- //
+
+float TCylinderCollider::getCollideMinY() const {
+  return (mCenter.y() - mHeight * 0.5F);
+}
+
+// -------------------------------------------------------------------------- //
+
+float TCylinderCollider::getCollideMinZ() const {
+  return (mCenter.z() - mRadius);
+}
+
+// -------------------------------------------------------------------------- //
+
+float TCylinderCollider::getCollideMaxX() const {
+  return (mCenter.x() + mRadius);
+}
+
+// -------------------------------------------------------------------------- //
+
+float TCylinderCollider::getCollideMaxY() const {
+  return (mCenter.y() + mHeight * 0.5F);
+}
+
+// -------------------------------------------------------------------------- //
+
+float TCylinderCollider::getCollideMaxZ() const {
+  return (mCenter.z() + mRadius);
 }
 
 // -------------------------------------------------------------------------- //
@@ -260,6 +373,74 @@ bool TCollideUtil::testTwoBoxes(
 
 // -------------------------------------------------------------------------- //
 
+bool TCollideUtil::testBoxSphere2D(
+  TVec2F const & min, TVec2F const & max,
+  TVec2F const & center, float const radius
+) {
+  // (Jim Arvo, Graphics Gems 2)
+  // find the point in the box closest to center.
+  // then check if the point is inside the sphere.
+  float d = 0.0F;
+
+  for (u32 i = 0; i < 2; ++i) {
+    if (center[i] < min[i]) {
+      d += squared(center[i] - min[i]);
+    } else if (center[i] > max[i]) {
+      d += squared(center[i] - max[i]);
+    }
+  }
+
+  return (d <= squared(radius));
+}
+
+// -------------------------------------------------------------------------- //
+
+bool TCollideUtil::testBoxSphere3D(
+  TVec3F const & min, TVec3F const & max,
+  TVec3F const & center, float const radius
+) {
+  float d = 0.0F;
+
+  for (u32 i = 0; i < 3; ++i) {
+    if (center[i] < min[i]) {
+      d += squared(center[i] - min[i]);
+    } else if (center[i] > max[i]) {
+      d += squared(center[i] - max[i]);
+    }
+  }
+
+  return (d <= squared(radius));
+}
+
+// -------------------------------------------------------------------------- //
+
+float TCollideUtil::distPtLine(
+  TVec3F const & pt,
+  TVec3F const & p0,
+  TVec3F const & p1
+) {
+  TVec3F a, b, c, d;
+  float t;
+
+  a.sub(p1, p0);
+  b.sub(pt, p0);
+  t = (a.dot(b) / a.getSqrLength());
+
+  if (t <= 0.0F) {
+    d.sub(pt, p0);
+    return d.getLength();
+  } else if (t >= 1.0F) {
+    d.sub(pt, p1);
+    return d.getLength();
+  } else {
+    return TMath<float>::sqrt(
+      b.getSqrLength() - t * a.getSqrLength()
+    );
+  }
+}
+
+// -------------------------------------------------------------------------- //
+
 bool TCollideUtil::testColliders(
   TBoxCollider const * const lhs,
   TBoxCollider const * const rhs
@@ -293,22 +474,23 @@ bool TCollideUtil::testColliders(
   TCylinderCollider const * const lhs,
   TCylinderCollider const * const rhs
 ) {
-  float min_a, max_a, min_b, max_b;
-  min_a = lhs->getCollideCenter().y();
-  max_a = (min_a + lhs->getCollideHeight());
-  min_b = rhs->getCollideCenter().y();
-  max_b = (min_b + rhs->getCollideHeight());
-
-  if (!doRangesOverlap(min_a, max_a, min_b, max_b)) {
+  if (!doRangesOverlap(
+    lhs->getCollideMinY(), lhs->getCollideMaxY(),
+    rhs->getCollideMinY(), rhs->getCollideMaxY()
+  )) {
     return false;
   }
 
-  float const max = TCollideUtil::squared(
-    lhs->getCollideRadius() + rhs->getCollideRadius()
+  float max, dist;
+
+  max = TCollideUtil::squared(
+    lhs->getCollideRadius() +
+    rhs->getCollideRadius()
   );
 
-  float const dist = TCollideUtil::calcSqrDist(
-    lhs->getCollideCenter(), rhs->getCollideCenter()
+  dist = TCollideUtil::calcSqrDist(
+    lhs->getCollideCenter(),
+    rhs->getCollideCenter()
   );
 
   return (dist <= max);
@@ -317,26 +499,45 @@ bool TCollideUtil::testColliders(
 // -------------------------------------------------------------------------- //
 
 bool TCollideUtil::testColliders(
-  TBoxCollider const *,
-  TSphereCollider const *
+  TBoxCollider const * box,
+  TSphereCollider const * sphere
 ) {
-  return false; // TODO
+  TVec3F min, max;
+  box->calcCollideMinMax(&min, &max);
+
+  return testBoxSphere3D(min, max,
+    sphere->getCollideCenter(),
+    sphere->getCollideRadius()
+  );
 }
 
 // -------------------------------------------------------------------------- //
 
 bool TCollideUtil::testColliders(
-  TBoxCollider const *,
-  TCylinderCollider const *
+  TBoxCollider const * box,
+  TCylinderCollider const * cylinder
 ) {
-  return false; // TODO
+  TVec3F min, max;
+  box->calcCollideMinMax(&min, &max);
+
+  if (!doRangesOverlap(min.y(), max.y(),
+    cylinder->getCollideMinY(),
+    cylinder->getCollideMaxY()
+  )) {
+    return false;
+  }
+
+  return testBoxSphere2D(min.xz(), max.xz(),
+    cylinder->getCollideCenter().xz(),
+    cylinder->getCollideRadius()
+  );
 }
 
 // -------------------------------------------------------------------------- //
 
 bool TCollideUtil::testColliders(
-  TSphereCollider const *,
-  TCylinderCollider const *
+  TSphereCollider const * sphere,
+  TCylinderCollider const * cylinder
 ) {
   return false; // TODO
 }

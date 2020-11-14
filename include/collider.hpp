@@ -38,6 +38,14 @@ class TCollider {
   TVec3F const & getCollideCenter() const { return mCenter; }
   void setCollideCenter(TVec3F const & pt) { mCenter = pt; }
 
+  virtual float getCollideMinX() const = 0;
+  virtual float getCollideMinY() const = 0;
+  virtual float getCollideMinZ() const = 0;
+  virtual float getCollideMaxX() const = 0;
+  virtual float getCollideMaxY() const = 0;
+  virtual float getCollideMaxZ() const = 0;
+  void calcCollideMinMax(TVec3F *, TVec3F *) const;
+
   static void frameBegin(); // resets collider state
   static void frameEnd(); // tests colliders, calls onCollide
 
@@ -79,7 +87,12 @@ class TBoxCollider :
   TVec3F const & getCollideSize() const { return mSize; }
   void setCollideSize(TVec3F const & sz) { mSize = sz; }
 
-  void calcCollideMinMax(TVec3F * min, TVec3F * max) const;
+  virtual float getCollideMinX() const override;
+  virtual float getCollideMinY() const override;
+  virtual float getCollideMinZ() const override;
+  virtual float getCollideMaxX() const override;
+  virtual float getCollideMaxY() const override;
+  virtual float getCollideMaxZ() const override;
 
   protected:
 
@@ -106,6 +119,13 @@ class TSphereCollider :
 
   float getCollideRadius() const { return mRadius; }
   void setCollideRadius(float r) { mRadius = r; }
+
+  virtual float getCollideMinX() const override;
+  virtual float getCollideMinY() const override;
+  virtual float getCollideMinZ() const override;
+  virtual float getCollideMaxX() const override;
+  virtual float getCollideMaxY() const override;
+  virtual float getCollideMaxZ() const override;
 
   protected:
 
@@ -136,6 +156,13 @@ class TCylinderCollider :
   float getCollideRadius() const { return mRadius; }
   void setCollideRadius(float r) { mRadius = r; }
 
+  virtual float getCollideMinX() const override;
+  virtual float getCollideMinY() const override;
+  virtual float getCollideMinZ() const override;
+  virtual float getCollideMaxX() const override;
+  virtual float getCollideMaxY() const override;
+  virtual float getCollideMaxZ() const override;
+
   protected:
 
   virtual bool onCheckCollide(TCollider const *) const override;
@@ -160,6 +187,29 @@ struct TCollideUtil {
   static bool testTwoBoxes(
     TVec3F const & min_a, TVec3F const & max_a,
     TVec3F const & min_b, TVec3F const & max_b
+  );
+
+  static bool testBoxSphere2D(
+    TVec2F const & min, TVec2F const & max,
+    TVec2F const & center, float radius
+  );
+
+  static bool testBoxSphere3D(
+    TVec3F const & min, TVec3F const & max,
+    TVec3F const & center, float radius
+  );
+
+  static float distPtLine(
+    TVec3F const & pt,
+    TVec3F const & p0,
+    TVec3F const & p1
+  );
+
+  static float distPtPoly(
+    TVec3F const & pt,
+    TVec3F const & v0,
+    TVec3F const & v1,
+    TVec3F const & v2
   );
 
   static bool testColliders(
