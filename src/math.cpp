@@ -341,6 +341,19 @@ void TMtx44::sub(
 
 // -------------------------------------------------------------------------- //
 
+void TMtx44::transpose(
+  TMtx44 const & src,
+  TMtx44 & dst
+) {
+  for (u32 r = 0; r < 4; ++r) {
+    for (u32 c = 0; c < 4; ++c) {
+      dst(r, c) = src(c, r);
+    }
+  }
+}
+
+// -------------------------------------------------------------------------- //
+
 void TMtx44::concat(
   TMtx44 const & a,
   TMtx44 const & b,
@@ -400,7 +413,9 @@ TVec3F TMtx44::mul(TVec3F const & v) const {
 void TMtx44::floatToFixed(
   TMtx44 const & src, Mtx & dst
 ) {
-  guMtxF2L(const_cast<TMtx44 &>(src).mData, &dst);
+  TMtx44 xpose;
+  transpose(src, xpose);
+  guMtxF2L(const_cast<TMtx44 &>(xpose).mData, &dst);
 }
 
 // -------------------------------------------------------------------------- //
@@ -408,7 +423,9 @@ void TMtx44::floatToFixed(
 void TMtx44::fixedToFloat(
   Mtx const & src, TMtx44 & dst
 ) {
-  guMtxL2F(dst.mData, const_cast<Mtx *>(&src));
+  TMtx44 xpose;
+  guMtxL2F(xpose.mData, const_cast<Mtx *>(&src));
+  transpose(xpose, dst);
 }
 
 // -------------------------------------------------------------------------- //

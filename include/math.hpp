@@ -574,6 +574,7 @@ class TMtx44 {
   void sub(TMtx44 const & m) { sub(*this, m); }
   void sub(TMtx44 const & a, TMtx44 const & b);
 
+  static void transpose(TMtx44 const & src, TMtx44 & dst);
   static void concat(TMtx44 const & a, TMtx44 const & b, TMtx44 & dst);
 
   TVec3F mul(TVec3F const & v) const;
