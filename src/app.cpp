@@ -1,32 +1,24 @@
 #include <nusys.h>
-#include <os_internal.h>
 
 #include "app.hpp"
+#include "pad.hpp"
+#include "math.hpp"
 
 TBlockHeap * CApp::sCurrentHeap;
 
 // -------------------------------------------------------------------------- //
 
-static OSMesgQueue sErrorMsgQ;
-static OSMesg  sErrorMsg; 
-static OSThread sErrorThread;
-static u8 sErrorStack[kStackSize];
-
 // -------------------------------------------------------------------------- //
 
 void CApp::init()
-{
+{   
     nuGfxInit();
-    nuContInit();
+
+    TPad::init();
+    TSine::startup(10);
     
     // instantiate main game
     mGame = new TGame;
-
-    osCreateMesgQueue(&sErrorMsgQ, &sErrorMsg, 1);
-    osCreateThread(&sErrorThread, 5, (void(*)(void *))appError, nullptr,
-           sErrorStack+kStackSize/8, (OSPri)OS_PRIORITY_APPMAX);
-
-    osStartThread(&sErrorThread);
     
     /*
     // initialize VI manager
@@ -89,29 +81,13 @@ void CApp::run()
     nuGfxFuncSet(TGame::testRender);
     nuGfxDisplayOn();
 
-    while (true)
-    {
-        // ...
-    }
+    while(1) {}
+    
 }
 
 // -------------------------------------------------------------------------- //
 
 void CApp::appError(void * arg)
 {
-    OSMesg msg;
     
-    osSetEventMesg(OS_EVENT_FAULT, &sErrorMsgQ, (OSMesg)0x10);
-
-    auto last = (OSThread *)NULL;
-    while (true) {
-        // before error...
-        (void) osRecvMesg(&sErrorMsgQ, (OSMesg *)&msg, OS_MESG_BLOCK);
-
-        // after error...
-        auto curr = __osGetCurrFaultedThread();
-        if (curr) {
-            //printFaultData(curr);
-        }
-    }
 }

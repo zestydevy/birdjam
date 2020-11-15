@@ -6,6 +6,7 @@
 #include "scene.hpp"
 #include "array.hpp"
 #include "dynlist.hpp"
+#include "camera.hpp"
 
 #include "animator.hpp"
 
@@ -31,6 +32,9 @@ class TGame
     void initZBuffer();
     void initFrameBuffer();
 
+    void setCurrentScene(TScene * scene);
+    TScene * getCurrentScene() {return mSceneList[0];}
+
     static void testRender(u32 taskNum);
 
     private:
@@ -39,12 +43,10 @@ class TGame
     
     TArray<TScene *> mSceneList{};
     TDynList2 * mDynList{nullptr};
+    TCamera * mCamera{nullptr};
 
     protected:
     int mCurrentFrame = 0;
-    u8 mBlackAlpha{255};
-    u8 mWhiteAlpha{255};
-    float mFov{84.0f};
 
     TAnimator * mBirdAnim;
 
