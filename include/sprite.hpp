@@ -3,16 +3,10 @@
 #include <nusys.h>
 
 #include "dynlist.hpp"
+#include "math.hpp"
 #include "app.hpp"
 
 // -------------------------------------------------------------------------- //
-
-template<typename T>
-    struct TVec2
-    {
-        T x;
-        T y;
-    };
 
     struct TColor
     {
@@ -29,8 +23,8 @@ class TSprite
     inline TSprite(Sprite * sprite, s32 x, s32 y)
         : mSprite{sprite}
     {
-      mPosition.x = x;
-      mPosition.y = y;
+      mPosition.x() = x;
+      mPosition.y() = y;
     }
     ~TSprite() = default;
 
@@ -52,7 +46,7 @@ class TSprite
     void render();
 
     TVec2<s32> mPosition{};
-    TVec2<float> mScale{1.0f};
+    TVec2<float> mScale{};
     TColor mColor{255};
 
     private:

@@ -15,7 +15,7 @@ OPTIMIZER       = -O1
 LCDEFS          = -DNDEBUG -DF3DEX_GBI_2
 N64LIB          = -lultra_rom
 CFLAGS := $(CFLAGS) -G 0 -I. -Iinclude -I$(NUSYSINCDIR) -I$(ROOT)/usr/include/PR
-CXXFLAGS := $(CXXFLAGS) -DNDEBUG -DF3DEX_GBI_2 -G 0 -std=c++17 -fno-builtin -fno-exceptions -fno-rtti -Iinclude -I$(NUSYSINCDIR) -I$(ROOT)/usr/include/PR
+CXXFLAGS := $(CXXFLAGS) -DNDEBUG -DF3DEX_GBI_2 -G 0 -std=c++20 -fno-builtin -fno-exceptions -fno-rtti -Iinclude -I$(NUSYSINCDIR) -I$(ROOT)/usr/include/PR
 
 APP =		$(PROJECT).out
 
@@ -26,7 +26,7 @@ HFILES  := $(wildcard include/*.h) $(wildcard models/*.h) $(wildcard models/*/*.
 CODEFILES   := $(wildcard src/*.c)
 CXXFILES    := $(wildcard src/*.cpp)
 DATAFILES   := $(wildcard data/*.c)
-MODELFILES  := $(wildcard models/*.c) $(wildcard models/*/*.c) $(wildcard models/objects/*/*.c)
+MODELFILES  := $(wildcard models/bird/*.c) $(wildcard models/world/*.c) $(wildcard models/sprites/*.c)
 LIBFILES    := $(wildcard lib/*.o)
 
 OBJPATH		= 	./build/obj
@@ -66,3 +66,6 @@ $(TARGETS) $(APP):      spec $(OBJECTS)
 	$(MAKEROM) spec -I$(NUSYSINCDIR) -r $(TARGETS) -s 10 -e $(APP)
 	makemask $(TARGETS)
 	@mv codesegment.o a.out $(APP) $(TARGETS) "./build"
+	mono ~/Desktop/tool/n64fix_6102.exe ./build/bird.n64
+	wine ~/Desktop/tool/rn64crc -u ./build/bird.n64
+	sudo ~/Desktop/tool/64d -l ./build/bird.n64 -c 6102 -z
