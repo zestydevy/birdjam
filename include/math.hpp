@@ -5,6 +5,7 @@
 #include <ultra64.h>
 
 #include "heap.hpp"
+#include "util.hpp"
 
 // -------------------------------------------------------------------------- //
 
@@ -391,6 +392,10 @@ class TVec3 {
 
   T dot(TVec3<T> const & v) const {
     return (x() * v.x() + y() * v.y() + z() * v.z());
+  }
+
+  void lerp(TVec3<T> const & end, float percent) {
+    *this = *this + percent * (end - *this);
   }
 
   T getSqrLength() const { return dot(*this); }

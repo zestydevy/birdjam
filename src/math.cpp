@@ -229,7 +229,7 @@ void TMtx44::lookAt(
   TVec3F dir;
 
   if (pos != at) {
-    dir.sub(at, pos);
+    dir.sub(pos, at);
     dir.normalize();
   } else {
     // default to +Z axis (forward)
