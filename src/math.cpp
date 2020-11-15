@@ -129,7 +129,7 @@ void TMtx44::rotateAxisX(s16 angle) {
   float const cos = TSine::scos(angle);
 
   set(
-    0.0F, 0.0F, 0.0F, 0.0F,
+    1.0F, 0.0F, 0.0F, 0.0F,
     0.0F,  cos, -sin, 0.0F,
     0.0F,  sin,  cos, 0.0F,
     0.0F, 0.0F, 0.0F, 1.0F
@@ -143,8 +143,8 @@ void TMtx44::rotateAxisY(s16 angle) {
   float const cos = TSine::scos(angle);
 
   set(
-     cos, 0.0F,  sin, 0.0F,
-    0.0F, 0.0F, 0.0F, 0.0F,
+    cos,  0.0F,  sin, 0.0F,
+    0.0F, 1.0F, 0.0F, 0.0F,
     -sin, 0.0F,  cos, 0.0F,
     0.0F, 0.0F, 0.0F, 1.0F
   );
@@ -159,7 +159,7 @@ void TMtx44::rotateAxisZ(s16 angle) {
   set(
      cos, -sin, 0.0F, 0.0F,
      sin,  cos, 0.0F, 0.0F,
-    0.0F, 0.0F, 0.0F, 0.0F,
+    0.0F, 0.0F, 1.0F, 0.0F,
     0.0F, 0.0F, 0.0F, 1.0F
   );
 }
@@ -495,6 +495,12 @@ float TSine::scot(s16 x) {
 
 s16 TSine::atan2(float y, float x) {
   return fromRad(atan2f(y, x));
+}
+
+// -------------------------------------------------------------------------- //
+
+s16 TSine::asin(float y) {
+  return fromRad(asinf(y));
 }
 
 // -------------------------------------------------------------------------- //

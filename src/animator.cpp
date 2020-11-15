@@ -45,13 +45,14 @@ void TAnimator::setTimescale(float dt){
 }
 
 bool TAnimator::isAnimationCompleted(){
-    return !loop && mTime >= mLength;
+    return !loop && mTime >= mLength - 1;
 }
 bool TAnimator::isAnimationLooping(){
     return loop;
 }
 
 void TAnimator::setAnimation(int length, Vtx** animation[], bool loop){
+    mTime = 0.0f;
     this->loop = loop;
     mLength = length;
     for (int i = 0; i < mMeshCount; i++)

@@ -35,13 +35,13 @@ void TCamera::render()
     gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFViewMtx),
 		  G_MTX_PROJECTION|G_MTX_MUL|G_MTX_NOPUSH);
 
-    float x = mPosition.x() + TSine::ssin(mAngle) * mDistance;
-    float z = mPosition.z() + TSine::scos(mAngle) * mDistance;
+    float x = mTarget->x() + TSine::ssin(mAngle) * mDistance;
+    float z = mTarget->z() + TSine::scos(mAngle) * mDistance;
 
     //mPosition.set(x, 0.0f, z);
-    mOldPos.lerp({x, 2500.0f, z}, 4.0f * kInterval);
+    mOldPos.lerp({x, mTarget->y(), z}, 4.0f * kInterval);
 
-    mViewMtx.lookAt(mOldPos, {0.0f,2500.0f,0.0f}, {0.0f,1.0f,0.0f});
+    mViewMtx.lookAt(mOldPos, mTarget->xyz(), {0.0f,1.0f,0.0f});
     mPosMtx.translate(mPosition);
     mRotMtx.rotateAxis(mRotation, 0);
     mScaleMtx.scale(mScale);

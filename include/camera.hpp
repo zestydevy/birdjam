@@ -17,6 +17,10 @@ class TCamera
 
     void render();
     void setPad(TPad * pad) {mPad = pad;}
+    void setTarget(const TVec3<f32> * target) {mTarget = target;}
+
+    void setAngle(u16 angle) {mAngle = angle;}
+    u16 const & getAngle() {return mAngle;}
 
     Mtx mProjectionMtx{};
     Mtx mFViewMtx{};
@@ -45,6 +49,8 @@ class TCamera
     Mtx mFRotMtx{};
     Mtx mFScaleMtx{};
 
+    const TVec3<f32> * mTarget{};
+
     TMtx44 mViewMtx{};
     TVec3<f32> mOldPos{};
 
@@ -52,7 +58,6 @@ class TCamera
     u16 mPersp{0};
     u16 mAngle{0};
     f32 mDistance{0.0f};
-
 };
 
 // -------------------------------------------------------------------------- //

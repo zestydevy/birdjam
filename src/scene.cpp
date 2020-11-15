@@ -25,7 +25,10 @@ void TTestScene::init()
     mBird = new TPlayer(mDynList);
 
     mBird->init();
+    mBird->setPad(mPad);
     mCamera->setPad(mPad);
+
+    mBird->setCamera(mCamera);
 
     mBird->setPosition({0.0f,2500.0f,0.0f});
     mBird->setRotation({0,0,0});
