@@ -66,6 +66,6 @@ $(TARGETS) $(APP):      spec $(OBJECTS)
 	$(MAKEROM) spec -I$(NUSYSINCDIR) -r $(TARGETS) -s 10 -e $(APP)
 	makemask $(TARGETS)
 	@mv codesegment.o a.out $(APP) $(TARGETS) "./build"
-	mono ~/Desktop/tool/n64fix_6102.exe ./build/bird.n64
-	wine ~/Desktop/tool/rn64crc -u ./build/bird.n64
-	sudo ~/Desktop/tool/64d -l ./build/bird.n64 -c 6102 -z
+	#mono ~/Desktop/tool/n64fix_6102.exe ./build/bird.n64
+	#wine ~/Desktop/tool/rn64crc -u ./build/bird.n64
+	#sudo ~/Desktop/tool/64d -l ./build/bird.n64 -c 6102 -z
