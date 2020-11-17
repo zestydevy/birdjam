@@ -17,10 +17,17 @@ TCamera::TCamera(TDynList2 * list)
     mPosition.set(0.0f, 0.0f, 0.0f);
     mRotation.set(0.0f, 0.0f, 0.0f);
     mScale.set(1.0f, 1.0f, 1.0f);
+
+    mExternallyControlled = false;
 }
 
 void TCamera::render()
 {    
+    if (mDistance < 1500.0f)
+        mDistance = 1500.0f;
+    if (mDistance > 6000.0f)
+        mDistance = 6000.0f;
+
     guPerspective(&mProjectionMtx, &mPersp,
 		      mFov, 320.0/240.0, 40, 40000, 1.0);
     guLookAtReflect(&mFViewMtx, mLookAtMtx,
@@ -35,14 +42,36 @@ void TCamera::render()
     gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFViewMtx),
 		  G_MTX_PROJECTION|G_MTX_MUL|G_MTX_NOPUSH);
 
-    float x = mTarget->x() + TSine::ssin(mAngle) * mDistance;
-    float z = mTarget->z() + TSine::scos(mAngle) * mDistance;
+    //get current target distance
+    TVec3F dif = (*mTarget - mPosition);
+    float pdist = dif.getLength();
+
+    bool moveCamera = mPad->isHeld(EButton::C_LEFT) || mPad->isHeld(EButton::C_RIGHT) || mPad->isHeld(EButton::C_UP) || mPad->isHeld(EButton::C_DOWN);
+    if (mPad->isHeld(EButton::C_LEFT))
+        mAngle += 300;
+    if (mPad->isHeld(EButton::C_RIGHT))
+        mAngle -= 300;
+    if (mPad->isHeld(EButton::C_UP))
+        mDistance -= 35.0f;
+    if (mPad->isHeld(EButton::C_DOWN))
+        mDistance += 35.0f;
+
+    float x = mPosition.x();
+    float y = mPosition.y();
+    float z = mPosition.z();
+    if (!mExternallyControlled && (moveCamera || pdist < mDistance || pdist > mDistance / 2)){
+        if (!moveCamera)
+            mAngle = TSine::atan2(dif.x(), dif.z());
+        x = mTarget->x() - TSine::ssin(mAngle) * mDistance;
+        y = mTarget->y() + 200.0f;
+        z = mTarget->z() - TSine::scos(mAngle) * mDistance;
+        mPosition.set(x, y, z);
+    }
 
     //mPosition.set(x, 0.0f, z);
-    mOldPos.lerp({x, mTarget->y(), z}, 4.0f * kInterval);
-
+    mOldPos.lerp({x, y, z}, 4.0f * kInterval);
     mViewMtx.lookAt(mOldPos, mTarget->xyz(), {0.0f,1.0f,0.0f});
-    mPosMtx.translate(mPosition);
+    //mPosMtx.translate(mPosition);
     mRotMtx.rotateAxis(mRotation, 0);
     mScaleMtx.scale(mScale);
 
@@ -57,22 +86,6 @@ void TCamera::render()
 	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
     gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFRotMtx),
 	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
-
-    if (mPad->isHeld(EButton::C_LEFT)) {
-        mAngle += 300;
-    }
-
-    if (mPad->isHeld(EButton::C_RIGHT)) {
-        mAngle -= 300;
-    }
-
-    if (mPad->isHeld(EButton::C_UP)) {
-        mDistance += 35.0f;
-    }
-
-    if (mPad->isHeld(EButton::C_DOWN)) {
-        mDistance -= 35.0f;
-    }
 }
 
 // -------------------------------------------------------------------------- //

@@ -18,6 +18,8 @@ class TCamera
     void render();
     void setPad(TPad * pad) {mPad = pad;}
     void setTarget(const TVec3<f32> * target) {mTarget = target;}
+    void setPosition(const TVec3<f32> & target) { mPosition.set(target.x(), target.y(), target.z()); }
+    void setMode(bool mode) {mExternallyControlled = mode;}
 
     void setAngle(u16 angle) {mAngle = angle;}
     u16 const & getAngle() {return mAngle;}
@@ -58,6 +60,8 @@ class TCamera
     u16 mPersp{0};
     u16 mAngle{0};
     f32 mDistance{0.0f};
+
+    bool mExternallyControlled;
 };
 
 // -------------------------------------------------------------------------- //

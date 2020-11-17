@@ -73,6 +73,7 @@ void TPlayer::update()
                 mRotation = TVec3<s16>((s16)0, (s16)((s16)TSine::atan2(-mPad->getAnalogX(), mPad->getAnalogY()) + (s16)cameraAngle), (s16)0);
                 move = (forward * (float)mPad->getAnalogY()) + (right * (float)mPad->getAnalogX()); //Move relative to camera
                 move.normalize();
+
                 mPosition += move * BIRD_FLAPSPEED;
             }
             
@@ -94,10 +95,16 @@ void TPlayer::update()
                 // Set initial flight speed
                 mSpeed = 25.0f;
                 mGoingFast = false;
+
+                mCamera->setMode(true);
             }
             break;
         case PLAYERSTATE_FLYING:
             TVec3<f32> fright = TVec3<f32>(-mDirection.z(), 0.0f, mDirection.x());  //Flight right
+            TVec3<f32> fback = TVec3<f32>(-mDirection.x(), -mDirection.y(), -mDirection.z());  //Flight back
+
+            temp1.rotateAxis(fright, TSine::fromDeg(90.0f));
+            up = temp1.mul(mDirection);  //Flight back
 
             // Flight controls
             temp1.rotateAxis(fright, TSine::fromDeg(1.0f * -mPad->getAnalogY() / 80.0f));
@@ -163,13 +170,18 @@ void TPlayer::update()
                 mAnim->setTimescale(glideAnimRate); // Shake faster from wind
 
             if (mPad->isPressed(Z)){    //Return back to flapping
-                mState = PLAYERSTATE_FLYING;
+                mState = PLAYERSTATE_FLAPPING;
                 mAnim->setAnimation(bird_Bird_FlyFlap_Length, mAnim_Flap);
+                mRotation = TVec3<s16>((s16)0, mRotation.y(), (s16)0);
+
+                mCamera->setMode(false);
             }
+
+            mCamera->setPosition(mPosition + (fback * 1500.0f));
             break;
     }
 
-    mCameraTarget = mPosition + (up * 128.0f);
+    mCameraTarget = mPosition + (up * 350.0f);
 
     mAnim->update();
 }
