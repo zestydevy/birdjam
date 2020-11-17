@@ -10,8 +10,11 @@ class TAnimator
 
     void update();
     
-    void setAnimation(int length, Vtx** animation[], bool loop = true);
+    void setAnimation(int length, Vtx** animation[], bool loop = true, float speed = 0.25f);
     void setTimescale(float dt);
+    void setFrame(float frame);
+
+    int getEndFrame();
 
     bool isAnimationCompleted();
     bool isAnimationLooping();

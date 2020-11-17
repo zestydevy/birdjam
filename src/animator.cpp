@@ -21,19 +21,21 @@ TAnimator::~TAnimator(){
 }
 
 void TAnimator::update(){
-    mTime += mTimescale;
-    if (loop){
-        if (mTime >= mLength)
-            mTime -= mLength;
-        if (mTime < 0)
-            mTime += mLength;
-    }
-    else
-    {
-        if (mTime >= mLength - 1)
-            mTime = mLength - 1;
-        if (mTime < 0)
-            mTime = 0.0f;
+    if (mTimescale != 0.0f){
+        mTime += mTimescale;
+        if (loop){
+            if (mTime >= mLength)
+                mTime -= mLength;
+            if (mTime < 0)
+                mTime += mLength;
+        }
+        else
+        {
+            if (mTime >= mLength - 1)
+                mTime = mLength - 1;
+            if (mTime < 0)
+                mTime = 0.0f;
+        }
     }
 
     for (int i = 0; i < mMeshCount; i++)
@@ -51,12 +53,34 @@ bool TAnimator::isAnimationLooping(){
     return loop;
 }
 
-void TAnimator::setAnimation(int length, Vtx** animation[], bool loop){
+void TAnimator::setFrame(float frame){
+    mTime = frame;
+    if (loop){
+        if (mTime >= mLength)
+            mTime -= mLength;
+        if (mTime < 0)
+            mTime += mLength;
+    }
+    else
+    {
+        if (mTime >= mLength - 1)
+            mTime = mLength - 1;
+        if (mTime < 0)
+            mTime = 0.0f;
+    }
+}
+
+int TAnimator::getEndFrame(){
+    return mLength;
+}
+
+void TAnimator::setAnimation(int length, Vtx** animation[], bool loop, float speed){
     mTime = 0.0f;
     this->loop = loop;
     mLength = length;
     for (int i = 0; i < mMeshCount; i++)
         mAnim[i] = animation[i];
+    setTimescale(speed);
 }
 
 void TAnimator::setVertexPos(int size, Vtx vtx[], Vtx* anim[], int frame){

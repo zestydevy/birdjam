@@ -33,6 +33,12 @@ extern Vtx* bird_Bird_Glide_1[];
 extern Vtx* bird_Bird_Glide_2[];
 extern Vtx* bird_Bird_Glide_3[];
 
+extern int bird_Bird_GlideFast_Length;
+extern Vtx* bird_Bird_GlideFast_0[];
+extern Vtx* bird_Bird_GlideFast_1[];
+extern Vtx* bird_Bird_GlideFast_2[];
+extern Vtx* bird_Bird_GlideFast_3[];
+
 extern int bird_Bird_GlideCaw_Length;
 extern Vtx* bird_Bird_GlideCaw_0[];
 extern Vtx* bird_Bird_GlideCaw_1[];

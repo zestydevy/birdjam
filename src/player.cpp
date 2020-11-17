@@ -4,6 +4,17 @@
 #include "math.hpp"
 #include "animator.hpp"
 
+const float BIRD_FLYGRAVITY = 0.2f;
+const float BIRD_MAXSPEED = 75.0f;
+const float BIRD_FASTSPEED = 50.0f; //When you start fast animation
+const float BIRD_SLOWSPEED = 25.0f; //When you start slow animation and speed up
+const float BIRD_ACCEL = 0.5f;      //Acceleration when below slowspeed
+const float BIRD_MINSPEED = 10.0f;
+const float BIRD_FLAPSPEED = 10.0f;
+const float BIRD_FLAPASCENDSPEED = 10.0f;
+const float BIRD_FLAPDESCENDSPEED = 10.0f;
+const float BIRD_BANKDEGREES = 45.0f;
+
 // -------------------------------------------------------------------------- //
 
 void TPlayer::setPosition(TVec3<f32> const & pos)
@@ -45,6 +56,8 @@ void TPlayer::update()
     //    mAngle = TSine::atan2(-mPad->getAnalogX(), -mPad->getAnalogY());
     //}
 
+    mFlapTimer--;
+
     TMtx44 temp1, temp2, temp3;
 
     //find the camera
@@ -60,18 +73,18 @@ void TPlayer::update()
                 mRotation = TVec3<s16>((s16)0, (s16)((s16)TSine::atan2(-mPad->getAnalogX(), mPad->getAnalogY()) + (s16)cameraAngle), (s16)0);
                 move = (forward * (float)mPad->getAnalogY()) + (right * (float)mPad->getAnalogX()); //Move relative to camera
                 move.normalize();
-                mPosition += move * 10.0f;
+                mPosition += move * BIRD_FLAPSPEED;
             }
             
             if (mPad->isHeld(A))
-                mPosition += TVec3<f32>(0.0f, 10.0f, 0.0f);
+                mPosition += TVec3<f32>(0.0f, BIRD_FLAPASCENDSPEED, 0.0f);
             if (mPad->isHeld(B))
-                mPosition -= TVec3<f32>(0.0f, 10.0f, 0.0f);
+                mPosition -= TVec3<f32>(0.0f, BIRD_FLAPDESCENDSPEED, 0.0f);
 
             if (mPad->isPressed(Z)){    //Start flying
                 // Set state and animation
                 mState = PLAYERSTATE_FLYING;
-                mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, false);
+                mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, false, 0.25f);
 
                 mFlappingWings = true;
 
@@ -80,6 +93,7 @@ void TPlayer::update()
 
                 // Set initial flight speed
                 mSpeed = 25.0f;
+                mGoingFast = false;
             }
             break;
         case PLAYERSTATE_FLYING:
@@ -91,33 +105,62 @@ void TPlayer::update()
             TMtx44::concat(temp1, temp2, temp3);
             mDirection = temp3.mul(mDirection);
 
+            //Clamp y direction
+            if (mDirection.y() > 0.9f)
+                mDirection.set(mDirection.x(), 0.9f, mDirection.z());
+            if (mDirection.y() < -0.9f)
+                mDirection.set(mDirection.x(), -0.9f, mDirection.z());
+            mDirection.normalize();
+
             // Apply visual rotation
-            mRotation = TVec3<s16>((s16)-TSine::asin(mDirection.y()), TSine::atan2(mDirection.x(), mDirection.z()), (s16)0);
+            s16 bankTarget = TSine::fromDeg(mPad->getAnalogX() / 80.0f * BIRD_BANKDEGREES);
+            mBankAngle = (mBankAngle * 7 + bankTarget) / 8;
+            mRotation = TVec3<s16>((s16)-TSine::asin(mDirection.y()), TSine::atan2(mDirection.x(), mDirection.z()), mBankAngle);
             mCamera->setAngle(mRotation.y());
 
             // Apply gravity
-            mSpeed -= mDirection.dot(TVec3F(0.0f, 1.0f, 0.0f)) * 0.2f; // Going down Gravity
-            if (mSpeed < 10.0f)
-                mSpeed = 10.0f; // Min Speed
-            if (mSpeed > 100.0f)
-                mSpeed = 100.0f; // Max Speed
+            mSpeed -= mDirection.dot(TVec3F(0.0f, 1.0f, 0.0f)) * BIRD_FLYGRAVITY; // Going down Gravity
+            if (mSpeed < BIRD_MINSPEED)
+                mSpeed = BIRD_MINSPEED; // Min Speed
+            if (mSpeed > BIRD_MAXSPEED)
+                mSpeed = BIRD_MAXSPEED; // Max Speed
 
-            if (mSpeed < 25.0f){ // Flapping speed
+            if (mSpeed < BIRD_SLOWSPEED && mFlapTimer < 0){ // Flapping speed
+                mGoingFast = false;
                 if (mFlappingWings == false){
-                    mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, false);
+                    mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, false, 0.25f);
                     mFlappingWings = true;
                 }
-                mSpeed += 0.02f;
+                mSpeed += BIRD_ACCEL;
             }
 
             // Move along movement vector
             mPosition += mDirection * mSpeed;
 
+            float glideAnimRate = (mSpeed - BIRD_MINSPEED) / (BIRD_FASTSPEED - BIRD_MINSPEED) * 0.15f;
+
+            // Fast movement animation
+            if (mSpeed > BIRD_FASTSPEED && !mFlappingWings){
+                if (!mGoingFast){
+                    mAnim->setAnimation(bird_Bird_GlideFast_Length, mAnim_GlideFast, true, 0.0f);
+                    mGoingFast = true;
+                }
+                mAnim->setFrame((mSpeed - BIRD_FASTSPEED) / (BIRD_MAXSPEED - BIRD_FASTSPEED));
+            }
+            else if (mGoingFast) {
+                mAnim->setAnimation(bird_Bird_Glide_Length, mAnim_Glide, true, glideAnimRate);
+                mGoingFast = false;
+            }
+
             // Stop flapping wings
             if (mFlappingWings && mAnim->isAnimationCompleted()){
                 mFlappingWings = false;
-                mAnim->setAnimation(bird_Bird_Glide_Length, mAnim_Glide);
+                mAnim->setAnimation(bird_Bird_Glide_Length, mAnim_Glide, true, glideAnimRate);
+                mFlapTimer = 8;
             }
+
+            if (!mFlappingWings && !mGoingFast)
+                mAnim->setTimescale(glideAnimRate); // Shake faster from wind
 
             if (mPad->isPressed(Z)){    //Return back to flapping
                 mState = PLAYERSTATE_FLYING;
@@ -139,13 +182,14 @@ void TPlayer::draw()
     //mtx.rotateEuler({0,angle,0});
     //mtx.floatToFixed(mtx, gBirdRot);
 
-    TMtx44 temp1, temp2;
+    TMtx44 temp1, temp2, temp3;
     
     mPosMtx.translate(mPosition);
-    //mRotMtx.rotateAxis(TVec3F(0.0f, 0.0f, 1.0f), mRotation.z());
     temp1.rotateAxis(TVec3<f32>(-TSine::scos(mRotation.y()), 0.0f, TSine::ssin(mRotation.y())), -mRotation.x());
     temp2.rotateAxisY(mRotation.y());
-    TMtx44::concat(temp1, temp2, mRotMtx);
+    TMtx44::concat(temp1, temp2, temp3);
+    temp1.rotateAxis(temp3.mul(TVec3<f32>(0.0f, 0.0f, 1.0f)), mRotation.z());
+    TMtx44::concat(temp1, temp3, mRotMtx);
     mScaleMtx.scale(mScale);
 
     TMtx44::floatToFixed(mPosMtx, mFPosMtx);
