@@ -4,16 +4,17 @@
 #include "math.hpp"
 #include "animator.hpp"
 
-const float BIRD_FLYGRAVITY = 0.2f;
-const float BIRD_MAXSPEED = 75.0f;
-const float BIRD_FASTSPEED = 50.0f; //When you start fast animation
-const float BIRD_SLOWSPEED = 25.0f; //When you start slow animation and speed up
-const float BIRD_ACCEL = 0.5f;      //Acceleration when below slowspeed
-const float BIRD_MINSPEED = 10.0f;
-const float BIRD_FLAPSPEED = 10.0f;
-const float BIRD_FLAPASCENDSPEED = 10.0f;
-const float BIRD_FLAPDESCENDSPEED = 10.0f;
+const float BIRD_FLYGRAVITY = 0.02f;
+const float BIRD_MAXSPEED = 12.0f;
+const float BIRD_FASTSPEED = 9.0f; //When you start fast animation
+const float BIRD_SLOWSPEED = 6.0f; //When you start slow animation and speed up
+const float BIRD_ACCEL = 0.05f;    //Acceleration when below slowspeed
+const float BIRD_MINSPEED = 4.0f;
+const float BIRD_FLAPSPEED = 4.0f;
+const float BIRD_FLAPASCENDSPEED = 4.0f;
+const float BIRD_FLAPDESCENDSPEED = 4.0f;
 const float BIRD_BANKDEGREES = 45.0f;
+const float BIRD_WINDRES = 0.0075f;
 
 // -------------------------------------------------------------------------- //
 
@@ -42,6 +43,7 @@ void TPlayer::init()
     // set up to start in flight for testing:
     mDirection = TVec3<f32>(0.0f, 0.0f, 0.0f);
     mRotation = TVec3<f32>(0.0f, 0.0f, 0.0f);
+    mSpeed = 1.0f;
 
     //Set up model animator
     mAnim = new TAnimator(sizeof(mMeshes) / sizeof(Vtx*), mMeshes, mMeshSizes);
@@ -66,16 +68,18 @@ void TPlayer::update()
     TVec3<f32> forward = TVec3<f32>(TSine::ssin(cameraAngle), 0.0f, TSine::scos(cameraAngle));  //Camera forward
     TVec3<f32> right = TVec3<f32>(-forward.z(), 0.0f, forward.x()); //Camera right
 
-    TVec3<f32> move{};
+    TVec3<f32> move = TVec3<f32>(0.0f, 0.0f, 0.0f);
     switch (mState){
         case PLAYERSTATE_FLAPPING:
             if (mPad->getAnalogX() != 0 || mPad->getAnalogY() != 0) {
-                mRotation = TVec3<s16>((s16)0, (s16)((s16)TSine::atan2(-mPad->getAnalogX(), mPad->getAnalogY()) + (s16)cameraAngle), (s16)0);
-                move = (forward * (float)mPad->getAnalogY()) + (right * (float)mPad->getAnalogX()); //Move relative to camera
-                move.normalize();
-
-                mPosition += move * BIRD_FLAPSPEED;
+                move = (forward * (float)mPad->getAnalogY() / 160.0f) + (right * (float)mPad->getAnalogX() / 160.0f); //Move relative to camera
+                move = move * BIRD_FLAPSPEED;
             }
+
+            // Smooth acceleration
+            mDirection.lerp(move, 0.1f);
+            mRotation = TVec3<s16>((s16)0, (s16)TSine::atan2(mDirection.x(), mDirection.z()), (s16)0);
+            mPosition += mDirection;
             
             if (mPad->isHeld(A))
                 mPosition += TVec3<f32>(0.0f, BIRD_FLAPASCENDSPEED, 0.0f);
@@ -98,6 +102,9 @@ void TPlayer::update()
 
                 mCamera->setMode(true);
             }
+
+            // Configure the camera (position is handled by the camera itself)
+            mCameraTarget = mPosition + (up * 60.00f) + (mDirection * mSpeed * 10.0f);  //Target slightly above player and slightly in front of player
             break;
         case PLAYERSTATE_FLYING:
             TVec3<f32> fright = TVec3<f32>(-mDirection.z(), 0.0f, mDirection.x());  //Flight right
@@ -127,6 +134,7 @@ void TPlayer::update()
 
             // Apply gravity
             mSpeed -= mDirection.dot(TVec3F(0.0f, 1.0f, 0.0f)) * BIRD_FLYGRAVITY; // Going down Gravity
+            mSpeed -= BIRD_WINDRES;
             if (mSpeed < BIRD_MINSPEED)
                 mSpeed = BIRD_MINSPEED; // Min Speed
             if (mSpeed > BIRD_MAXSPEED)
@@ -144,7 +152,7 @@ void TPlayer::update()
             // Move along movement vector
             mPosition += mDirection * mSpeed;
 
-            float glideAnimRate = (mSpeed - BIRD_MINSPEED) / (BIRD_FASTSPEED - BIRD_MINSPEED) * 0.15f;
+            float glideAnimRate = (mSpeed - BIRD_MINSPEED) / (BIRD_FASTSPEED - BIRD_MINSPEED) * 0.075f;
 
             // Fast movement animation
             if (mSpeed > BIRD_FASTSPEED && !mFlappingWings){
@@ -175,13 +183,17 @@ void TPlayer::update()
                 mRotation = TVec3<s16>((s16)0, mRotation.y(), (s16)0);
 
                 mCamera->setMode(false);
+
+                // Convert direction into velocity for flapping
+                mDirection = mDirection * mSpeed;
+                mSpeed = 1.0f;
             }
 
-            mCamera->setPosition(mPosition + (fback * 1500.0f));
+            // Configure the camera
+            mCamera->setPosition(mPosition + (fback * 150.0f));
+            mCameraTarget = mPosition + (up * 100.00f) + (mDirection * mSpeed * 20.0f);  //Target slightly above player and slightly in front of player
             break;
     }
-
-    mCameraTarget = mPosition + (up * 350.0f);
 
     mAnim->update();
 }

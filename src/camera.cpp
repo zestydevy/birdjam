@@ -18,18 +18,20 @@ TCamera::TCamera(TDynList2 * list)
     mRotation.set(0.0f, 0.0f, 0.0f);
     mScale.set(1.0f, 1.0f, 1.0f);
 
+    mDistance = 300.0f;
+
     mExternallyControlled = false;
 }
 
 void TCamera::render()
 {    
-    if (mDistance < 1500.0f)
-        mDistance = 1500.0f;
-    if (mDistance > 6000.0f)
-        mDistance = 6000.0f;
+    if (mDistance < 150.0f)
+        mDistance = 150.0f;
+    if (mDistance > 600.0f)
+        mDistance = 600.0f;
 
     guPerspective(&mProjectionMtx, &mPersp,
-		      mFov, 320.0/240.0, 40, 40000, 1.0);
+		      mFov, 320.0/240.0, 40, 10000, 1.0);
     guLookAtReflect(&mFViewMtx, mLookAtMtx,
 		       50, 0, 400,
 		       0, 0, 0,
@@ -48,23 +50,28 @@ void TCamera::render()
 
     bool moveCamera = mPad->isHeld(EButton::C_LEFT) || mPad->isHeld(EButton::C_RIGHT) || mPad->isHeld(EButton::C_UP) || mPad->isHeld(EButton::C_DOWN);
     if (mPad->isHeld(EButton::C_LEFT))
-        mAngle += 300;
+        mAngle += 30.0;
     if (mPad->isHeld(EButton::C_RIGHT))
-        mAngle -= 300;
+        mAngle -= 30.0;
     if (mPad->isHeld(EButton::C_UP))
-        mDistance -= 35.0f;
+        mDistance -= 3.50f;
     if (mPad->isHeld(EButton::C_DOWN))
-        mDistance += 35.0f;
+        mDistance += 3.50f;
 
     float x = mPosition.x();
     float y = mPosition.y();
     float z = mPosition.z();
-    if (!mExternallyControlled && (moveCamera || pdist < mDistance || pdist > mDistance / 2)){
+    if (!mExternallyControlled && (moveCamera || pdist > mDistance || pdist < mDistance * 0.75f)){
+        if (pdist > mDistance)      // Clamp camera distance between max and half max;
+            pdist = mDistance;
+        if (pdist < mDistance * 0.75f)
+            pdist = mDistance * 0.75f;
+
         if (!moveCamera)
             mAngle = TSine::atan2(dif.x(), dif.z());
-        x = mTarget->x() - TSine::ssin(mAngle) * mDistance;
-        y = mTarget->y() + 200.0f;
-        z = mTarget->z() - TSine::scos(mAngle) * mDistance;
+        x = mTarget->x() - TSine::ssin(mAngle) * pdist;
+        y = mTarget->y() + 20.00f;
+        z = mTarget->z() - TSine::scos(mAngle) * pdist;
         mPosition.set(x, y, z);
     }
 

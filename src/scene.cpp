@@ -32,7 +32,7 @@ void TTestScene::init()
 
     mBird->setPosition({0.0f,2500.0f,0.0f});
     mBird->setRotation({0,0,0});
-    mBird->setScale({0.3f,0.3f,0.3f});
+    mBird->setScale({0.05f,0.05f,0.05f});
 }
 
 void TTestScene::update()
