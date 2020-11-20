@@ -44,7 +44,9 @@ bool TCollFace::isWall() const {
 float TCollFace::calcDist(
   TVec3F const & pt
 ) const {
-  return (d + nrm.dot(pt));
+  TVec3F ab;
+  ab.sub(pt, v0);
+  return (d + nrm.dot(ab));
 }
 
 // -------------------------------------------------------------------------- //
