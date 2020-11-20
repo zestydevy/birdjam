@@ -24,7 +24,7 @@ class TScene
 {
     public:
 
-    inline TScene(char * name, TDynList2 * list)
+    inline TScene(char const * name, TDynList2 * list)
         : mName{name}, mDynList{list} {};
 
     ~TScene() = default;
@@ -34,7 +34,7 @@ class TScene
     virtual void draw() = 0;
     virtual void exit() = 0;
 
-    inline char * getName() {return mName;}
+    inline char const * getName() {return mName;}
     ESceneState getState() {return mStatus;}
     bool isInitialized();
     virtual TPlayer * getPlayer() {return nullptr;}
@@ -44,7 +44,7 @@ class TScene
 
     private:
 
-    char * mName{nullptr};
+    char const * mName{nullptr};
 };
 
 // -------------------------------------------------------------------------- //
@@ -54,7 +54,7 @@ class TTestScene final
 {
     public:
 
-    TTestScene(char * name, TDynList2 * list)
+    TTestScene(char const * name, TDynList2 * list)
         : TScene(name, list) {};
 
     virtual void init() override;
