@@ -217,59 +217,59 @@ using TVec2F = TVec2<float>;
 // -------------------------------------------------------------------------- //
 
 template<typename T1, typename T2>
-bool operator==(TVec2<T1> const & lhs, TVec2<T2> const & rhs) {
+inline bool operator==(TVec2<T1> const & lhs, TVec2<T2> const & rhs) {
   return (lhs.x() == rhs.x() && lhs.y() == rhs.y());
 }
 
 template<typename T1, typename T2>
-bool operator!=(TVec2<T1> const & lhs, TVec2<T2> const & rhs) {
+inline bool operator!=(TVec2<T1> const & lhs, TVec2<T2> const & rhs) {
   return (lhs.x() != rhs.x() || lhs.y() != rhs.y());
 }
 
 template<typename T>
-TVec2<T> operator+(TVec2<T> const & lhs, TVec2<T> const & rhs) {
+inline TVec2<T> operator+(TVec2<T> const & lhs, TVec2<T> const & rhs) {
   TVec2<T> v = lhs;
   v += rhs;
   return v;
 }
 
 template<typename T>
-TVec2<T> operator-(TVec2<T> const & lhs, TVec2<T> const & rhs) {
+inline TVec2<T> operator-(TVec2<T> const & lhs, TVec2<T> const & rhs) {
   TVec2<T> v = lhs;
   v -= rhs;
   return v;
 }
 
 template<typename T>
-TVec2<T> operator*(TVec2<T> const & lhs, T const & rhs) {
+inline TVec2<T> operator*(TVec2<T> const & lhs, T const & rhs) {
   TVec2<T> v = lhs;
   v *= rhs;
   return v;
 }
 
 template<typename T>
-TVec2<T> operator*(T const & lhs, TVec2<T> const & rhs) {
+inline TVec2<T> operator*(T const & lhs, TVec2<T> const & rhs) {
   TVec2<T> v = rhs;
   v *= lhs;
   return v;
 }
 
 template<typename T>
-TVec2<T> operator*(TVec2<T> const & lhs, TVec2<T> const & rhs) {
+inline TVec2<T> operator*(TVec2<T> const & lhs, TVec2<T> const & rhs) {
   TVec2<T> v = lhs;
   v *= rhs;
   return v;
 }
 
 template<typename T>
-TVec2<T> operator/(TVec2<T> const & lhs, T const & rhs) {
+inline TVec2<T> operator/(TVec2<T> const & lhs, T const & rhs) {
   TVec2<T> v = lhs;
   v /= rhs;
   return v;
 }
 
 template<typename T>
-TVec2<T> operator/(TVec2<T> const & lhs, TVec2<T> const & rhs) {
+inline TVec2<T> operator/(TVec2<T> const & lhs, TVec2<T> const & rhs) {
   TVec2<T> v = lhs;
   v /= rhs;
   return v;
@@ -486,59 +486,59 @@ using TVec3F = TVec3<float>;
 // -------------------------------------------------------------------------- //
 
 template<typename T1, typename T2>
-bool operator==(TVec3<T1> const & lhs, TVec3<T2> const & rhs) {
+inline bool operator==(TVec3<T1> const & lhs, TVec3<T2> const & rhs) {
   return (lhs.x() == rhs.x() && lhs.y() == rhs.y() && lhs.z() == rhs.z());
 }
 
 template<typename T1, typename T2>
-bool operator!=(TVec3<T1> const & lhs, TVec3<T2> const & rhs) {
+inline bool operator!=(TVec3<T1> const & lhs, TVec3<T2> const & rhs) {
   return (lhs.x() != rhs.x() || lhs.y() != rhs.y() || lhs.z() != rhs.z());
 }
 
 template<typename T>
-TVec3<T> operator+(TVec3<T> const & lhs, TVec3<T> const & rhs) {
+inline TVec3<T> operator+(TVec3<T> const & lhs, TVec3<T> const & rhs) {
   TVec3<T> v = lhs;
   v += rhs;
   return v;
 }
 
 template<typename T>
-TVec3<T> operator-(TVec3<T> const & lhs, TVec3<T> const & rhs) {
+inline TVec3<T> operator-(TVec3<T> const & lhs, TVec3<T> const & rhs) {
   TVec3<T> v = lhs;
   v -= rhs;
   return v;
 }
 
 template<typename T>
-TVec3<T> operator*(TVec3<T> const & lhs, T const & rhs) {
+inline TVec3<T> operator*(TVec3<T> const & lhs, T const & rhs) {
   TVec3<T> v = lhs;
   v *= rhs;
   return v;
 }
 
 template<typename T>
-TVec3<T> operator*(T const & lhs, TVec3<T> const & rhs) {
+inline TVec3<T> operator*(T const & lhs, TVec3<T> const & rhs) {
   TVec3<T> v = rhs;
   v *= lhs;
   return v;
 }
 
 template<typename T>
-TVec3<T> operator*(TVec3<T> const & lhs, TVec3<T> const & rhs) {
+inline TVec3<T> operator*(TVec3<T> const & lhs, TVec3<T> const & rhs) {
   TVec3<T> v = lhs;
   v *= rhs;
   return v;
 }
 
 template<typename T>
-TVec3<T> operator/(TVec3<T> const & lhs, T const & rhs) {
+inline TVec3<T> operator/(TVec3<T> const & lhs, T const & rhs) {
   TVec3<T> v = lhs;
   v /= rhs;
   return v;
 }
 
 template<typename T>
-TVec3<T> operator/(TVec3<T> const & lhs, TVec3<T> const & rhs) {
+inline TVec3<T> operator/(TVec3<T> const & lhs, TVec3<T> const & rhs) {
   TVec3<T> v = lhs;
   v /= rhs;
   return v;

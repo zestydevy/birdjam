@@ -72,14 +72,14 @@ class TArray {
 // -------------------------------------------------------------------------- //
 
 template<typename T>
-TArray<T>::TArray(THeap * heap) :
+inline TArray<T>::TArray(THeap * heap) :
   mHeap { heap }
 {}
 
 // -------------------------------------------------------------------------- //
 
 template<typename T>
-TArray<T>::TArray(u32 n, THeap * heap) :
+inline TArray<T>::TArray(u32 n, THeap * heap) :
   TArray { heap }
 {
   reserve(n);
@@ -88,7 +88,7 @@ TArray<T>::TArray(u32 n, THeap * heap) :
 // -------------------------------------------------------------------------- //
 
 template<typename T>
-TArray<T>::TArray(u32 n, TValue const & v, THeap * heap) :
+inline TArray<T>::TArray(u32 n, TValue const & v, THeap * heap) :
   TArray { heap }
 {
   resize(n, v);
@@ -97,14 +97,14 @@ TArray<T>::TArray(u32 n, TValue const & v, THeap * heap) :
 // -------------------------------------------------------------------------- //
 
 template<typename T>
-TArray<T>::~TArray() {
+inline TArray<T>::~TArray() {
   delete[] mBegin;
 }
 
 // -------------------------------------------------------------------------- //
 
 template<typename T>
-void TArray<T>::reserve(u32 n) {
+inline void TArray<T>::reserve(u32 n) {
   if (capacity() >= n) {
     return;
   }
@@ -125,7 +125,7 @@ void TArray<T>::reserve(u32 n) {
 // -------------------------------------------------------------------------- //
 
 template<typename T>
-void TArray<T>::resize(u32 n, TValue const & v) {
+inline void TArray<T>::resize(u32 n, TValue const & v) {
   if (size() > n) {
     erase((begin() + n), end());
   } else if (size() < n) {
@@ -136,7 +136,7 @@ void TArray<T>::resize(u32 n, TValue const & v) {
 // -------------------------------------------------------------------------- //
 
 template<typename T>
-void TArray<T>::shrink() {
+inline void TArray<T>::shrink() {
   u32 n = size();
 
   if (capacity() == n) {
@@ -157,7 +157,7 @@ void TArray<T>::shrink() {
 // -------------------------------------------------------------------------- //
 
 template<typename T>
-typename TArray<T>::TIterator
+inline typename TArray<T>::TIterator
 TArray<T>::insert(TConstIterator it, TValue const & v, u32 n) {
   u32 a = static_cast<u32>(it - mBegin);
 
@@ -212,7 +212,7 @@ TArray<T>::insert(TConstIterator it, TValue const & v, u32 n) {
 // -------------------------------------------------------------------------- //
 
 template<typename T>
-typename TArray<T>::TIterator
+inline typename TArray<T>::TIterator
 TArray<T>::erase(TConstIterator it) {
   return erase(it, (it + 1));
 }
@@ -220,7 +220,7 @@ TArray<T>::erase(TConstIterator it) {
 // -------------------------------------------------------------------------- //
 
 template<typename T>
-typename TArray<T>::TIterator
+inline typename TArray<T>::TIterator
 TArray<T>::erase(TConstIterator first, TConstIterator last) {
   if (first == last) {
     return last;
