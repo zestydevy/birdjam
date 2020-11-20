@@ -16,6 +16,8 @@ const float BIRD_FLAPDESCENDSPEED = 4.0f;
 const float BIRD_BANKDEGREES = 45.0f;
 const float BIRD_WINDRES = 0.0075f;
 
+const float BIRD_RADIUS = 35.0f;
+
 // -------------------------------------------------------------------------- //
 
 void TPlayer::setPosition(TVec3<f32> const & pos)
@@ -68,9 +70,14 @@ void TPlayer::update()
     TVec3<f32> forward = TVec3<f32>(TSine::ssin(cameraAngle), 0.0f, TSine::scos(cameraAngle));  //Camera forward
     TVec3<f32> right = TVec3<f32>(-forward.z(), 0.0f, forward.x()); //Camera right
 
+    TVec3<f32> fright;  //Flight right
+    TVec3<f32> fback;  //Flight back
+
+    float animRate = 0.25f;
+
     TVec3<f32> move = TVec3<f32>(0.0f, 0.0f, 0.0f);
     switch (mState){
-        case PLAYERSTATE_FLAPPING:
+        case playerstate_t::PLAYERSTATE_FLAPPING:
             if (mPad->getAnalogX() != 0 || mPad->getAnalogY() != 0) {
                 move = (forward * (float)mPad->getAnalogY() / 160.0f) + (right * (float)mPad->getAnalogX() / 160.0f); //Move relative to camera
                 move = move * BIRD_FLAPSPEED;
@@ -106,9 +113,9 @@ void TPlayer::update()
             // Configure the camera (position is handled by the camera itself)
             mCameraTarget = mPosition + (up * 60.00f) + (mDirection * mSpeed * 10.0f);  //Target slightly above player and slightly in front of player
             break;
-        case PLAYERSTATE_FLYING:
-            TVec3<f32> fright = TVec3<f32>(-mDirection.z(), 0.0f, mDirection.x());  //Flight right
-            TVec3<f32> fback = TVec3<f32>(-mDirection.x(), -mDirection.y(), -mDirection.z());  //Flight back
+        case playerstate_t::PLAYERSTATE_FLYING:
+            fright = TVec3<f32>(-mDirection.z(), 0.0f, mDirection.x());  //Flight right
+            fback = TVec3<f32>(-mDirection.x(), -mDirection.y(), -mDirection.z());  //Flight back
 
             temp1.rotateAxis(fright, TSine::fromDeg(90.0f));
             up = temp1.mul(mDirection);  //Flight back
@@ -127,8 +134,7 @@ void TPlayer::update()
             mDirection.normalize();
 
             // Apply visual rotation
-            s16 bankTarget = TSine::fromDeg(mPad->getAnalogX() / 80.0f * BIRD_BANKDEGREES);
-            mBankAngle = (mBankAngle * 7 + bankTarget) / 8;
+            mBankAngle = (mBankAngle * 7 + TSine::fromDeg(mPad->getAnalogX() / 80.0f * BIRD_BANKDEGREES)) / 8;
             mRotation = TVec3<s16>((s16)-TSine::asin(mDirection.y()), TSine::atan2(mDirection.x(), mDirection.z()), mBankAngle);
             mCamera->setAngle(mRotation.y());
 
@@ -152,7 +158,7 @@ void TPlayer::update()
             // Move along movement vector
             mPosition += mDirection * mSpeed;
 
-            float glideAnimRate = (mSpeed - BIRD_MINSPEED) / (BIRD_FASTSPEED - BIRD_MINSPEED) * 0.075f;
+            animRate = (mSpeed - BIRD_MINSPEED) / (BIRD_FASTSPEED - BIRD_MINSPEED) * 0.075f;
 
             // Fast movement animation
             if (mSpeed > BIRD_FASTSPEED && !mFlappingWings){
@@ -163,19 +169,19 @@ void TPlayer::update()
                 mAnim->setFrame((mSpeed - BIRD_FASTSPEED) / (BIRD_MAXSPEED - BIRD_FASTSPEED));
             }
             else if (mGoingFast) {
-                mAnim->setAnimation(bird_Bird_Glide_Length, mAnim_Glide, true, glideAnimRate);
+                mAnim->setAnimation(bird_Bird_Glide_Length, mAnim_Glide, true, animRate);
                 mGoingFast = false;
             }
 
             // Stop flapping wings
             if (mFlappingWings && mAnim->isAnimationCompleted()){
                 mFlappingWings = false;
-                mAnim->setAnimation(bird_Bird_Glide_Length, mAnim_Glide, true, glideAnimRate);
+                mAnim->setAnimation(bird_Bird_Glide_Length, mAnim_Glide, true, animRate);
                 mFlapTimer = 8;
             }
 
             if (!mFlappingWings && !mGoingFast)
-                mAnim->setTimescale(glideAnimRate); // Shake faster from wind
+                mAnim->setTimescale(animRate); // Shake faster from wind
 
             if (mPad->isPressed(Z)){    //Return back to flapping
                 mState = PLAYERSTATE_FLAPPING;
@@ -191,8 +197,40 @@ void TPlayer::update()
 
             // Configure the camera
             mCamera->setPosition(mPosition + (fback * 150.0f));
-            mCameraTarget = mPosition + (up * 100.00f) + (mDirection * mSpeed * 20.0f);  //Target slightly above player and slightly in front of player
+            mCameraTarget = mPosition + (up * 80.00f) + (mDirection * mSpeed * 20.0f);  //Target slightly above player and slightly in front of player
             break;
+        case playerstate_t::PLAYERSTATE_STUNNED:
+            fright = TVec3<f32>(-mLastDirection.z(), 0.0f, mLastDirection.x());  //Flight right
+            fback = TVec3<f32>(-mLastDirection.x(), -mLastDirection.y(), -mLastDirection.z());  //Flight back
+
+            //Restore flight after crash animation
+            if (mAnim->isAnimationCompleted()){
+                mState = PLAYERSTATE_FLYING;
+                mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, false, 0.25f);
+
+                mFlappingWings = true;
+
+                // Set initial flight direction to the facing direction
+                mDirection = mLastDirection;
+                mSpeed = 25.0f;
+            }
+
+            // Move along movement vector
+            mPosition += mDirection * mSpeed;
+
+            // Configure the camera
+            mCamera->setPosition(mPosition + (fback * 150.0f));
+            mCameraTarget = mPosition + (up * 80.00f) + (mLastDirection * mSpeed * 20.0f);  //Target slightly above player and slightly in front of player
+            break;
+    }
+
+    mClosestFace = mCollision->findClosest(mPosition, BIRD_RADIUS);
+    if (mClosestFace != nullptr){  //collision!
+        mLastDirection = mDirection;
+        mDirection = mClosestFace->nrm;
+        mState = PLAYERSTATE_STUNNED;
+
+        mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, false, 0.25f);
     }
 
     mAnim->update();
@@ -221,13 +259,17 @@ void TPlayer::draw()
     TMtx44::floatToFixed(mScaleMtx, mFScaleMtx);
     
     gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFPosMtx),
-	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
+	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
     gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFScaleMtx),
-	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
+	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
     gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFRotMtx),
-	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
+	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
         
     gSPDisplayList(mDynList->pushDL(), bird_Bird_mesh);
+
+    gSPPopMatrix(mDynList->pushDL(), G_MTX_MODELVIEW);
+    gSPPopMatrix(mDynList->pushDL(), G_MTX_MODELVIEW);
+    gSPPopMatrix(mDynList->pushDL(), G_MTX_MODELVIEW);
 }
 
 // -------------------------------------------------------------------------- //

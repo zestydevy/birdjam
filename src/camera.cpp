@@ -50,9 +50,9 @@ void TCamera::render()
 
     bool moveCamera = mPad->isHeld(EButton::C_LEFT) || mPad->isHeld(EButton::C_RIGHT) || mPad->isHeld(EButton::C_UP) || mPad->isHeld(EButton::C_DOWN);
     if (mPad->isHeld(EButton::C_LEFT))
-        mAngle += 30.0;
+        mAngle += 300.0;
     if (mPad->isHeld(EButton::C_RIGHT))
-        mAngle -= 30.0;
+        mAngle -= 300.0;
     if (mPad->isHeld(EButton::C_UP))
         mDistance -= 3.50f;
     if (mPad->isHeld(EButton::C_DOWN))

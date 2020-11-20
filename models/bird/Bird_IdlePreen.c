@@ -1,6 +1,6 @@
 #include <ultra64.h>
 #include "../models/bird/model_bird.h"
-
+/*
 Vtx bird_Bird_IdlePreen_vtx_0_0[265] = {
 	{{{100, 543, 370},0, {528, 104},{0x5F, 0xFC, 0x55, 0xFF}}},
 	{{{89, 586, 361},0, {557, 97},{0x51, 0x4C, 0x3D, 0xFF}}},
@@ -2630,3 +2630,4 @@ Vtx* bird_Bird_IdlePreen_3[19] = {
 	bird_Bird_IdlePreen_vtx_3_1,
 	bird_Bird_IdlePreen_vtx_3_0
 };
+*/

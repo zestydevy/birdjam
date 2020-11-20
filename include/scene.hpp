@@ -6,6 +6,8 @@
 #include "camera.hpp"
 #include "pad.hpp"
 #include "player.hpp"
+#include "collision.hpp"
+#include "staticobj.hpp"
 
 // -------------------------------------------------------------------------- //
 
@@ -35,6 +37,7 @@ class TScene
     inline char * getName() {return mName;}
     ESceneState getState() {return mStatus;}
     bool isInitialized();
+    virtual TPlayer * getPlayer() {return nullptr;}
 
     ESceneState mStatus{ESceneState::IDLE};
     TDynList2 * mDynList{nullptr};
@@ -58,12 +61,17 @@ class TTestScene final
     virtual void update() override;
     virtual void draw() override;
     virtual void exit() override;
+    virtual TPlayer * getPlayer() override {return mBird;}
 
     private:
 
     TCamera * mCamera{nullptr};
     TPad * mPad{nullptr};
     TPlayer * mBird{nullptr};
+
+    TStaticObject * mObjects[4];
+    
+    TCollision * mCollision{nullptr};
 };
 
 // -------------------------------------------------------------------------- //

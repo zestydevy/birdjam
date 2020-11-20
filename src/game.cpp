@@ -148,20 +148,15 @@ void TGame::update()
         (s32)(mDynList->fetchCmdIndex()) * sizeof (Gfx),
 	    NU_GFX_UCODE_F3DEX , NU_SC_NOSWAPBUFFER);
 
+    TVec3F pPos = getCurrentScene()->getPlayer()->getPosition();
+
     char conbuff[64];
     nuDebConTextColor(0, NU_DEB_CON_TEXT_RED);
     nuDebConTextPos(0,3,3);
-    sprintf(conbuff,"%s",getCurrentScene()->getName());
+    sprintf(conbuff,"%.2f, %.2f, %.2f", pPos.x(), pPos.y(), pPos.z());
     nuDebConCPuts(0, conbuff);
     nuDebConDisp(NU_SC_SWAPBUFFER);
 
-}
-
-static void updateVertexPos(int size, Vtx vtx[], Vtx* anim[], int frame){
-    int shake = (frame % 3) - 1;
-    for (int i = 0; i < size; i++){
-        vtx[i] = anim[frame][i];
-    }
 }
 
 void TGame::draw()

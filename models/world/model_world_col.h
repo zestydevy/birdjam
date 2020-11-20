@@ -1,1 +1,2 @@
-extern const Collision worldcol_collision[];
+#include <nusys.h>
+extern const s16 worldcol_collision[];

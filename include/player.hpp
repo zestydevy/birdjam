@@ -7,6 +7,7 @@
 #include "dynlist.hpp"
 #include "pad.hpp"
 #include "camera.hpp"
+#include "collision.hpp"
 
 #include "../models/bird/model_bird.h"
 
@@ -33,6 +34,7 @@ class TPlayer
 
     void setPad(TPad * pad) {mPad = pad;}
     void setCamera(TCamera * camera) {mCamera = camera; mCamera->setTarget(&mCameraTarget);}
+    void setCollision(TCollision * collision) {mCollision = collision;}
 
     TVec3<f32> const & getPosition() {return mPosition;}
     TVec3<s16> const & getRotation() {return mRotation;}
@@ -41,6 +43,9 @@ class TPlayer
     void init();
     void update();
     void draw();
+
+    //For debug only
+    const TCollFace * mClosestFace;
 
     private:
 
@@ -61,23 +66,27 @@ class TPlayer
     TAnimator * mAnim{nullptr};
     TPad * mPad{nullptr};
 
+    TCollision * mCollision;
+
     TCamera * mCamera;
     TVec3<f32> mCameraTarget{};
 
     f32 mSpeed;
     TVec3<f32> mDirection{};
+    TVec3<f32> mLastDirection{};
 
     /* Mesh Info */
     Vtx* mMeshes[4] = {bird_Bird_mesh_vtx_0, bird_Bird_mesh_vtx_1, bird_Bird_mesh_vtx_2, bird_Bird_mesh_vtx_3};
     int mMeshSizes[4] = {265, 75, 59, 8};
 
     /* Animations */
-    Vtx** mAnim_Idle[4] = {bird_Bird_Idle_0, bird_Bird_Idle_1, bird_Bird_Idle_2, bird_Bird_Idle_3};                             //Idle standing
-    Vtx** mAnim_Walk[4] = {bird_Bird_Walk_0, bird_Bird_Walk_1, bird_Bird_Walk_2, bird_Bird_Walk_3};                             //Walking
-    Vtx** mAnim_Glide[4] = {bird_Bird_Glide_0, bird_Bird_Glide_1, bird_Bird_Glide_2, bird_Bird_Glide_3};                        //Gliding
-    Vtx** mAnim_GlideFast[4] = {bird_Bird_GlideFast_0, bird_Bird_GlideFast_1, bird_Bird_GlideFast_2, bird_Bird_GlideFast_3};    //Gliding Fast
-    Vtx** mAnim_GlideFlap[4] = {bird_Bird_GlideFlap_0, bird_Bird_GlideFlap_1, bird_Bird_GlideFlap_2, bird_Bird_GlideFlap_3};    //Flapping wings while gliding
-    Vtx** mAnim_Flap[4] = {bird_Bird_FlyFlap_0, bird_Bird_FlyFlap_1, bird_Bird_FlyFlap_2, bird_Bird_FlyFlap_3};                 //Flapping wings while stationary
+    Vtx** mAnim_Idle[4] = {bird_Bird_Idle_0, bird_Bird_Idle_1, bird_Bird_Idle_2, bird_Bird_Idle_3};                                 //Idle standing
+    Vtx** mAnim_Walk[4] = {bird_Bird_Walk_0, bird_Bird_Walk_1, bird_Bird_Walk_2, bird_Bird_Walk_3};                                 //Walking
+    Vtx** mAnim_Glide[4] = {bird_Bird_Glide_0, bird_Bird_Glide_1, bird_Bird_Glide_2, bird_Bird_Glide_3};                            //Gliding
+    Vtx** mAnim_GlideFast[4] = {bird_Bird_GlideFast_0, bird_Bird_GlideFast_1, bird_Bird_GlideFast_2, bird_Bird_GlideFast_3};        //Gliding Fast
+    //Vtx** mAnim_GlideCrash[4] = {bird_Bird_GlideCrash_0, bird_Bird_GlideCrash_1, bird_Bird_GlideCrash_2, bird_Bird_GlideCrash_3};   //Stunned animation 
+    Vtx** mAnim_GlideFlap[4] = {bird_Bird_GlideFlap_0, bird_Bird_GlideFlap_1, bird_Bird_GlideFlap_2, bird_Bird_GlideFlap_3};        //Flapping wings while gliding
+    Vtx** mAnim_Flap[4] = {bird_Bird_FlyFlap_0, bird_Bird_FlyFlap_1, bird_Bird_FlyFlap_2, bird_Bird_FlyFlap_3};                     //Flapping wings while stationary
 
     bool mFlappingWings;
     bool mGoingFast;

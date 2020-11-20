@@ -26,7 +26,7 @@ HFILES  := $(wildcard include/*.h) $(wildcard models/*.h) $(wildcard models/*/*.
 CODEFILES   := $(wildcard src/*.c)
 CXXFILES    := $(wildcard src/*.cpp)
 DATAFILES   := $(wildcard data/*.c)
-MODELFILES  := $(wildcard models/bird/*.c) $(wildcard models/world/*.c) $(wildcard models/sprites/*.c)
+MODELFILES  := $(wildcard models/bird/*.c) $(wildcard models/world/*.c) $(wildcard models/sprites/*.c) $(wildcard models/cube/*.c)
 LIBFILES    := $(wildcard lib/*.o)
 
 OBJPATH		= 	./build/obj
