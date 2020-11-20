@@ -214,9 +214,8 @@ struct TCollideUtil {
   );
 
   static float distPtLine(
-    TVec3F const & pt,
-    TVec3F const & p0,
-    TVec3F const & p1
+    TVec3F const & a, TVec3F const & b,
+    TVec3F const & src, TVec3F * dst = nullptr
   );
 
   static float distPtPoly(

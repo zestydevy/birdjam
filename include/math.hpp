@@ -180,6 +180,16 @@ class TVec2 {
 
   void normalize() { setLength(*this, TMath<T>::one()); }
 
+  static T distSqr(TVec2<T> const & a, TVec2<T> const & b) {
+    TVec2<T> c;
+    c.sub(a, b);
+    return c.getSqrLength();
+  }
+
+  static T dist(TVec2<T> const & a, TVec2<T> const & b) {
+    return TMath<T>::sqrt(distSqr(a, b));
+  }
+
   // swizzle
 
   TVec2<T> xx() const { return TVec2<T> { x(), x() }; }
@@ -414,6 +424,16 @@ class TVec3 {
   }
 
   void normalize() { setLength(*this, TMath<T>::one()); }
+
+  static T distSqr(TVec3<T> const & a, TVec3<T> const & b) {
+    TVec3<T> c;
+    c.sub(a, b);
+    return c.getSqrLength();
+  }
+
+  static T dist(TVec3<T> const & a, TVec3<T> const & b) {
+    return TMath<T>::sqrt(distSqr(a, b));
+  }
 
   // swizzle
 

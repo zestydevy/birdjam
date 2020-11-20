@@ -426,28 +426,42 @@ bool TCollideUtil::testBoxSphere3D(
 // -------------------------------------------------------------------------- //
 
 float TCollideUtil::distPtLine(
-  TVec3F const & pt,
-  TVec3F const & p0,
-  TVec3F const & p1
+  TVec3F const & a, TVec3F const & b,
+  TVec3F const & src, TVec3F * dst
 ) {
-  TVec3F a, b, c, d;
-  float t;
+  TVec3F ab, bc;
+  float t, d;
 
-  a.sub(p1, p0);
-  b.sub(pt, p0);
-  t = (a.dot(b) / a.getSqrLength());
+  ab.sub(b, a);
+  bc.sub(src, ab);
+  t = (ab.dot(bc) / ab.getSqrLength());
 
   if (t <= 0.0F) {
-    d.sub(pt, p0);
-    return d.getLength();
+    d = TVec3F::dist(src, a);
+
+    if (dst != nullptr) {
+      *dst = a;
+    }
   } else if (t >= 1.0F) {
-    d.sub(pt, p1);
-    return d.getLength();
+    d = TVec3F::dist(src, b);
+
+    if (dst != nullptr) {
+      *dst = b;
+    }
   } else {
-    return TMath<float>::sqrt(
-      b.getSqrLength() - t * a.getSqrLength()
+    d = TMath<float>::sqrt(
+      bc.getSqrLength() -
+      t * ab.getSqrLength()
     );
+
+    if (dst != nullptr) {
+      TVec3F c;
+      c.mul(ab, t);
+      dst->add(a, c);
+    }
   }
+
+  return d;
 }
 
 // -------------------------------------------------------------------------- //

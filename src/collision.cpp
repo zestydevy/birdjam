@@ -1,6 +1,7 @@
 
 #include <nusys.h>
 
+#include "collider.hpp"
 #include "collision.hpp"
 #include "math.hpp"
 
@@ -51,6 +52,61 @@ float TCollFace::calcDist(
 
 // -------------------------------------------------------------------------- //
 
+bool TCollFace::isPtInside(
+  TVec3F const & pt
+) const {
+  TVec3F a, b, c;
+  TVec3F x, y, z;
+
+  a.sub(v0, pt);
+  b.sub(v1, pt);
+  c.sub(v2, pt);
+
+  x.cross(b, c);
+  y.cross(c, a);
+  z.cross(a, b);
+
+  return (x.dot(y) >= 0.0F && x.dot(z) >= 0.0F);
+}
+
+// -------------------------------------------------------------------------- //
+
+void TCollFace::project(
+  TVec3F const & src, TVec3F * dst
+) const {
+  TVec3F v;
+  v.mul(nrm, (nrm.dot(src) - d));
+  dst->sub(v);
+}
+
+// -------------------------------------------------------------------------- //
+
+void TCollFace::calcClosestPt(
+  TVec3F const & src, TVec3F * dst
+) const {
+  TVec3F pt;
+  project(src, &pt);
+
+  if (isPtInside(pt)) {
+    *dst = pt;
+    return;
+  }
+
+  TVec3F p;
+  float record, d;
+
+  for (u32 i = 0; i < 3; ++i) {
+    d = TCollideUtil::distPtLine(getVtx(i), getVtx((i + 1) % 3), src, &p);
+
+    if (i == 0 || d < record) {
+      record = d;
+      *dst = p;
+    }
+  }
+}
+
+// -------------------------------------------------------------------------- //
+
 bool TCollision::startup(
   TFace data[], u32 size
 ) {
@@ -61,6 +117,8 @@ bool TCollision::startup(
   sCollFaceAry = data;
   sNumCollFace = size;
   calc();
+
+  return true;
 }
 
 // -------------------------------------------------------------------------- //
@@ -88,18 +146,25 @@ u32 TCollision::checkRadius(
     return 0;
   }
 
+  r *= r;
+
   if (faces == nullptr && limit != 0) {
     return 0;
   }
 
+  float d;
+  TVec3F p;
   u32 count = 0;
 
   for (u32 i = 0; i < sNumCollFace; ++i) {
-    float d = sCollFaceAry[i].calcDist(pt);
+    d = sCollFaceAry[i].calcDist(pt);
 
     if (d < 0.0F) {
       continue; // ignore backfaces
     }
+
+    sCollFaceAry[i].calcClosestPt(pt, &p);
+    d = TVec3F::distSqr(p, pt);
 
     if (d > r) {
       continue;
@@ -121,15 +186,23 @@ TCollFace const *
 TCollision::findClosest(
   TVec3F const & pt, float r
 ) {
-  float record;
   TCollFace const * face = nullptr;
+  float record, d;
+  TVec3F p;
+
+  if (r > 0.0F) {
+    r *= r;
+  }
 
   for (u32 i = 0; i < sNumCollFace; ++i) {
-    float d = sCollFaceAry[i].calcDist(pt);
+    d = sCollFaceAry[i].calcDist(pt);
 
     if (d < 0.0F) {
       continue; // ignore backfaces
     }
+
+    sCollFaceAry[i].calcClosestPt(pt, &p);
+    d = TVec3F::distSqr(pt, p);
 
     if (r > 0.0F && d > r) {
       continue;

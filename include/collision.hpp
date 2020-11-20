@@ -24,7 +24,13 @@ class TCollision {
     bool isCeiling() const;
     bool isWall() const;
 
-    float calcDist(TVec3F const & pt) const;
+    TVec3F & getVtx(u32 n) { return *(&v0 + n); }
+    TVec3F const & getVtx(u32 n) const { return *(&v0 + n); }
+
+    float calcDist(TVec3F const & pt) const; // distance to PLANE, not POLYGON
+    bool isPtInside(TVec3F const & pt) const;
+    void project(TVec3F const & src, TVec3F * dst) const;
+    void calcClosestPt(TVec3F const & src, TVec3F * dst) const;
 
     private:
 
@@ -61,7 +67,6 @@ class TCollision {
 // -------------------------------------------------------------------------- //
 
 using TCollFace = TCollision::TFace;
-using ECollFind = TCollision::EFind;
 
 // -------------------------------------------------------------------------- //
 
