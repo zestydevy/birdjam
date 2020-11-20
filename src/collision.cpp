@@ -73,7 +73,7 @@ void TCollFace::project(
 ) const {
   TVec3F v;
   v.mul(nrm, (nrm.dot(src) - d));
-  dst->sub(v);
+  dst->sub(src, v);
 }
 
 // -------------------------------------------------------------------------- //
