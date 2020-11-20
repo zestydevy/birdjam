@@ -109,4 +109,6 @@ void TTestScene::exit()
     // ...
 }
 
+TPlayer * TTestScene::getPlayer() { return mBird; }
+
 // -------------------------------------------------------------------------- //

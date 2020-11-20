@@ -61,7 +61,7 @@ class TTestScene final
     virtual void update() override;
     virtual void draw() override;
     virtual void exit() override;
-    virtual TPlayer * getPlayer() override {return mBird;}
+    virtual TPlayer * getPlayer() override;
 
     private:
 
