@@ -18,10 +18,7 @@ void TCollFace::calc() {
   b.sub(v2, v0);
   nrm.cross(a, b);
   nrm.normalize();
-
-  TVec3F v;
-  v.mul(nrm, -nrm.dot(v0));
-  d = v.getLength();
+  d = nrm.dot(v0);
 }
 
 // -------------------------------------------------------------------------- //
