@@ -449,15 +449,14 @@ float TCollideUtil::distPtLine(
       *dst = b;
     }
   } else {
-    d = TMath<float>::sqrt(
-      bc.getSqrLength() -
-      t * ab.getSqrLength()
-    );
+    TVec3F pt;
+    pt.mul(ab, t);
+    pt.add(a);
+
+    d = TVec3F::dist(src, pt);
 
     if (dst != nullptr) {
-      TVec3F c;
-      c.mul(ab, t);
-      dst->add(a, c);
+      *dst = pt;
     }
   }
 
