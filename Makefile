@@ -26,16 +26,17 @@ HFILES  := $(wildcard include/*.h) $(wildcard models/*.h) $(wildcard models/*/*.
 CODEFILES   := $(wildcard src/*.c)
 CXXFILES    := $(wildcard src/*.cpp)
 DATAFILES   := $(wildcard data/*.c)
-MODELFILES  := $(wildcard models/bird/*.c) $(wildcard models/world/*.c) $(wildcard models/sprites/*.c) $(wildcard models/cube/*.c)
+MODELFILES  := $(wildcard models/*/*.c)
+MODELOFILES := $(wildcard models/objects/*/*.c)
 LIBFILES    := $(wildcard lib/*.o)
 
 OBJPATH		= 	./build/obj
 
 CODEOBJECTS =	$(CODEFILES:.c=.o) $(CXXFILES:.cpp=.o) $(MODELFILES:.c=.o) 
-CODEOBJNAME =   $(notdir $(CODEOBJECTS)) 
+CODEOBJNAME =   $(notdir $(CODEOBJECTS))
 CODEOBJPATH =   $(addprefix $(OBJPATH)/,$(CODEOBJNAME))
 
-DATAOBJECTS =	$(DATAFILES:.c=.o)
+DATAOBJECTS =	$(DATAFILES:.c=.o) $(MODELOFILES:.c=.o)
 DATAOBJNAME =   $(notdir $(DATAOBJECTS))
 DATAOBJPATH =   $(addprefix $(OBJPATH),$(DATAOBJECTS))
 
@@ -60,12 +61,12 @@ include $(COMMONRULES)
 	$(CXX) $(CXXFLAGS) -c -o $(OBJPATH)/$(notdir $@) $<
 
 $(CODESEGMENT):	$(TEXHFILES) $(CODEOBJECTS)
-		$(LD) -o $(CODESEGMENT) -r $(CODEOBJPATH) $(LIBFILES) $(LDFLAGS)
+		$(LD) -o $(CODESEGMENT) -r $(CODEOBJPATH) $(LIBFILES) $(LDFLAGS) -Map=$(PROJECT).map
 
 $(TARGETS) $(APP):      spec $(OBJECTS)
-	$(MAKEROM) spec -I$(NUSYSINCDIR) -r $(TARGETS) -s 10 -e $(APP)
+	$(MAKEROM) spec -I$(NUSYSINCDIR) -r $(TARGETS) -m -s 10 -e $(APP)
 	makemask $(TARGETS)
-	@mv codesegment.o a.out $(APP) $(TARGETS) "./build"
-	#mono ~/Desktop/tool/n64fix_6102.exe ./build/bird.n64
-	#wine ~/Desktop/tool/rn64crc -u ./build/bird.n64
-	#sudo ~/Desktop/tool/64d -l ./build/bird.n64 -c 6102 -z
+	@mv $(PROJECT).map codesegment.o a.out $(APP) $(TARGETS) "./build"
+	mono ~/Desktop/tool/n64fix_6102.exe ./build/bird.n64
+	wine ~/Desktop/tool/rn64crc -u ./build/bird.n64
+	sudo ~/Desktop/tool/64d -l ./build/bird.n64 -c 6102 -z
