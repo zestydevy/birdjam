@@ -15,6 +15,10 @@ size_t constexpr kHeapSize     = 1024*512;      // 0.5 MB
 size_t constexpr kResWidth = 320;
 size_t constexpr kResHeight = 240;
 
+size_t constexpr kCrashStackSize = 0x2000;
+size_t constexpr kCrashId = 14;
+size_t constexpr kCrashMsg = 16;
+
 
 void idle(void * arg);
 void bootApp();
