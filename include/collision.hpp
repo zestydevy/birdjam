@@ -14,7 +14,7 @@ class TCollision {
 
   struct TFace {
 
-    TVec3F v0, v1, v2;
+    TVec3F vtx[3];
     TVec3F nrm;
     float d;
 
@@ -23,9 +23,6 @@ class TCollision {
     bool isGround() const;
     bool isCeiling() const;
     bool isWall() const;
-
-    TVec3F & getVtx(u32 n) { return *(&v0 + n); }
-    TVec3F const & getVtx(u32 n) const { return *(&v0 + n); }
 
     float calcDist(TVec3F const & pt) const; // distance to PLANE, not POLYGON
     bool isPtInside(TVec3F const & pt) const;

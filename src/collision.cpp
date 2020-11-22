@@ -14,11 +14,11 @@ u32 TCollision::sNumCollFace { 0 };
 
 void TCollFace::calc() {
   TVec3F a, b;
-  a.sub(v1, v0);
-  b.sub(v2, v0);
+  a.sub(vtx[1], vtx[0]);
+  b.sub(vtx[2], vtx[0]);
   nrm.cross(a, b);
   nrm.normalize();
-  d = nrm.dot(v0);
+  d = nrm.dot(vtx[0]);
 }
 
 // -------------------------------------------------------------------------- //
@@ -45,7 +45,7 @@ float TCollFace::calcDist(
   TVec3F const & pt
 ) const {
   TVec3F ab;
-  ab.sub(pt, v0);
+  ab.sub(pt, vtx[0]);
   return (d + nrm.dot(ab));
 }
 
@@ -57,9 +57,9 @@ bool TCollFace::isPtInside(
   TVec3F a, b, c;
   TVec3F x, y, z;
 
-  a.sub(v0, pt);
-  b.sub(v1, pt);
-  c.sub(v2, pt);
+  a.sub(vtx[0], pt);
+  b.sub(vtx[1], pt);
+  c.sub(vtx[2], pt);
 
   x.cross(b, c);
   y.cross(c, a);
@@ -95,7 +95,9 @@ void TCollFace::calcClosestPt(
   float record, d;
 
   for (u32 i = 0; i < 3; ++i) {
-    d = TCollideUtil::distPtLine(getVtx(i), getVtx((i + 1) % 3), src, &p);
+    d = TCollideUtil::distPtLine(
+      vtx[i], vtx[(i + 1) % 3], src, &p
+    );
 
     if (i == 0 || d < record) {
       record = d;

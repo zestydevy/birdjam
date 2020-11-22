@@ -55,9 +55,9 @@ void TTestScene::init()
         s16 v1i = worldcol_collision[faceStart + (i * 3) + 1];
         s16 v2i = worldcol_collision[faceStart + (i * 3) + 2];
 
-        faces[i].v0 = TVec3F((float)worldcol_collision[vertStart + (v0i * 3) + 0], (float)worldcol_collision[vertStart + (v0i * 3) + 1], (float)worldcol_collision[vertStart + (v0i * 3) + 2]);
-        faces[i].v1 = TVec3F((float)worldcol_collision[vertStart + (v1i * 3) + 0], (float)worldcol_collision[vertStart + (v1i * 3) + 1], (float)worldcol_collision[vertStart + (v1i * 3) + 2]);
-        faces[i].v2 = TVec3F((float)worldcol_collision[vertStart + (v2i * 3) + 0], (float)worldcol_collision[vertStart + (v2i * 3) + 1], (float)worldcol_collision[vertStart + (v2i * 3) + 2]);
+        faces[i].vtx[0] = TVec3F((float)worldcol_collision[vertStart + (v0i * 3) + 0], (float)worldcol_collision[vertStart + (v0i * 3) + 1], (float)worldcol_collision[vertStart + (v0i * 3) + 2]);
+        faces[i].vtx[1] = TVec3F((float)worldcol_collision[vertStart + (v1i * 3) + 0], (float)worldcol_collision[vertStart + (v1i * 3) + 1], (float)worldcol_collision[vertStart + (v1i * 3) + 2]);
+        faces[i].vtx[2] = TVec3F((float)worldcol_collision[vertStart + (v2i * 3) + 0], (float)worldcol_collision[vertStart + (v2i * 3) + 1], (float)worldcol_collision[vertStart + (v2i * 3) + 2]);
     }
     mCollision->startup(faces, faceSize);
 
@@ -74,9 +74,9 @@ void TTestScene::update()
         TVec3F pt;
         mBird->mClosestFace->project(mBird->getPosition(), &pt);
 
-        mObjects[0]->setPosition(mBird->mClosestFace->v0);
-        mObjects[1]->setPosition(mBird->mClosestFace->v1);
-        mObjects[2]->setPosition(mBird->mClosestFace->v2);
+        mObjects[0]->setPosition(mBird->mClosestFace->vtx[0]);
+        mObjects[1]->setPosition(mBird->mClosestFace->vtx[1]);
+        mObjects[2]->setPosition(mBird->mClosestFace->vtx[2]);
         mObjects[3]->setPosition(pt);
     }
 }
