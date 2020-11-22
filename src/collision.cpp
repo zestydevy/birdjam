@@ -46,7 +46,7 @@ float TCollFace::calcDist(
 ) const {
   TVec3F ab;
   ab.sub(pt, vtx[0]);
-  return (d + nrm.dot(ab));
+  return nrm.dot(ab);
 }
 
 // -------------------------------------------------------------------------- //
