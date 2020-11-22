@@ -76,6 +76,7 @@ void TTestScene::init()
         mObjects[i]->init();
         mObjects[i]->setPosition({0.0f,0.0f,0.0f});
         mObjects[i]->setScale(TVec3F(0.05f, 0.05f, 0.05f));
+        mObjects[i]->setMesh(cube_Cube_mesh);
     }
 
     //Load scene collision
