@@ -16,6 +16,8 @@ const float BIRD_FLAPDESCENDSPEED = 4.0f;
 const float BIRD_BANKDEGREES = 45.0f;
 const float BIRD_WINDRES = 0.0075f;
 
+const float BIRD_STUTTERDEG = 10.0f;
+
 const float BIRD_RADIUS = 35.0f;
 
 // -------------------------------------------------------------------------- //
@@ -75,9 +77,17 @@ void TPlayer::update()
 
     float animRate = 0.25f;
 
+    // Crash stutter effect timer
+    mStutterTimer -= 0.016f;
+    if (mStutterTimer < 0.0f)
+        mStutterTimer = 0.0f;
+
     TVec3<f32> move = TVec3<f32>(0.0f, 0.0f, 0.0f);
     switch (mState){
+        /* Slow Flight */
         case playerstate_t::PLAYERSTATE_FLAPPING:
+            mStutterTimer = 0.0f;
+
             if (mPad->getAnalogX() != 0 || mPad->getAnalogY() != 0) {
                 move = (forward * (float)mPad->getAnalogY() / 160.0f) + (right * (float)mPad->getAnalogX() / 160.0f); //Move relative to camera
                 move = move * BIRD_FLAPSPEED;
@@ -113,6 +123,8 @@ void TPlayer::update()
             // Configure the camera (position is handled by the camera itself)
             mCameraTarget = mPosition + (up * 60.00f) + (mDirection * mSpeed * 10.0f);  //Target slightly above player and slightly in front of player
             break;
+
+        /* Free flight */
         case playerstate_t::PLAYERSTATE_FLYING:
             fright = TVec3<f32>(-mDirection.z(), 0.0f, mDirection.x());  //Flight right
             fback = TVec3<f32>(-mDirection.x(), -mDirection.y(), -mDirection.z());  //Flight back
@@ -134,7 +146,7 @@ void TPlayer::update()
             mDirection.normalize();
 
             // Apply visual rotation
-            mBankAngle = (mBankAngle * 7 + TSine::fromDeg(mPad->getAnalogX() / 80.0f * BIRD_BANKDEGREES)) / 8;
+            mBankAngle = (mBankAngle * 7 + TSine::fromDeg(mPad->getAnalogX() / 80.0f * BIRD_BANKDEGREES)) / 8 + TSine::fromDeg(TSine::scos(TSine::fromDeg(mStutterTimer * 1440.0f)) * mStutterTimer * BIRD_STUTTERDEG);
             mRotation = TVec3<s16>((s16)-TSine::asin(mDirection.y()), TSine::atan2(mDirection.x(), mDirection.z()), mBankAngle);
             mCamera->setAngle(mRotation.y());
 
@@ -197,22 +209,25 @@ void TPlayer::update()
 
             // Configure the camera
             mCamera->setPosition(mPosition + (fback * 150.0f));
-            mCameraTarget = mPosition + (up * 80.00f) + (mDirection * mSpeed * 20.0f);  //Target slightly above player and slightly in front of player
+            mCameraTarget.lerp(mPosition + (up * 80.00f) + (mDirection * mSpeed * 20.0f), 0.1f);  //Target slightly above player and slightly in front of player
             break;
+
+        /* Stun after head on crash */
         case playerstate_t::PLAYERSTATE_STUNNED:
             fright = TVec3<f32>(-mLastDirection.z(), 0.0f, mLastDirection.x());  //Flight right
             fback = TVec3<f32>(-mLastDirection.x(), -mLastDirection.y(), -mLastDirection.z());  //Flight back
 
             //Restore flight after crash animation
             if (mAnim->isAnimationCompleted()){
-                mState = PLAYERSTATE_FLYING;
-                mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, false, 0.25f);
+                mState = PLAYERSTATE_FLAPPING;
+                mAnim->setAnimation(bird_Bird_FlyFlap_Length, mAnim_Flap);
+                mRotation = TVec3<s16>((s16)0, mRotation.y(), (s16)0);
 
-                mFlappingWings = true;
+                mCamera->setMode(false);
 
-                // Set initial flight direction to the facing direction
-                mDirection = mLastDirection;
-                mSpeed = 25.0f;
+                // Convert direction into velocity for flapping
+                mDirection = mDirection * mSpeed;
+                mSpeed = 1.0f;
             }
 
             // Move along movement vector
@@ -224,13 +239,29 @@ void TPlayer::update()
             break;
     }
 
+    /* Collision check */
     mClosestFace = mCollision->findClosest(mPosition, BIRD_RADIUS);
     if (mClosestFace != nullptr){  //collision!
-        mLastDirection = mDirection;
-        mDirection = mClosestFace->nrm;
-        mState = PLAYERSTATE_STUNNED;
+        float d = -mDirection.dot(mClosestFace->nrm);
 
-        mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, false, 0.25f);
+        if (mState == playerstate_t::PLAYERSTATE_FLYING && d > 0.1f){
+            if (d > 0.9f){  //Head on crash
+                mLastDirection = mDirection;
+                mDirection += d * mClosestFace->nrm * 2.0f;
+                mState = PLAYERSTATE_STUNNED;
+                mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, false, 0.25f);
+            }
+            else{   //Bounce
+                mDirection += d * mClosestFace->nrm * 2.0f;
+                mSpeed *= 1.0f - d;
+                mStutterTimer = 1.0f;
+            }
+        }
+        else{   //keep the player from going oob
+            TVec3F p;
+            mClosestFace->project(mPosition, &p);
+            mPosition = p + mClosestFace->nrm * BIRD_RADIUS;
+        }
     }
 
     mAnim->update();

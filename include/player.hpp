@@ -91,6 +91,7 @@ class TPlayer
     bool mFlappingWings;
     bool mGoingFast;
     int mFlapTimer;
+    float mStutterTimer;
 
     s16 mBankAngle;
 
