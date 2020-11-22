@@ -3,6 +3,7 @@
 #include <nusys.h>
 
 #include "dynlist.hpp"
+#include "array.hpp"
 #include "camera.hpp"
 #include "pad.hpp"
 #include "player.hpp"
@@ -16,6 +17,16 @@ enum ESceneState : u32
     IDLE = 0,
     RUNNING,
     EXITING,
+};
+
+// -------------------------------------------------------------------------- //
+
+struct TSceneEntry
+{
+    s16 id;
+    TVec3<s16> position;
+    TVec3<s16> rotation;
+    TVec3<s16> scale;
 };
 
 // -------------------------------------------------------------------------- //
@@ -34,6 +45,8 @@ class TScene
     virtual void draw() = 0;
     virtual void exit() = 0;
 
+    void loadObjects(s16 const list[]);
+
     inline char const * getName() {return mName;}
     ESceneState getState() {return mStatus;}
     bool isInitialized();
@@ -42,9 +55,10 @@ class TScene
     ESceneState mStatus{ESceneState::IDLE};
     TDynList2 * mDynList{nullptr};
 
-    private:
+    protected:
 
     char const * mName{nullptr};
+    TArray<TStaticObject *> mObjList{};
 };
 
 // -------------------------------------------------------------------------- //

@@ -4,11 +4,13 @@
 #include "heap.hpp"
 #include "player.hpp"
 #include "sprite.hpp"
+#include "staticobj.hpp"
 #include "collision.h"
-#include "../models/world/model_world_col.h"
 
+#include "../models/world/model_world_col.h"
 #include "../models/world/model_world.h"
-#include "../models/sprites/sprite_sky2.h"
+#include "../models/world/model_distant.h"
+#include "../models/world/scene_world.h"
 
 // -------------------------------------------------------------------------- //
 
@@ -18,6 +20,36 @@ bool TScene::isInitialized()
 }
 
 
+void TScene::loadObjects(s16 const list[])
+{
+    s16 count = list[0];
+    auto entry = reinterpret_cast<const TSceneEntry *>(&list[1]);
+
+    for(int i = 0; i < count; ++i) {
+        
+        if (entry[i].id >= EObjType::INVALID) {
+            // wtf kind of model are you tryin to load
+            return;
+        }
+        
+        auto & position = entry[i].position;
+        auto & rotation = entry[i].rotation;
+        auto & scale = entry[i].scale;
+
+        switch(entry[i].id) {
+            case EObjType::DEBUG_CUBE:
+            mObjList.push(new TStaticObject(mDynList));
+            break;
+            default: break;
+        }
+
+        mObjList[i]->init();
+        mObjList[i]->setPosition({position.x(), position.y(), position.z()});
+        mObjList[i]->setScale({scale.x(), scale.y(), scale.z()});
+        mObjList[i]->setMesh(const_cast<Gfx *>(gObjMeshList[entry[i].id]));
+    }
+}
+
 void TTestScene::init()
 {
     // ...
@@ -25,7 +57,7 @@ void TTestScene::init()
     mPad = new TPad(0);
     mCamera = new TCamera(mDynList);
     mBird = new TPlayer(mDynList);
-    mCollision = new TCollision();
+    mObjList.setHeap(THeap::getCurrentHeap());
 
     mBird->init();
     mBird->setPad(mPad);
@@ -36,6 +68,8 @@ void TTestScene::init()
     mBird->setPosition({0.0f,2500.0f,0.0f});
     mBird->setRotation({0,0,0});
     mBird->setScale({0.05f,0.05f,0.05f});
+
+    loadObjects(scene_world);
 
     for (int i = 0; i < 4; i++){
         mObjects[i] = new TStaticObject(mDynList);
@@ -59,7 +93,7 @@ void TTestScene::init()
         faces[i].v1 = TVec3F((float)worldcol_collision[vertStart + (v1i * 3) + 0], (float)worldcol_collision[vertStart + (v1i * 3) + 1], (float)worldcol_collision[vertStart + (v1i * 3) + 2]);
         faces[i].v2 = TVec3F((float)worldcol_collision[vertStart + (v2i * 3) + 0], (float)worldcol_collision[vertStart + (v2i * 3) + 1], (float)worldcol_collision[vertStart + (v2i * 3) + 2]);
     }
-    mCollision->startup(faces, faceSize);
+    TCollision::startup(faces, faceSize);
 
     mBird->setCollision(mCollision);
 }
@@ -88,13 +122,17 @@ void TTestScene::draw()
     //gSPDisplayList(mDynList->pushDL(), rdpinit_dl);
 	//gSPDisplayList(mDynList->pushDL(), rspinit_dl);
     
-    mPad->read();
     mCamera->render();
 
     gSPDisplayList(mDynList->pushDL(), world_World_mesh);
+    gSPDisplayList(mDynList->pushDL(), distant_Distant_mesh);
 
     for (int i = 0; i < 4; i++)
         mObjects[i]->draw();
+
+    for (int i = 0; i < mObjList.capacity(); ++i) {
+        mObjList[i]->draw();
+    }
 
     mBird->draw();
 

@@ -3,6 +3,29 @@
 #include "staticobj.hpp"
 #include "math.hpp"
 
+#include "../models/objects/balloon/model_balloon.h"
+#include "../models/objects/lunchtable/model_lunchtable.h"
+#include "../models/objects/chair/model_chair.h"
+#include "../models/objects/basket/model_basket.h"
+#include "../models/objects/beer/model_beer.h"
+#include "../models/objects/noodle/model_noodle.h"
+#include "../models/objects/melon/model_melon.h"
+
+// -------------------------------------------------------------------------- //
+
+const Gfx * gObjMeshList[] =
+{
+    nullptr,
+    cube_Cube_mesh,
+    balloon_Balloon_mesh,
+    lunchtable_Table_mesh,
+    chair_Chair_mesh,
+    basket_Basket_mesh,
+    beer_Beer_mesh,
+    noodle_Noodle_mesh,
+    melon_Melon_mesh,
+};
+
 // -------------------------------------------------------------------------- //
 
 void TStaticObject::setPosition(TVec3<f32> const & pos)
@@ -59,7 +82,9 @@ void TStaticObject::draw()
     gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFRotMtx),
 	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
         
-    gSPDisplayList(mDynList->pushDL(), cube_Cube_mesh);
+    if (mMesh != nullptr) {
+        gSPDisplayList(mDynList->pushDL(), mMesh);
+    }
 
     gSPPopMatrix(mDynList->pushDL(), G_MTX_MODELVIEW);
     gSPPopMatrix(mDynList->pushDL(), G_MTX_MODELVIEW);

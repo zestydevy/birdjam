@@ -9,6 +9,26 @@
 
 // -------------------------------------------------------------------------- //
 
+enum EObjType : s16
+{
+    NONE = 0,
+    DEBUG_CUBE,
+    BALLOON,
+    LUNCHTABLE,
+    CHAIR,
+    BASKET,
+    BEER,
+    NOODLE,
+    MELON,
+    INVALID
+};
+
+// -------------------------------------------------------------------------- //
+
+extern const Gfx * gObjMeshList[];
+
+// -------------------------------------------------------------------------- //
+
 class TStaticObject
 {
     public:
@@ -20,6 +40,7 @@ class TStaticObject
     void setPosition(TVec3<f32> const & pos);
     void setRotation(TVec3<f32> const & rot);
     void setScale(TVec3<f32> const & scale);
+    inline void setMesh(Gfx * mesh) {mMesh = mesh;}
 
     TVec3<f32> const & getPosition() {return mPosition;}
     TVec3<s16> const & getRotation() {return mRotation;}
@@ -43,6 +64,7 @@ class TStaticObject
     Mtx mFScaleMtx{};
     
     u32 mTag{0};
+    Gfx * mMesh{nullptr};
     TDynList2 * mDynList{nullptr};
 };
 

@@ -8,7 +8,6 @@
 #include "graphic.h"
 
 //#include "../models/world/model_world.h"
-#include "../models/sprites/sprite_sky2.h"
 
 // -------------------------------------------------------------------------- //
 TGame * TGame::sGameInstance{nullptr};
@@ -122,19 +121,6 @@ void TGame::update()
     initRcpSegment();
     initZBuffer();
     initFrameBuffer();
-    
-    gSPDisplayList(mDynList->pushDL(), rdpinit_spr_dl);
-
-    TSprite::init(mDynList);
-    
-    TSprite bo(&sky_sprite, 0, 0);
-    bo.mScale = {1.0f,1.0f};
-    bo.mColor = {255,255,255,255};
-    
-    bo.render();
-   
-    gSPDisplayList(mDynList->pushDL(), rdpinit_dl);
-	gSPDisplayList(mDynList->pushDL(), rspinit_dl);
 
     gSPDisplayList(mDynList->pushDL(), letters_setup_dl)
 
