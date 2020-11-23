@@ -10,7 +10,9 @@
 #include "../models/world/model_world_col.h"
 #include "../models/world/model_world.h"
 #include "../models/world/model_distant.h"
+#include "../models/world/model_sky.h"
 #include "../models/world/scene_world.h"
+#include "../models/world/shadow.h"
 
 // -------------------------------------------------------------------------- //
 
@@ -57,6 +59,7 @@ void TTestScene::init()
     mPad = new TPad(0);
     mCamera = new TCamera(mDynList);
     mBird = new TPlayer(mDynList);
+    mSky = new TStaticObject(mDynList);
     mObjList.setHeap(THeap::getCurrentHeap());
 
     mBird->init();
@@ -68,6 +71,11 @@ void TTestScene::init()
     mBird->setPosition({0.0f,2500.0f,0.0f});
     mBird->setRotation({0,0,0});
     mBird->setScale({0.05f,0.05f,0.05f});
+
+    mSky->init();
+    mSky->setPosition({0.0f,-600.0f,0.0f});
+    mSky->setScale(TVec3F(80.0f, 80.0f, 80.0f));
+    mSky->setMesh(sky_Sphere_mesh);
 
     loadObjects(scene_world);
 
@@ -130,6 +138,8 @@ void TTestScene::draw()
 
     for (int i = 0; i < 4; i++)
         mObjects[i]->draw();
+    
+    mSky->draw();
 
     for (int i = 0; i < mObjList.capacity(); ++i) {
         mObjList[i]->draw();

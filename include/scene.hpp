@@ -84,6 +84,7 @@ class TTestScene final
     TPlayer * mBird{nullptr};
 
     TStaticObject * mObjects[4];
+    TStaticObject * mSky{nullptr};
     
     TCollision * mCollision{nullptr};
 };
