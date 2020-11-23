@@ -240,7 +240,8 @@ void TPlayer::update()
     }
 
     /* Collision check */
-    mClosestFace = mCollision->findClosest(mPosition, BIRD_RADIUS);
+    mClosestFace = TCollision::findClosest(mPosition, BIRD_RADIUS);
+
     if (mClosestFace != nullptr){  //collision!
         float d = -mDirection.dot(mClosestFace->nrm);
 
@@ -263,6 +264,10 @@ void TPlayer::update()
             mPosition = p + mClosestFace->nrm * BIRD_RADIUS;
         }
     }
+
+    mGroundFace = TCollision::findGroundBelow(
+        mPosition, BIRD_RADIUS
+    );
 
     mAnim->update();
 }

@@ -40,6 +40,10 @@ class TPlayer
     TVec3<s16> const & getRotation() {return mRotation;}
     TVec3<f32> const & getScale() {return mScale;}
 
+    TCollFace const * getGroundFace() const {
+        return mGroundFace;
+    }
+
     void init();
     void update();
     void draw();
@@ -74,6 +78,8 @@ class TPlayer
     f32 mSpeed;
     TVec3<f32> mDirection{};
     TVec3<f32> mLastDirection{};
+
+    TCollFace const * mGroundFace { nullptr };
 
     /* Mesh Info */
     Vtx* mMeshes[4] = {bird_Bird_mesh_vtx_0, bird_Bird_mesh_vtx_1, bird_Bird_mesh_vtx_2, bird_Bird_mesh_vtx_3};

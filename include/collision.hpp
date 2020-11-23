@@ -21,11 +21,16 @@ class TCollision {
     void calc();
 
     bool isGround() const;
-    bool isCeiling() const;
-    bool isWall() const;
 
+    float minY() const;
+    float maxY() const;
+
+    bool isXZInside(TVec2F const & pt) const;
+    bool isXYZInside(TVec3F const & pt) const;
+
+    float calcYAt(TVec2F const & xz) const;
     float calcDist(TVec3F const & pt) const; // distance to PLANE, not POLYGON
-    bool isPtInside(TVec3F const & pt) const;
+
     void project(TVec3F const & src, TVec3F * dst) const;
     void calcClosestPt(TVec3F const & src, TVec3F * dst) const;
 
@@ -52,6 +57,13 @@ class TCollision {
 
   static TFace const * findClosest(
     TVec3F const & pt, float r = 0.0F
+  );
+
+  // pt: 3D point to survey
+  //  b: bias to add to pt.y()
+  //  d: if > 0, limit y distance
+  static TFace const * findGroundBelow(
+    TVec3F const & pt, float b = 0.0F, float d = 0.0F
   );
 
   private:
