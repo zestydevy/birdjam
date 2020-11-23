@@ -12,6 +12,19 @@ u32 TCollision::sNumCollFace { 0 };
 
 // -------------------------------------------------------------------------- //
 
+static float calcLineSign2D(
+  TVec2F const & pt,
+  TVec2F const & a,
+  TVec2F const & b
+) {
+  return (
+    (pt.x() - b.x()) * ( a.y() - b.y()) -
+    ( a.x() - b.x()) * (pt.y() - b.y())
+  );
+}
+
+// -------------------------------------------------------------------------- //
+
 void TCollFace::calc() {
   TVec3F a, b;
   a.sub(vtx[1], vtx[0]);
@@ -29,29 +42,56 @@ bool TCollFace::isGround() const {
 
 // -------------------------------------------------------------------------- //
 
-bool TCollFace::isCeiling() const {
-  return (nrm.y() <= -0.1F);
+float TCollFace::minY() const {
+  float y = vtx[0].y();
+
+  for (u32 i = 1; i < 3; ++i) {
+    if (vtx[i].y() < y) {
+      y = vtx[i].y();
+    }
+  }
+
+  return y;
 }
 
 // -------------------------------------------------------------------------- //
 
-bool TCollFace::isWall() const {
-  return (TMath<float>::abs(nrm.y()) <= 0.1F);
+float TCollFace::maxY() const {
+  float y = vtx[0].y();
+
+  for (u32 i = 1; i < 3; ++i) {
+    if (vtx[i].y() > y) {
+      y = vtx[i].y();
+    }
+  }
+
+  return y;
 }
 
 // -------------------------------------------------------------------------- //
 
-float TCollFace::calcDist(
-  TVec3F const & pt
+bool TCollFace::isXZInside(
+  TVec2F const & pt
 ) const {
-  TVec3F ab;
-  ab.sub(pt, vtx[0]);
-  return nrm.dot(ab);
+  float a, b, c;
+
+  a = calcLineSign2D(pt, vtx[0].xz(), vtx[1].xz());
+  b = calcLineSign2D(pt, vtx[1].xz(), vtx[2].xz());
+  c = calcLineSign2D(pt, vtx[2].xz(), vtx[0].xz());
+
+  if (
+    ((a < 0.0F) || (b < 0.0F) || (c < 0.0F)) &&
+    ((a > 0.0F) || (b > 0.0F) || (c > 0.0F))
+  ) {
+    return false;
+  }
+
+  return true;
 }
 
 // -------------------------------------------------------------------------- //
 
-bool TCollFace::isPtInside(
+bool TCollFace::isXYZInside(
   TVec3F const & pt
 ) const {
   TVec3F a, b, c;
@@ -66,6 +106,28 @@ bool TCollFace::isPtInside(
   z.cross(a, b);
 
   return (x.dot(y) >= 0.0F && x.dot(z) >= 0.0F);
+}
+
+// -------------------------------------------------------------------------- //
+
+float TCollFace::calcYAt(
+  TVec2F const & xz
+) const {
+  if (nrm.y() == 0.0F) {
+    return 0.0F;
+  }
+
+  return ((d - nrm.x() * xz.x() - nrm.z() * xz.y()) / nrm.y());
+}
+
+// -------------------------------------------------------------------------- //
+
+float TCollFace::calcDist(
+  TVec3F const & pt
+) const {
+  TVec3F ab;
+  ab.sub(pt, vtx[0]);
+  return nrm.dot(ab);
 }
 
 // -------------------------------------------------------------------------- //
@@ -86,7 +148,7 @@ void TCollFace::calcClosestPt(
   TVec3F pt;
   project(src, &pt);
 
-  if (isPtInside(pt)) {
+  if (isXYZInside(pt)) {
     *dst = pt;
     return;
   }
@@ -216,6 +278,49 @@ TCollision::findClosest(
   }
 
   return face;
+}
+
+// -------------------------------------------------------------------------- //
+
+TCollFace const *
+TCollision::findGroundBelow(
+  TVec3F const & pt, float b, float d
+) {
+  TCollFace const * gr = nullptr;
+  TVec2F xz = pt.xz();
+  float py = (pt.y() + b);
+  float record;
+
+  for (u32 i = 0; i < sNumCollFace; ++i) {
+    if (!sCollFaceAry[i].isGround()) {
+      continue;
+    }
+
+    if (py < sCollFaceAry[i].minY()) {
+      continue;
+    }
+
+    if (!sCollFaceAry[i].isXZInside(xz)) {
+      continue;
+    }
+
+    float y = sCollFaceAry[i].calcYAt(xz);
+
+    if (py < y) {
+      continue;
+    }
+
+    if (d > 0.0F && TMath<float>::abs(py - y) > d) {
+      continue;
+    }
+
+    if (gr == nullptr || y > record) {
+      gr = &sCollFaceAry[i];
+      record = y;
+    }
+  }
+
+  return gr;
 }
 
 // -------------------------------------------------------------------------- //
