@@ -31,7 +31,7 @@ void TCamera::render()
         mDistance = 600.0f;
 
     guPerspective(&mProjectionMtx, &mPersp,
-		      mFov, 320.0/240.0, 40, 10000, 1.0);
+		      mFov, 320.0/240.0, 10, 15000, 1.0);
     guLookAtReflect(&mFViewMtx, mLookAtMtx,
 		       50, 0, 400,
 		       0, 0, 0,
@@ -77,10 +77,9 @@ void TCamera::render()
 
     //mPosition.set(x, 0.0f, z);
     mOldPos.lerp({x, y, z}, 4.0f * kInterval);
-    mViewMtx.lookAt(mOldPos, mTarget->xyz(), {0.0f,1.0f,0.0f});
-    //mPosMtx.translate(mPosition);
+    mViewMtx.lookAt(mOldPos * 0.1f, mTarget->xyz() * 0.1f, {0.0f,1.0f,0.0f});
     mRotMtx.rotateAxis(mRotation, 0);
-    mScaleMtx.scale(mScale);
+    mScaleMtx.scale(mScale * 0.1f);
 
     TMtx44::floatToFixed(mPosMtx, mFPosMtx);
     TMtx44::floatToFixed(mRotMtx, mFRotMtx);

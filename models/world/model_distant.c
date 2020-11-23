@@ -313,8 +313,12 @@ Gfx mat_revert_distant_asphalt_f3d[] = {
 
 
 Gfx mat_distant_tunnel_f3d[] = {
+	gsDPSetRenderMode(G_RM_AA_ZB_XLU_SURF, G_RM_AA_ZB_XLU_SURF2),
 	gsDPPipeSync(),
-	gsDPSetCombineLERP(0, 0, 0, TEXEL0, TEXEL0, 0, ENVIRONMENT, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, ENVIRONMENT, 0),
+	gsDPSetCombineLERP(SHADE, 0, TEXEL0, 0,
+                                  0, 0, 0, TEXEL0,
+                              SHADE, 0, TEXEL0, 0,
+ 								0, 0, 0, TEXEL0),
 	gsSPClearGeometryMode(G_CULL_BACK),
 	gsSPTexture(65535, 65535, 0, 0, 1),
 	gsDPSetTextureLUT(G_TT_RGBA16),

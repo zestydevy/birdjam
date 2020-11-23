@@ -87,7 +87,7 @@ Gfx rdpinit_dl[] = {
     gsDPSetTextureFilter(G_TF_BILERP),
     gsDPSetTextureConvert(G_TC_FILT),
     gsDPSetCombineKey(G_CK_NONE),
-    gsDPSetAlphaCompare(G_AC_NONE),
+    gsDPSetAlphaCompare(G_AC_THRESHOLD),
     gsDPSetRenderMode(G_RM_OPA_SURF, G_RM_OPA_SURF2),
     gsDPSetBlendMask(0xff),
     gsDPSetColorDither(G_CD_ENABLE),
