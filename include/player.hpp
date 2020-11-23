@@ -88,10 +88,10 @@ class TPlayer
     Vtx** mAnim_GlideFlap[4] = {bird_Bird_GlideFlap_0, bird_Bird_GlideFlap_1, bird_Bird_GlideFlap_2, bird_Bird_GlideFlap_3};        //Flapping wings while gliding
     Vtx** mAnim_Flap[4] = {bird_Bird_FlyFlap_0, bird_Bird_FlyFlap_1, bird_Bird_FlyFlap_2, bird_Bird_FlyFlap_3};                     //Flapping wings while stationary
 
-    bool mFlappingWings;
-    bool mGoingFast;
-    int mFlapTimer;
-    float mStutterTimer;
+    bool mFlappingWings{false};
+    bool mGoingFast{false};
+    int mFlapTimer{0};
+    float mStutterTimer{0.0f};
 
     s16 mBankAngle;
 
