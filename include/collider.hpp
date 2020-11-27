@@ -20,6 +20,17 @@ enum class ECollideType {
 
 // -------------------------------------------------------------------------- //
 
+enum : u32 {
+
+  TAG_UNKNOWN,
+
+  TAG_PLAYER = 0x0000'0001,
+  TAG_NESTOBJ = 0x0000'0002
+
+};
+
+// -------------------------------------------------------------------------- //
+
 class TCollider {
 
   public:
@@ -52,6 +63,9 @@ class TCollider {
   protected:
 
   TVec3F mCenter { 0.0F, 0.0F, 0.0F };
+  u32 mSendMask { 0 };
+  u32 mReceiveMask { 0 };
+  u32 mTag { 0 };
 
   virtual void onCollide(TCollider *) = 0;
   virtual bool onCheckCollide(TCollider const *) const = 0;
@@ -63,9 +77,6 @@ class TCollider {
   TCollider ** mHitArray { nullptr };
   u32 mMaxHitNum { 0 };
   u32 mHitNum { 0 };
-  u32 mSendMask { 0 };
-  u32 mReceiveMask { 0 };
-  u32 mTag { 0 };
 
   bool pushCollision(TCollider *);
 

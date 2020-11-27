@@ -51,7 +51,7 @@ class TScene
     protected:
 
     char const * mName{nullptr};
-    TArray<TStaticObject *> mObjList{};
+    TArray<TObject *> mObjList{};
 };
 
 // -------------------------------------------------------------------------- //
@@ -76,8 +76,8 @@ class TTestScene final
     TPad * mPad{nullptr};
     TPlayer * mBird{nullptr};
 
-    TStaticObject * mObjects[4];
-    TStaticObject * mSky{nullptr};
+    TObject * mObjects[4];
+    TObject * mSky{nullptr};
     
     TCollision * mCollision{nullptr};
 };

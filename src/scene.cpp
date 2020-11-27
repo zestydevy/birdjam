@@ -37,17 +37,30 @@ void TScene::loadObjects(TSceneEntry const list[])
 
         switch(list[i].id) {
             case EObjType::DEBUG_CUBE:
+<<<<<<< HEAD
             case EObjType::BALLOON:
             case EObjType::LUNCHTABLE:
             mObjList.push(new TStaticObject(mDynList));
+=======
+            mObjList.push(new TObject(mDynList));
+>>>>>>> 0d939a7c9e1d9d0f679b56e580d295b6687d5b40
             break;
             default: break;
         }
 
         mObjList[i]->init();
+<<<<<<< HEAD
         mObjList[i]->setPosition({list[i].positionX, list[i].positionY, list[i].positionZ});
         mObjList[i]->setScale({list[i].scaleX, list[i].scaleY, list[i].scaleZ});
         mObjList[i]->setMesh(const_cast<Gfx *>(gObjMeshList[list[i].id]));
+=======
+        mObjList[i]->setPosition({position.x(), position.y(), position.z()});
+        mObjList[i]->setScale({scale.x(), scale.y(), scale.z()});
+
+        auto type = (EObjType)entry[i].id;
+        Gfx * gfx = TObject::getMeshGfx(type);
+        mObjList[i]->setMesh(gfx);
+>>>>>>> 0d939a7c9e1d9d0f679b56e580d295b6687d5b40
     }
 }
 
@@ -58,7 +71,7 @@ void TTestScene::init()
     mPad = new TPad(0);
     mCamera = new TCamera(mDynList);
     mBird = new TPlayer(mDynList);
-    mSky = new TStaticObject(mDynList);
+    mSky = new TObject(mDynList);
     mObjList.setHeap(THeap::getCurrentHeap());
 
     mBird->init();
@@ -79,7 +92,7 @@ void TTestScene::init()
     loadObjects(scene_world);
 
     for (int i = 0; i < 4; i++){
-        mObjects[i] = new TStaticObject(mDynList);
+        mObjects[i] = new TObject(mDynList);
         mObjects[i]->init();
         mObjects[i]->setPosition({0.0f,0.0f,0.0f});
         mObjects[i]->setScale(TVec3F(0.05f, 0.05f, 0.05f));
