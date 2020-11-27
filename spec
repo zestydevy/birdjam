@@ -34,29 +34,6 @@ beginseg
 endseg
 
 beginseg
-	name "object_models"
-	flags OBJECT
-	include "build/obj/model_balloon.o"
-	include "build/obj/model_apple.o"
-	include "build/obj/model_balloondeflated.o"
-	include "build/obj/model_basket.o"
-	include "build/obj/model_beehive.o"
-	include "build/obj/model_beer.o"
-	include "build/obj/model_bills.o"
-	include "build/obj/model_card.o"
-	include "build/obj/model_chair.o"
-	include "build/obj/model_flower.o"
-	include "build/obj/model_lunchtable.o"
-	include "build/obj/model_melon.o"
-	include "build/obj/model_necklace.o"
-	include "build/obj/model_noodle.o"
-	include "build/obj/model_ring.o"
-	include "build/obj/model_soccer.o"
-	include "build/obj/model_stick.o"
-	include "build/obj/model_table.o"
-endseg
-
-beginseg
 	name "midibank"
 	flags RAW
 	include "sound/n64st1.wbk"
@@ -84,7 +61,6 @@ endseg
 beginwave
 	name	"bird"
 	include	"code"
-	include "object_models"
 	include "miditable"
 	include "midibank"
 	include "seq"

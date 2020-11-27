@@ -26,17 +26,17 @@ HFILES  := $(wildcard include/*.h) $(wildcard models/*.h) $(wildcard models/*/*.
 CODEFILES   := $(wildcard src/*.c)
 CXXFILES    := $(wildcard src/*.cpp)
 DATAFILES   := $(wildcard data/*.c)
-MODELFILES  := $(wildcard models/*/*.c)
-MODELOFILES := $(wildcard models/objects/*/*.c)
+SCENEFILES  := $(wildcard scene/*.c)
+MODELFILES  := $(wildcard models/*/*.c) $(wildcard models/objects/*/*.c)
 LIBFILES    := $(wildcard lib/*.o)
 
 OBJPATH		= 	./build/obj
 
-CODEOBJECTS =	$(CODEFILES:.c=.o) $(CXXFILES:.cpp=.o) $(MODELFILES:.c=.o) 
+CODEOBJECTS =	$(CODEFILES:.c=.o) $(CXXFILES:.cpp=.o) $(SCENEFILES:.c=.o) $(MODELFILES:.c=.o)
 CODEOBJNAME =   $(notdir $(CODEOBJECTS))
 CODEOBJPATH =   $(addprefix $(OBJPATH)/,$(CODEOBJNAME))
 
-DATAOBJECTS =	$(DATAFILES:.c=.o) $(MODELOFILES:.c=.o)
+DATAOBJECTS =	$(DATAFILES:.c=.o)
 DATAOBJNAME =   $(notdir $(DATAOBJECTS))
 DATAOBJPATH =   $(addprefix $(OBJPATH),$(DATAOBJECTS))
 
@@ -67,6 +67,6 @@ $(TARGETS) $(APP):      spec $(OBJECTS)
 	$(MAKEROM) spec -I$(NUSYSINCDIR) -r $(TARGETS) -m -s 10 -e $(APP)
 	makemask $(TARGETS)
 	@mv $(PROJECT).map codesegment.o a.out $(APP) $(TARGETS) "./build"
-	mono ~/Desktop/tool/n64fix_6102.exe ./build/bird.n64
-	wine ~/Desktop/tool/rn64crc -u ./build/bird.n64
-	sudo ~/Desktop/tool/64d -l ./build/bird.n64 -c 6102 -z
+	#mono ~/Desktop/tool/n64fix_6102.exe ./build/bird.n64
+	#wine ~/Desktop/tool/rn64crc -u ./build/bird.n64
+	#sudo ~/Desktop/tool/64d -l ./build/bird.n64 -c 6102 -z
