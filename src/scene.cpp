@@ -43,10 +43,10 @@ void TScene::loadObjects(TSceneEntry const list[])
         }
 
         mObjList[i]->init();
-        mObjList[i]->setPosition({position.x(), position.y(), position.z()});
-        mObjList[i]->setScale({scale.x(), scale.y(), scale.z()});
+        mObjList[i]->setPosition({list[i].positionX, list[i].positionY, list[i].positionZ});
+        mObjList[i]->setScale({list[i].scaleX, list[i].scaleY, list[i].scaleZ});
 
-        auto type = (EObjType)entry[i].id;
+        auto type = (EObjType)list[i].id;
         Gfx * gfx = TObject::getMeshGfx(type);
         mObjList[i]->setMesh(gfx);
     }
