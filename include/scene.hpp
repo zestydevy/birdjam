@@ -9,6 +9,7 @@
 #include "player.hpp"
 #include "collision.hpp"
 #include "staticobj.hpp"
+#include "scenedata.h"
 
 // -------------------------------------------------------------------------- //
 
@@ -20,14 +21,6 @@ enum ESceneState : u32
 };
 
 // -------------------------------------------------------------------------- //
-
-struct TSceneEntry
-{
-    s16 id;
-    TVec3<s16> position;
-    TVec3<s16> rotation;
-    TVec3<s16> scale;
-};
 
 // -------------------------------------------------------------------------- //
 
@@ -45,7 +38,7 @@ class TScene
     virtual void draw() = 0;
     virtual void exit() = 0;
 
-    void loadObjects(s16 const list[]);
+    void loadObjects(TSceneEntry const list[]);
 
     inline char const * getName() {return mName;}
     ESceneState getState() {return mStatus;}

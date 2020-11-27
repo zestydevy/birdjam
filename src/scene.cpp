@@ -7,11 +7,12 @@
 #include "staticobj.hpp"
 #include "collision.h"
 
+#include "scenedata.h"
+#include "../scene/scene_world.h"
 #include "../models/world/model_world_col.h"
 #include "../models/world/model_world.h"
 #include "../models/world/model_distant.h"
 #include "../models/world/model_sky.h"
-#include "../models/world/scene_world.h"
 #include "../models/world/shadow.h"
 
 // -------------------------------------------------------------------------- //
@@ -22,33 +23,31 @@ bool TScene::isInitialized()
 }
 
 
-void TScene::loadObjects(s16 const list[])
+void TScene::loadObjects(TSceneEntry const list[])
 {
-    s16 count = list[0];
-    auto entry = reinterpret_cast<const TSceneEntry *>(&list[1]);
+    s32 size = list[0].id;
+    list = reinterpret_cast<const TSceneEntry *>(&list[1]);
 
-    for(int i = 0; i < count; ++i) {
+    for(int i = 0; i < size; ++i) {
         
-        if (entry[i].id >= EObjType::INVALID) {
+        if (list[i].id >= EObjType::INVALID) {
             // wtf kind of model are you tryin to load
             return;
         }
-        
-        auto & position = entry[i].position;
-        auto & rotation = entry[i].rotation;
-        auto & scale = entry[i].scale;
 
-        switch(entry[i].id) {
+        switch(list[i].id) {
             case EObjType::DEBUG_CUBE:
+            case EObjType::BALLOON:
+            case EObjType::LUNCHTABLE:
             mObjList.push(new TStaticObject(mDynList));
             break;
             default: break;
         }
 
         mObjList[i]->init();
-        mObjList[i]->setPosition({position.x(), position.y(), position.z()});
-        mObjList[i]->setScale({scale.x(), scale.y(), scale.z()});
-        mObjList[i]->setMesh(const_cast<Gfx *>(gObjMeshList[entry[i].id]));
+        mObjList[i]->setPosition({list[i].positionX, list[i].positionY, list[i].positionZ});
+        mObjList[i]->setScale({list[i].scaleX, list[i].scaleY, list[i].scaleZ});
+        mObjList[i]->setMesh(const_cast<Gfx *>(gObjMeshList[list[i].id]));
     }
 }
 
@@ -73,7 +72,7 @@ void TTestScene::init()
     mBird->setScale({0.05f,0.05f,0.05f});
 
     mSky->init();
-    mSky->setPosition({0.0f,-600.0f,0.0f});
+    mSky->setPosition({0.0f,-900.0f,0.0f});
     mSky->setScale(TVec3F(80.0f, 80.0f, 80.0f));
     mSky->setMesh(sky_Sphere_mesh);
 
@@ -103,8 +102,6 @@ void TTestScene::init()
         faces[i].vtx[2] = TVec3F((float)worldcol_collision[vertStart + (v2i * 3) + 0], (float)worldcol_collision[vertStart + (v2i * 3) + 1], (float)worldcol_collision[vertStart + (v2i * 3) + 2]);
     }
     TCollision::startup(faces, faceSize);
-
-    mBird->setCollision(mCollision);
 }
 
 void TTestScene::update()
