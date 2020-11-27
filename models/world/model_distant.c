@@ -313,12 +313,8 @@ Gfx mat_revert_distant_asphalt_f3d[] = {
 
 
 Gfx mat_distant_tunnel_f3d[] = {
-	gsDPSetRenderMode(G_RM_AA_ZB_XLU_SURF, G_RM_AA_ZB_XLU_SURF2),
 	gsDPPipeSync(),
-	gsDPSetCombineLERP(SHADE, 0, TEXEL0, 0,
-                                  0, 0, 0, TEXEL0,
-                              SHADE, 0, TEXEL0, 0,
- 								0, 0, 0, TEXEL0),
+	gsDPSetCombineLERP(TEXEL0, 0, SHADE, 0, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, SHADE, 0, TEXEL0, 0, PRIMITIVE, 0),
 	gsSPClearGeometryMode(G_CULL_BACK),
 	gsSPTexture(65535, 65535, 0, 0, 1),
 	gsDPSetTextureLUT(G_TT_RGBA16),
@@ -355,9 +351,11 @@ Gfx distant_Distant_mesh[] = {
 	gsSPDisplayList(mat_distant_asphalt_f3d),
 	gsSPDisplayList(distant_Distant_mesh_tri_2),
 	gsSPDisplayList(mat_revert_distant_asphalt_f3d),
+	gsDPSetRenderMode(G_RM_AA_XLU_SURF, G_RM_AA_XLU_SURF2),
 	gsSPDisplayList(mat_distant_tunnel_f3d),
 	gsSPDisplayList(distant_Distant_mesh_tri_3),
 	gsSPDisplayList(mat_revert_distant_tunnel_f3d),
+	gsDPSetRenderMode(G_RM_AA_ZB_OPA_SURF, G_RM_AA_ZB_OPA_SURF2),
 	gsDPPipeSync(),
 	gsSPSetGeometryMode(G_LIGHTING),
 	gsSPClearGeometryMode(G_TEXTURE_GEN),
