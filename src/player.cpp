@@ -4,6 +4,8 @@
 #include "math.hpp"
 #include "animator.hpp"
 
+#include "../models/world/shadow.h"
+
 const float BIRD_FLYGRAVITY = 0.02f;
 const float BIRD_MAXSPEED = 12.0f;
 const float BIRD_FASTSPEED = 9.0f; //When you start fast animation
@@ -53,6 +55,13 @@ void TPlayer::init()
     mAnim = new TAnimator(sizeof(mMeshes) / sizeof(Vtx*), mMeshes, mMeshSizes);
     mAnim->setAnimation(bird_Bird_FlyFlap_Length, mAnim_Flap);
     mState = PLAYERSTATE_FLAPPING;
+
+    // shadow
+    mShadow = new TStaticObject(mDynList);
+    mShadow->init();
+    mShadow->setPosition({0.0f,0.0f,0.0f});
+    mShadow->setScale(TVec3F(0.15f, 0.15f, 0.15f));
+    mShadow->setMesh(shadow_Plane_mesh);
 }
 
 void TPlayer::update()
@@ -269,6 +278,12 @@ void TPlayer::update()
         mPosition, BIRD_RADIUS
     );
 
+    // set shadow position and rotation to floor
+    TVec3F pt = getPosition();
+    pt.y() = getGroundFace()->calcYAt(pt.xz()) + 1.0f;
+    mShadow->setPosition(pt);
+    mShadow->setRotation(TVec3<s16>((s16)TSine::asin(mGroundFace->nrm.z()), (s16)TSine::ssin(mGroundFace->nrm.x()), (s16)TSine::scos(mGroundFace->nrm.z())));
+
     mAnim->update();
 }
 
@@ -280,6 +295,8 @@ void TPlayer::draw()
     //mtx.rotateEuler({0,angle,0});
     //mtx.floatToFixed(mtx, gBirdRot);
 
+    mShadow->draw();
+    
     TMtx44 temp1, temp2, temp3;
     
     mPosMtx.translate(mPosition);

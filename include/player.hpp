@@ -8,6 +8,7 @@
 #include "pad.hpp"
 #include "camera.hpp"
 #include "collision.hpp"
+#include "staticobj.hpp"
 
 #include "../models/bird/model_bird.h"
 
@@ -34,7 +35,6 @@ class TPlayer
 
     void setPad(TPad * pad) {mPad = pad;}
     void setCamera(TCamera * camera) {mCamera = camera; mCamera->setTarget(&mCameraTarget);}
-    void setCollision(TCollision * collision) {mCollision = collision;}
 
     TVec3<f32> const & getPosition() {return mPosition;}
     TVec3<s16> const & getRotation() {return mRotation;}
@@ -70,7 +70,7 @@ class TPlayer
     TAnimator * mAnim{nullptr};
     TPad * mPad{nullptr};
 
-    TCollision * mCollision;
+    TStaticObject * mShadow{nullptr};
 
     TCamera * mCamera;
     TVec3<f32> mCameraTarget{};
