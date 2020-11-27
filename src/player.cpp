@@ -22,27 +22,9 @@ const float BIRD_RADIUS = 35.0f;
 
 // -------------------------------------------------------------------------- //
 
-void TPlayer::setPosition(TVec3<f32> const & pos)
-{
-    mPosition.set(pos.x(), pos.y(), pos.z());
-}
-
-void TPlayer::setRotation(TVec3<f32> const & rot)
-{
-    mRotation.set(rot.x(), rot.y(), rot.z());
-}
-
-void TPlayer::setScale(TVec3<f32> const & scale)
-{
-    mScale.set(scale.x(), scale.y(), scale.z());
-}
-
 void TPlayer::init()
 {
-    // ...
-    mPosMtx.identity();
-    mRotMtx.identity();
-    mScaleMtx.identity();
+    TObject::init();
 
     // set up to start in flight for testing:
     mDirection = TVec3<f32>(0.0f, 0.0f, 0.0f);
@@ -53,10 +35,17 @@ void TPlayer::init()
     mAnim = new TAnimator(sizeof(mMeshes) / sizeof(Vtx*), mMeshes, mMeshSizes);
     mAnim->setAnimation(bird_Bird_FlyFlap_Length, mAnim_Flap);
     mState = PLAYERSTATE_FLAPPING;
+
+    setMesh(bird_Bird_mesh);
+    initCollider(TAG_PLAYER, TAG_NESTOBJ, 0, 1);
+    setCollideRadius(BIRD_RADIUS);
+    setCollideCenter(mPosition);
 }
 
 void TPlayer::update()
 {
+    TObject::update();
+
     // ...
     //if (mPad->getAnalogX() != 0 || mPad->getAnalogY() != 0) {
     //    mAngle = TSine::atan2(-mPad->getAnalogX(), -mPad->getAnalogY());
@@ -265,21 +254,17 @@ void TPlayer::update()
         }
     }
 
-    mGroundFace = TCollision::findGroundBelow(
-        mPosition, BIRD_RADIUS
-    );
+    setCollideCenter(mPosition);
+    mGroundFace = TCollision::findGroundBelow(mPosition, BIRD_RADIUS);
 
     mAnim->update();
 }
 
 void TPlayer::draw()
 {
-    // ...
-    
-    //mtx.identity();
-    //mtx.rotateEuler({0,angle,0});
-    //mtx.floatToFixed(mtx, gBirdRot);
+    TObject::draw();
 
+#if 0
     TMtx44 temp1, temp2, temp3;
     
     mPosMtx.translate(mPosition);
@@ -306,6 +291,15 @@ void TPlayer::draw()
     gSPPopMatrix(mDynList->pushDL(), G_MTX_MODELVIEW);
     gSPPopMatrix(mDynList->pushDL(), G_MTX_MODELVIEW);
     gSPPopMatrix(mDynList->pushDL(), G_MTX_MODELVIEW);
+#endif
+}
+
+// -------------------------------------------------------------------------- //
+
+void TPlayer::onCollide(
+    TCollider * const other
+) {
+    // TODO
 }
 
 // -------------------------------------------------------------------------- //

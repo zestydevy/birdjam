@@ -25,17 +25,13 @@ enum EObjType : s16
 
 // -------------------------------------------------------------------------- //
 
-extern const Gfx * gObjMeshList[];
-
-// -------------------------------------------------------------------------- //
-
-class TStaticObject
+class TObject
 {
     public:
 
-    TStaticObject(TDynList2 * list)
+    TObject(TDynList2 * list)
         : mDynList{list} {}
-    ~TStaticObject() = default;
+    virtual ~TObject() = default;
 
     void setPosition(TVec3<f32> const & pos);
     void setRotation(TVec3<f32> const & rot);
@@ -46,10 +42,13 @@ class TStaticObject
     TVec3<s16> const & getRotation() {return mRotation;}
     TVec3<f32> const & getScale() {return mScale;}
 
-    void init();
-    void draw();
+    virtual void init();
+    virtual void update();
+    virtual void draw();
 
-    private:
+    static Gfx * getMeshGfx(EObjType type);
+
+    protected:
 
     TVec3<f32> mPosition{};
     TVec3<s16> mRotation{};

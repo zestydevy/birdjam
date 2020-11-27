@@ -2,12 +2,14 @@
 
 #include <nusys.h>
 
-#include "math.hpp"
 #include "animator.hpp"
-#include "dynlist.hpp"
-#include "pad.hpp"
 #include "camera.hpp"
+#include "collider.hpp"
 #include "collision.hpp"
+#include "dynlist.hpp"
+#include "math.hpp"
+#include "pad.hpp"
+#include "staticobj.hpp"
 
 #include "../models/bird/model_bird.h"
 
@@ -20,57 +22,43 @@ enum playerstate_t : u16 {
 
 // -------------------------------------------------------------------------- //
 
-class TPlayer
+class TPlayer :
+    public TObject,
+    public TSphereCollider
 {
+
     public:
 
-    TPlayer(TDynList2 * list)
-        : mDynList{list} {}
-    ~TPlayer() = default;
+    TPlayer(TDynList2 * dl) :
+        TObject { dl }
+    {}
 
-    void setPosition(TVec3<f32> const & pos);
-    void setRotation(TVec3<f32> const & rot);
-    void setScale(TVec3<f32> const & scale);
+    virtual ~TPlayer() = default;
 
-    void setPad(TPad * pad) {mPad = pad;}
-    void setCamera(TCamera * camera) {mCamera = camera; mCamera->setTarget(&mCameraTarget);}
-    void setCollision(TCollision * collision) {mCollision = collision;}
+    void setPad(TPad * pad) {
+        mPad = pad;
+    }
 
-    TVec3<f32> const & getPosition() {return mPosition;}
-    TVec3<s16> const & getRotation() {return mRotation;}
-    TVec3<f32> const & getScale() {return mScale;}
+    void setCamera(TCamera * camera) {
+        mCamera = camera;
+        mCamera->setTarget(&mCameraTarget);
+    }
 
     TCollFace const * getGroundFace() const {
         return mGroundFace;
     }
 
-    void init();
-    void update();
-    void draw();
+    virtual void init() override;
+    virtual void update() override;
+    virtual void draw() override;
 
     //For debug only
     const TCollFace * mClosestFace;
 
-    private:
+    protected:
 
-    TVec3<f32> mPosition{};
-    TVec3<s16> mRotation{};
-    TVec3<f32> mScale{};
-    
-    TMtx44 mPosMtx{};
-    TMtx44 mRotMtx{};
-    TMtx44 mScaleMtx{};
-
-    Mtx mFPosMtx{};
-    Mtx mFRotMtx{};
-    Mtx mFScaleMtx{};
-    
-    u32 mTag{0};
-    TDynList2 * mDynList{nullptr};
     TAnimator * mAnim{nullptr};
     TPad * mPad{nullptr};
-
-    TCollision * mCollision;
 
     TCamera * mCamera;
     TVec3<f32> mCameraTarget{};
@@ -102,6 +90,9 @@ class TPlayer
     s16 mBankAngle;
 
     playerstate_t mState;
+
+    virtual void onCollide(TCollider *) override;
+
 };
 
 // -------------------------------------------------------------------------- //

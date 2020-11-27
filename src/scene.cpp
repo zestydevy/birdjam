@@ -40,7 +40,7 @@ void TScene::loadObjects(s16 const list[])
 
         switch(entry[i].id) {
             case EObjType::DEBUG_CUBE:
-            mObjList.push(new TStaticObject(mDynList));
+            mObjList.push(new TObject(mDynList));
             break;
             default: break;
         }
@@ -48,7 +48,10 @@ void TScene::loadObjects(s16 const list[])
         mObjList[i]->init();
         mObjList[i]->setPosition({position.x(), position.y(), position.z()});
         mObjList[i]->setScale({scale.x(), scale.y(), scale.z()});
-        mObjList[i]->setMesh(const_cast<Gfx *>(gObjMeshList[entry[i].id]));
+
+        auto type = (EObjType)entry[i].id;
+        Gfx * gfx = TObject::getMeshGfx(type);
+        mObjList[i]->setMesh(gfx);
     }
 }
 
@@ -59,7 +62,7 @@ void TTestScene::init()
     mPad = new TPad(0);
     mCamera = new TCamera(mDynList);
     mBird = new TPlayer(mDynList);
-    mSky = new TStaticObject(mDynList);
+    mSky = new TObject(mDynList);
     mObjList.setHeap(THeap::getCurrentHeap());
 
     mBird->init();
@@ -80,7 +83,7 @@ void TTestScene::init()
     loadObjects(scene_world);
 
     for (int i = 0; i < 4; i++){
-        mObjects[i] = new TStaticObject(mDynList);
+        mObjects[i] = new TObject(mDynList);
         mObjects[i]->init();
         mObjects[i]->setPosition({0.0f,0.0f,0.0f});
         mObjects[i]->setScale(TVec3F(0.05f, 0.05f, 0.05f));
@@ -103,8 +106,6 @@ void TTestScene::init()
         faces[i].vtx[2] = TVec3F((float)worldcol_collision[vertStart + (v2i * 3) + 0], (float)worldcol_collision[vertStart + (v2i * 3) + 1], (float)worldcol_collision[vertStart + (v2i * 3) + 2]);
     }
     TCollision::startup(faces, faceSize);
-
-    mBird->setCollision(mCollision);
 }
 
 void TTestScene::update()

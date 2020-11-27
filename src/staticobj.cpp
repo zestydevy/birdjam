@@ -13,7 +13,7 @@
 
 // -------------------------------------------------------------------------- //
 
-const Gfx * gObjMeshList[] =
+static Gfx * gObjMeshList[] =
 {
     nullptr,
     cube_Cube_mesh,
@@ -28,22 +28,22 @@ const Gfx * gObjMeshList[] =
 
 // -------------------------------------------------------------------------- //
 
-void TStaticObject::setPosition(TVec3<f32> const & pos)
+void TObject::setPosition(TVec3<f32> const & pos)
 {
-    mPosition.set(pos.x(), pos.y(), pos.z());
+    mPosition = pos;
 }
 
-void TStaticObject::setRotation(TVec3<f32> const & rot)
+void TObject::setRotation(TVec3<f32> const & rot)
 {
     mRotation.set(rot.x(), rot.y(), rot.z());
 }
 
-void TStaticObject::setScale(TVec3<f32> const & scale)
+void TObject::setScale(TVec3<f32> const & scale)
 {
-    mScale.set(scale.x(), scale.y(), scale.z());
+    mScale = scale;
 }
 
-void TStaticObject::init()
+void TObject::init()
 {
     // ...
     mPosMtx.identity();
@@ -53,7 +53,9 @@ void TStaticObject::init()
     mRotation = TVec3<f32>(0.0f, 0.0f, 0.0f);
 }
 
-void TStaticObject::draw()
+void TObject::update() {}
+
+void TObject::draw()
 {
     // ...
     
@@ -89,6 +91,18 @@ void TStaticObject::draw()
     gSPPopMatrix(mDynList->pushDL(), G_MTX_MODELVIEW);
     gSPPopMatrix(mDynList->pushDL(), G_MTX_MODELVIEW);
     gSPPopMatrix(mDynList->pushDL(), G_MTX_MODELVIEW);
+}
+
+// -------------------------------------------------------------------------- //
+
+Gfx * TObject::getMeshGfx(
+    EObjType const type
+) {
+    if (type >= EObjType::INVALID) {
+        return nullptr;
+    }
+
+    return gObjMeshList[(u32)type];
 }
 
 // -------------------------------------------------------------------------- //
