@@ -37,30 +37,18 @@ void TScene::loadObjects(TSceneEntry const list[])
 
         switch(list[i].id) {
             case EObjType::DEBUG_CUBE:
-<<<<<<< HEAD
-            case EObjType::BALLOON:
-            case EObjType::LUNCHTABLE:
-            mObjList.push(new TStaticObject(mDynList));
-=======
             mObjList.push(new TObject(mDynList));
->>>>>>> 0d939a7c9e1d9d0f679b56e580d295b6687d5b40
             break;
             default: break;
         }
 
         mObjList[i]->init();
-<<<<<<< HEAD
-        mObjList[i]->setPosition({list[i].positionX, list[i].positionY, list[i].positionZ});
-        mObjList[i]->setScale({list[i].scaleX, list[i].scaleY, list[i].scaleZ});
-        mObjList[i]->setMesh(const_cast<Gfx *>(gObjMeshList[list[i].id]));
-=======
         mObjList[i]->setPosition({position.x(), position.y(), position.z()});
         mObjList[i]->setScale({scale.x(), scale.y(), scale.z()});
 
         auto type = (EObjType)entry[i].id;
         Gfx * gfx = TObject::getMeshGfx(type);
         mObjList[i]->setMesh(gfx);
->>>>>>> 0d939a7c9e1d9d0f679b56e580d295b6687d5b40
     }
 }
 
