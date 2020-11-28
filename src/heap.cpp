@@ -36,7 +36,7 @@ THeap * THeap::getPtrHeap(
 
   auto node = sHeapList.begin();
 
-  while (node != nullptr) {
+  while (node != sHeapList.end()) {
     if (node->data->isPtrInHeap(ptr)) {
       return node->data;
     }

@@ -116,7 +116,7 @@ bool TModelKeeper::lookupID(
 
   auto node = mModelList.begin();
 
-  while (node != nullptr) {
+  while (node != mModelList.end()) {
     if (node->data->id == id) {
       if (data != nullptr) {
         *data = node->data;
