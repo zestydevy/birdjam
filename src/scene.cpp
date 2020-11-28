@@ -27,6 +27,7 @@ void TScene::loadObjects(TSceneEntry const list[])
 {
     s32 size = list[0].id;
     list = reinterpret_cast<const TSceneEntry *>(&list[1]);
+    mObjList.reserve((u32)size);
 
     for(int i = 0; i < size; ++i) {
         
@@ -35,20 +36,26 @@ void TScene::loadObjects(TSceneEntry const list[])
             return;
         }
 
+        TObject * obj = nullptr;
+
         switch(list[i].id) {
-            case EObjType::DEBUG_CUBE:
-            mObjList.push(new TObject(mDynList));
-            break;
-            default: break;
+            case EObjType::DEBUG_CUBE: {
+                obj = new TObject(mDynList);
+            }
         }
 
-        mObjList[i]->init();
-        mObjList[i]->setPosition({list[i].positionX, list[i].positionY, list[i].positionZ});
-        mObjList[i]->setScale({list[i].scaleX, list[i].scaleY, list[i].scaleZ});
+        if (obj == nullptr) {
+            continue;
+        }
+
+        obj->init();
+        obj->setPosition({list[i].positionX, list[i].positionY, list[i].positionZ});
+        obj->setScale({list[i].scaleX, list[i].scaleY, list[i].scaleZ});
 
         auto type = (EObjType)list[i].id;
         Gfx * gfx = TObject::getMeshGfx(type);
-        mObjList[i]->setMesh(gfx);
+        obj->setMesh(gfx);
+        mObjList.push(obj);
     }
 }
 

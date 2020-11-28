@@ -57,6 +57,7 @@ class TCollider {
   virtual float getCollideMaxZ() const = 0;
   void calcCollideMinMax(TVec3F *, TVec3F *) const;
 
+  static void init();
   static void frameBegin(); // resets collider state
   static void frameEnd(); // tests colliders, calls onCollide
 

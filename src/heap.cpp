@@ -80,6 +80,12 @@ THeap * THeap::setCurrentHeap(
 
 // -------------------------------------------------------------------------- //
 
+void THeap::init() {
+  sHeapList.clear();
+}
+
+// -------------------------------------------------------------------------- //
+
 THeap::THeap() {
   sHeapList.link(sHeapList.end(), &mHeapNode);
 }

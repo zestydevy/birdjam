@@ -32,6 +32,10 @@ class THeap {
   static THeap * getCurrentHeap();
   static THeap * setCurrentHeap(THeap *);
 
+  static void init();
+
+  static TDoubleLinkList<THeap> sHeapList;
+
   protected:
 
   static constexpr s32 kStdAlign = 8; // 64-bit N64 alignment
@@ -41,7 +45,6 @@ class THeap {
   virtual ~THeap();
 
   static THeap * sCurrentHeap;
-  static TDoubleLinkList<THeap> sHeapList;
   TDoubleLinkListNode<THeap> mHeapNode { this };
   void * mHeapHead { nullptr };
   void * mHeapTail { nullptr };

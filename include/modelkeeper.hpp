@@ -49,12 +49,12 @@ class TModelKeeper {
   void unloadAll();
 
   static TModelKeeper * getInstance() {
-    return &sInstance;
+    return sInstance;
   }
 
   private:
 
-  static TModelKeeper sInstance;
+  static TModelKeeper * sInstance;
   TDoubleLinkList<TModelData> mModelList;
   THeap * mHeap { nullptr };
 

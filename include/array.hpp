@@ -169,13 +169,14 @@ TArray<T>::insert(TConstIterator it, TValue const & v, u32 n) {
   u32 old_size = size();
   u32 new_size = (old_size + n);
   u32 m = (old_size - a);
-  TValue const * pv = &v;
-
-  if (it <= pv && pv < mEnd) {
-    pv += n;
-  }
 
   if (capacity() >= new_size) {
+    TValue const * pv = &v;
+
+    if (it <= pv && pv < mEnd) {
+      pv += n;
+    }
+
     for (u32 i = 0; i < m; ++i) {
       mBegin[b + m + n - (i + 1)] = mBegin[b + m - (i + 1)];
     }
@@ -197,7 +198,7 @@ TArray<T>::insert(TConstIterator it, TValue const & v, u32 n) {
     }
 
     for (u32 i = 0; i < n; ++i) {
-      begin[a + i] = *pv;
+      begin[a + i] = v;
     }
 
     delete[] mBegin;

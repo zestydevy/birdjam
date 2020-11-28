@@ -7,7 +7,7 @@
 
 // -------------------------------------------------------------------------- //
 
-TModelKeeper TModelKeeper::sInstance;
+TModelKeeper * TModelKeeper::sInstance;
 
 // -------------------------------------------------------------------------- //
 
@@ -18,14 +18,16 @@ void TModelKeeper::startup(
     heap = THeap::getCurrentHeap();
   }
 
-  sInstance.mHeap = heap;
+  sInstance = new(heap) TModelKeeper {};
+  sInstance->mHeap = heap;
 }
 
 // -------------------------------------------------------------------------- //
 
 void TModelKeeper::shutdown() {
-  sInstance.unloadAll();
-  sInstance.mHeap = nullptr;
+  sInstance->unloadAll();
+  delete sInstance;
+  sInstance = nullptr;
 }
 
 // -------------------------------------------------------------------------- //

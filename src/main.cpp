@@ -13,7 +13,10 @@
 #include <nusys.h>
 
 #include "app.hpp"
+#include "collider.hpp"
 #include "heap.hpp"
+#include "modelkeeper.hpp"
+
 // -------------------------------------------------------------------------- //
 
 extern "C" {
@@ -29,6 +32,9 @@ void mainproc(void)
 
 void bootApp()
 {
+  THeap::init();
+  TCollider::init();
+
   CApp app = CApp();
 
   // 0.5 MB heap

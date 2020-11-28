@@ -64,6 +64,12 @@ void TCollider::calcCollideMinMax(
 
 // -------------------------------------------------------------------------- //
 
+void TCollider::init() {
+  sColliderList = TDoubleLinkList<TCollider> {};
+}
+
+// -------------------------------------------------------------------------- //
+
 void TCollider::frameBegin() {
   auto node = sColliderList.begin();
   TCollider * collider;
