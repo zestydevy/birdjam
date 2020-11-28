@@ -27,7 +27,7 @@ void TScene::loadObjects(TSceneEntry const list[])
 {
     s32 size = list[0].id;
     list = reinterpret_cast<const TSceneEntry *>(&list[1]);
-    mObjList.reserve((u32)size);
+    // mObjList.reserve((u32)size);
 
     for(int i = 0; i < size; ++i) {
         
