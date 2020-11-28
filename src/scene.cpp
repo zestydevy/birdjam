@@ -41,6 +41,7 @@ void TScene::loadObjects(TSceneEntry const list[])
         switch(list[i].id) {
             case EObjType::DEBUG_CUBE: {
                 obj = new TObject(mDynList);
+                break;
             }
         }
 
