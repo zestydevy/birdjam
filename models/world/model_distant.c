@@ -351,7 +351,7 @@ Gfx distant_Distant_mesh[] = {
 	gsSPDisplayList(mat_distant_asphalt_f3d),
 	gsSPDisplayList(distant_Distant_mesh_tri_2),
 	gsSPDisplayList(mat_revert_distant_asphalt_f3d),
-	gsDPSetRenderMode(G_RM_AA_XLU_SURF, G_RM_AA_XLU_SURF2),
+	gsDPSetRenderMode(G_RM_AA_ZB_XLU_SURF, G_RM_AA_ZB_XLU_SURF2),
 	gsSPDisplayList(mat_distant_tunnel_f3d),
 	gsSPDisplayList(distant_Distant_mesh_tri_3),
 	gsSPDisplayList(mat_revert_distant_tunnel_f3d),
