@@ -8,13 +8,17 @@
 
 // -------------------------------------------------------------------------- //
 
-    struct TColor
-    {
-        u8 r;
-        u8 g;
-        u8 b;
-        u8 a;
-    };
+struct TColor
+{
+    u8 r;
+    u8 g;
+    u8 b;
+    u8 a;
+};
+
+extern Gfx rspinit_dl[];
+extern Gfx rdpinit_dl[];
+extern Gfx rdpinit_spr_dl[];
 
 class TSprite
 {
@@ -40,7 +44,8 @@ class TSprite
     static inline void finalize()
     {
         auto dl = sDynList->getDL();
-        spFinish(&dl);
+        gSPDisplayList(dl, rdpinit_dl);
+	    gSPDisplayList(dl, rspinit_dl);
     }
 
     void render();
@@ -48,12 +53,11 @@ class TSprite
     TVec2<s32> mPosition{};
     TVec2<float> mScale{};
     TColor mColor{255};
+    u32 mAttributes{SP_FASTCOPY};
 
     private:
     
     Sprite * mSprite{nullptr};
     static TDynList2 * sDynList;
-
-    u32 mAttributes{SP_TRANSPARENT};
 
 };

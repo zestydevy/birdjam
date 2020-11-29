@@ -7,7 +7,8 @@
 #include "math.h"
 #include "graphic.h"
 
-//#include "../models/world/model_world.h"
+#include "../models/sprites/sprite_time.h"
+#include "../models/sprites/sprite_items.h"
 
 // -------------------------------------------------------------------------- //
 TGame * TGame::sGameInstance{nullptr};
@@ -65,10 +66,10 @@ Gfx rdpinit_spr_dl[] = {
     gsDPSetTextureLUT(G_TT_NONE),
     gsDPSetTextureDetail(G_TD_CLAMP),
     gsDPSetTexturePersp(G_TP_NONE),
-    gsDPSetTextureFilter(G_TF_BILERP),
+    gsDPSetTextureFilter(G_TF_POINT),
     gsDPSetTextureConvert(G_TC_FILT),
     gsDPSetCombineKey(G_CK_NONE),
-    gsDPSetAlphaCompare(G_AC_NONE),
+    gsDPSetAlphaCompare(G_AC_THRESHOLD),
     gsDPSetRenderMode(G_RM_OPA_SURF, G_RM_OPA_SURF2),
     gsDPSetBlendMask(0xff),
     gsDPSetColorDither(G_CD_ENABLE),
@@ -87,7 +88,7 @@ Gfx rdpinit_dl[] = {
     gsDPSetTextureFilter(G_TF_BILERP),
     gsDPSetTextureConvert(G_TC_FILT),
     gsDPSetCombineKey(G_CK_NONE),
-    gsDPSetAlphaCompare(G_AC_THRESHOLD),
+    gsDPSetAlphaCompare(G_AC_NONE),
     gsDPSetRenderMode(G_RM_OPA_SURF, G_RM_OPA_SURF2),
     gsDPSetBlendMask(0xff),
     gsDPSetColorDither(G_CD_ENABLE),
@@ -121,10 +122,28 @@ void TGame::update()
     initRcpSegment();
     initZBuffer();
     initFrameBuffer();
-
+    
     gSPDisplayList(mDynList->pushDL(), letters_setup_dl)
 
     getCurrentScene()->draw();
+
+    gSPDisplayList(mDynList->pushDL(), rdpinit_spr_dl);
+    TSprite::init(mDynList);
+
+    TSprite timeSpr = TSprite(&time_sprite, 20, 20);
+    timeSpr.mScale = {1.0f,1.0f};
+    timeSpr.mColor = {255,255,255,255};
+    timeSpr.mAttributes = SP_TRANSPARENT;
+    timeSpr.render();
+
+    TSprite itemsSpr = TSprite(&items_sprite, 230, 22);
+    itemsSpr.mScale = {1.1f,1.1f};
+    itemsSpr.mColor = {255,255,255,255};
+    itemsSpr.mAttributes = SP_TRANSPARENT;
+    itemsSpr.render();
+
+    gSPDisplayList(mDynList->pushDL(), rdpinit_dl);
+	gSPDisplayList(mDynList->pushDL(), rspinit_dl);
 
     // that's a wrap for this frame. finalize
     gDPFullSync(mDynList->pushDL());
