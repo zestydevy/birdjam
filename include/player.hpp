@@ -14,6 +14,8 @@
 #include "../models/bird/model_bird.h"
 
 enum playerstate_t : u16 {
+    PLAYERSTATE_FALLING,    //Falling
+    PLAYERSTATE_IDLE,       //Idle
     PLAYERSTATE_WALKING,    //Walking on ground
     PLAYERSTATE_FLAPPING,   //Precision slow fly controls
     PLAYERSTATE_FLYING,     //Plane fly controls
@@ -66,8 +68,11 @@ class TPlayer :
     TVec3<f32> mCameraTarget{};
 
     f32 mSpeed;
+    bool mIsGround{false};
     TVec3<f32> mDirection{};
     TVec3<f32> mLastDirection{};
+    TVec3F mCenter{};
+    f32 mVelocity{0.0f};
 
     TCollFace const * mGroundFace { nullptr };
 
@@ -94,6 +99,7 @@ class TPlayer :
     playerstate_t mState;
 
     virtual void onCollide(TCollider *) override;
+    void moveCameraRelative(TVec3F & move, TVec3F & forward, TVec3F & right);
 
 };
 
