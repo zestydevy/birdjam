@@ -20,6 +20,21 @@ enum EObjType : s16
     BEER,
     NOODLE,
     MELON,
+    APPLE,
+    BALLOON_DEFLATED,
+    BEEHIVE,
+    BILLS,
+    CARD,
+    FLOWER,
+    NECKLACE,
+    RING,
+    SOCCER,
+    STICK,
+    TABLE,
+    CAT,
+    CHICKEN,
+    CRITIC,
+    LOGO,
     INVALID
 };
 

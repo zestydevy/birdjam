@@ -39,7 +39,12 @@ void TScene::loadObjects(TSceneEntry const list[])
         TObject * obj = nullptr;
 
         switch(list[i].id) {
-            case EObjType::DEBUG_CUBE: {
+            case EObjType::DEBUG_CUBE:
+            case EObjType::BALLOON:
+            case EObjType::LUNCHTABLE: {
+                obj = new TObject(mDynList);
+                break;
+            default: 
                 obj = new TObject(mDynList);
                 break;
             }
@@ -81,7 +86,7 @@ void TTestScene::init()
     mBird->setScale({0.05f,0.05f,0.05f});
 
     mSky->init();
-    mSky->setPosition({0.0f,-900.0f,0.0f});
+    mSky->setPosition({0.0f,-2000.0f,0.0f});
     mSky->setScale(TVec3F(80.0f, 80.0f, 80.0f));
     mSky->setMesh(sky_Sphere_mesh);
 
@@ -143,7 +148,7 @@ void TTestScene::draw()
     gSPDisplayList(mDynList->pushDL(), distant_Distant_mesh);
 
     for (int i = 0; i < 4; i++)
-        mObjects[i]->draw();
+        //mObjects[i]->draw();
     
     mSky->draw();
 

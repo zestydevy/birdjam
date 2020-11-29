@@ -10,6 +10,21 @@
 #include "../models/objects/beer/model_beer.h"
 #include "../models/objects/noodle/model_noodle.h"
 #include "../models/objects/melon/model_melon.h"
+#include "../models/objects/apple/model_apple.h"
+#include "../models/objects/balloon_deflated/model_balloondeflated.h"
+#include "../models/objects/beehive/model_beehive.h"
+#include "../models/objects/bills/model_bills.h"
+#include "../models/objects/card/model_card.h"
+#include "../models/objects/flower/model_flower.h"
+#include "../models/objects/necklace/model_necklace.h"
+#include "../models/objects/ring/model_ring.h"
+#include "../models/objects/soccer/model_soccer.h"
+#include "../models/objects/stick/model_stick.h"
+#include "../models/objects/table/model_table.h"
+#include "../models/cat/model_cat.h"
+#include "../models/chicken/model_chicken.h"
+#include "../models/critic/model_critic.h"
+
 
 // -------------------------------------------------------------------------- //
 
@@ -24,6 +39,20 @@ static Gfx * gObjMeshList[] =
     beer_Beer_mesh,
     noodle_Noodle_mesh,
     melon_Melon_mesh,
+    apple_Apple_mesh,
+    balloon_deflated_Balloon_Deflated_mesh,
+    beehive_Beehive_mesh,
+    bills_Bills_mesh,
+    card_Cube_mesh,
+    flower_Head_mesh,
+    necklace_Necklace_mesh,
+    ring_Ring_mesh,
+    zedball_Zedball_mesh,
+    stick_Stick1_mesh,
+    table_Table_mesh,
+    cat_Cat_mesh,
+    critic_Critic_mesh,
+    nullptr,
 };
 
 // -------------------------------------------------------------------------- //
