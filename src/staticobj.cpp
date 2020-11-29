@@ -51,7 +51,7 @@ static Gfx * gObjMeshList[] =
     stick_Stick1_mesh,
     table_Table_mesh,
     cat_Cat_mesh,
-    chicken_Chicken_mesh
+    chicken_Chicken_mesh,
     critic_Critic_mesh,
     nullptr,
 };
