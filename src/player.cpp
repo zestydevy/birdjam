@@ -146,7 +146,9 @@ void TPlayer::update()
         // idle. c'mon let's get a move on...
         case playerstate_t::PLAYERSTATE_IDLE:
             // attach to the closet point of the ground
-            mPosition.y() = (mGroundFace->calcYAt(mPosition.xz()) + BIRD_RADIUS);
+            if (mGroundFace != nullptr) {
+                mPosition.y() = (mGroundFace->calcYAt(mPosition.xz()) + BIRD_RADIUS);
+            }
 
             moveCameraRelative(move, forward, right);
             
@@ -191,7 +193,9 @@ void TPlayer::update()
         case playerstate_t::PLAYERSTATE_WALKING:
 
             // attach to the closet point of the ground
-            mPosition.y() = (mGroundFace->calcYAt(mPosition.xz()) + BIRD_RADIUS);
+            if (mGroundFace != nullptr) {
+                mPosition.y() = (mGroundFace->calcYAt(mPosition.xz()) + BIRD_RADIUS);
+            }
 
             moveCameraRelative(move, forward, right);
 
@@ -418,10 +422,12 @@ void TPlayer::update()
     }
 
     // set shadow position and rotation to floor
-    TVec3F pt = getPosition();
-    pt.y() = getGroundFace()->calcYAt(pt.xz()) + 1.0f;
-    mShadow->setPosition(pt);
-    mShadow->setRotation(TVec3<s16>((s16)TSine::asin(mGroundFace->nrm.z()), (s16)TSine::ssin(mGroundFace->nrm.x()), (s16)TSine::scos(mGroundFace->nrm.z())));
+    if (getGroundFace() != nullptr) {
+        TVec3F pt = getPosition();
+        pt.y() = getGroundFace()->calcYAt(pt.xz()) + 1.0f;
+        mShadow->setPosition(pt);
+        mShadow->setRotation(TVec3<s16>((s16)TSine::asin(mGroundFace->nrm.z()), (s16)TSine::ssin(mGroundFace->nrm.x()), (s16)TSine::scos(mGroundFace->nrm.z())));
+    }
 
     mAnim->update();
 }
@@ -445,7 +451,9 @@ void TPlayer::updateMtx()
 
 void TPlayer::draw()
 {
-    mShadow->draw();
+    if (mGroundFace != nullptr) {
+        mShadow->draw();
+    }
     
     updateMtx();
     TObject::draw();

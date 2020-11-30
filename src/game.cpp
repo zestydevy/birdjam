@@ -6,6 +6,7 @@
 #include "animator.hpp"
 #include "math.h"
 #include "graphic.h"
+#include "audio.hpp"
 
 #include "../models/sprites/sprite_time.h"
 #include "../models/sprites/sprite_items.h"
@@ -24,6 +25,8 @@ TGame::TGame()
 
 void TGame::init()
 {
+    TAudio::init();
+    
     // allocate dynamic display list
     mDynList = new TDynList2(2048, nullptr);
 

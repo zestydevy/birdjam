@@ -4,6 +4,7 @@
 
 #include <nusys.h>
 
+#include "heap.hpp"
 #include "math.hpp"
 
 // -------------------------------------------------------------------------- //
@@ -22,8 +23,14 @@ class TCollision {
 
     bool isGround() const;
 
+    float minX() const;
+    float maxX() const;
+
     float minY() const;
     float maxY() const;
+
+    float minZ() const;
+    float maxZ() const;
 
     bool isXZInside(TVec2F const & pt) const;
     bool isXYZInside(TVec3F const & pt) const;
@@ -45,10 +52,21 @@ class TCollision {
 
   };
 
-  static bool startup(TFace data[], u32 size);
+  struct TPacket {
+
+    TPacket * next;
+    TFace const * face;
+
+  };
+
+  static bool startup(
+    TFace data[], u32 size, THeap * heap,
+    u32 num_pkt, u16 num_blk, float blk_sz
+  );
+
   static void shutdown();
 
-  static void calc();
+  static bool calc();
 
   static u32 checkRadius(
     TVec3F const & pt, float r,
@@ -71,11 +89,47 @@ class TCollision {
   static TFace * sCollFaceAry;
   static u32 sNumCollFace;
 
+  static TPacket * sCollPktAry;
+  static u32 sMaxNumCollPkt;
+  static u32 sNumCollPkt;
+
+  static TPacket ** sBlkMap;
+  static float sBlkMapSz;
+  static u32 sNumBlkMap;
+
+  static TPacket * fetchPkt();
+
+  static void getBlkBox(u32 x, u32 y,
+    float * min_x, float * min_z,
+    float * max_x, float * max_z
+  );
+
+  static void getSphereBlk(
+    TVec3F const & pt, float rd,
+    u32 * l, u32 * b, u32 * r, u32 * t
+  );
+
+  static bool isSphereInBlk(
+    TVec3F const & pt, float rd, u32 x, u32 y
+  );
+
+  static void getFaceBlk(
+    TFace const * face,
+    u32 * l, u32 * b, u32 * r, u32 * t
+  );
+
+  static bool isFaceInBlk(
+    TFace const * face, u32 x, u32 y
+  );
+
+  static u32 calcBlkIdx(float, float, float);
+
 };
 
 // -------------------------------------------------------------------------- //
 
 using TCollFace = TCollision::TFace;
+using TCollPacket = TCollision::TPacket;
 
 // -------------------------------------------------------------------------- //
 
