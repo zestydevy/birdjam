@@ -24,6 +24,11 @@
 #include "../models/cat/model_cat.h"
 #include "../models/chicken/model_chicken.h"
 #include "../models/critic/model_critic.h"
+#include "../models/objects/n64/model_n64.h"
+#include "../models/objects/store_b/model_storeb.h"
+#include "../models/objects/store_e/model_storee.h"
+#include "../models/objects/steppingstone/model_steppingstone.h"
+#include "../models/objects/fence/model_fence.h"
 
 
 // -------------------------------------------------------------------------- //
@@ -51,8 +56,14 @@ static Gfx * gObjMeshList[] =
     stick_Stick1_mesh,
     table_Table_mesh,
     cat_Cat_mesh,
+    chicken_Chicken_mesh,
     critic_Critic_mesh,
-    nullptr,
+    n64_N_mesh,
+    store_e_E_mesh,
+    store_b_B_mesh,
+    steppingstone_SteppingStone_mesh,
+    fence_Fence_mesh,
+    nullptr
 };
 
 // -------------------------------------------------------------------------- //
@@ -78,8 +89,6 @@ void TObject::init()
     mPosMtx.identity();
     mRotMtx.identity();
     mScaleMtx.identity();
-
-    mRotation = TVec3<f32>(0.0f, 0.0f, 0.0f);
 }
 
 void TObject::update() {}

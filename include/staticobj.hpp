@@ -35,6 +35,10 @@ enum EObjType : s16
     CHICKEN,
     CRITIC,
     LOGO,
+    STORE_E,
+    STORE_B,
+    STEPPINGSTONE,
+    FENCE,
     INVALID
 };
 

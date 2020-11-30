@@ -50,7 +50,10 @@ enum EObject
     OBJECT_CHICKEN,
     OBJECT_CRITIC,
     OBJECT_LOGO,
-    
+    OBJECT_STORE_E,
+    OBJECT_STORE_B,
+    OBJECT_STEPPINGSTONE,
+    OBJECT_FENCE
 };
 
 #endif

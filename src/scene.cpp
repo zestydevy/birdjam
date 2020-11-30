@@ -56,6 +56,7 @@ void TScene::loadObjects(TSceneEntry const list[])
 
         obj->init();
         obj->setPosition({list[i].positionX, list[i].positionY, list[i].positionZ});
+        obj->setRotation({TSine::fromDeg(list[i].rotationX), TSine::fromDeg(list[i].rotationY), TSine::fromDeg(list[i].rotationZ)});
         obj->setScale({list[i].scaleX, list[i].scaleY, list[i].scaleZ});
 
         auto type = (EObjType)list[i].id;
@@ -83,7 +84,7 @@ void TTestScene::init()
 
     mBird->setPosition({0.0f,2500.0f,0.0f});
     mBird->setRotation({0,0,0});
-    mBird->setScale({0.05f,0.05f,0.05f});
+    mBird->setScale({0.03f,0.03f,0.03f});
 
     mSky->init();
     mSky->setPosition({0.0f,-2000.0f,0.0f});
@@ -92,13 +93,13 @@ void TTestScene::init()
 
     loadObjects(scene_world);
 
-    for (int i = 0; i < 4; i++){
-        mObjects[i] = new TObject(mDynList);
-        mObjects[i]->init();
-        mObjects[i]->setPosition({0.0f,0.0f,0.0f});
-        mObjects[i]->setScale(TVec3F(0.05f, 0.05f, 0.05f));
-        mObjects[i]->setMesh(cube_Cube_mesh);
-    }
+//    for (int i = 0; i < 4; i++){
+//        mObjects[i] = new TObject(mDynList);
+//        mObjects[i]->init();
+//        mObjects[i]->setPosition({0.0f,0.0f,0.0f});
+//        mObjects[i]->setScale(TVec3F(0.05f, 0.05f, 0.05f));
+//        mObjects[i]->setMesh(cube_Cube_mesh);
+//    }
 
     //Load scene collision
     u16 vertStart = 2;
@@ -124,15 +125,15 @@ void TTestScene::update()
     mPad->read();
     mBird->update();
 
-    if (mBird->mClosestFace != nullptr){
-        TVec3F pt;
-        mBird->mClosestFace->project(mBird->getPosition(), &pt);
-
-        mObjects[0]->setPosition(mBird->mClosestFace->vtx[0]);
-        mObjects[1]->setPosition(mBird->mClosestFace->vtx[1]);
-        mObjects[2]->setPosition(mBird->mClosestFace->vtx[2]);
-        mObjects[3]->setPosition(pt);
-    }
+//    if (mBird->mClosestFace != nullptr){
+//        TVec3F pt;
+//        mBird->mClosestFace->project(mBird->getPosition(), &pt);
+//
+//        mObjects[0]->setPosition(mBird->mClosestFace->vtx[0]);
+//        mObjects[1]->setPosition(mBird->mClosestFace->vtx[1]);
+//        mObjects[2]->setPosition(mBird->mClosestFace->vtx[2]);
+//        mObjects[3]->setPosition(pt);
+//    }
 }
 
 void TTestScene::draw()

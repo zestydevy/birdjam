@@ -76,7 +76,7 @@ class TTestScene final
     TPad * mPad{nullptr};
     TPlayer * mBird{nullptr};
 
-    TObject * mObjects[4];
+//    TObject * mObjects[4];
     TObject * mSky{nullptr};
     
     TCollision * mCollision{nullptr};
