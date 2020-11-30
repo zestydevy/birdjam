@@ -116,7 +116,11 @@ void TTestScene::init()
         faces[i].vtx[1] = TVec3F((float)worldcol_collision[vertStart + (v1i * 3) + 0], (float)worldcol_collision[vertStart + (v1i * 3) + 1], (float)worldcol_collision[vertStart + (v1i * 3) + 2]);
         faces[i].vtx[2] = TVec3F((float)worldcol_collision[vertStart + (v2i * 3) + 0], (float)worldcol_collision[vertStart + (v2i * 3) + 1], (float)worldcol_collision[vertStart + (v2i * 3) + 2]);
     }
-    TCollision::startup(faces, faceSize);
+
+    TCollision::startup(
+        faces, faceSize, nullptr,
+        (faceSize * 2), 10, 512.0F
+    );
 }
 
 void TTestScene::update()
@@ -148,7 +152,7 @@ void TTestScene::draw()
     gSPDisplayList(mDynList->pushDL(), world_World_mesh);
     gSPDisplayList(mDynList->pushDL(), distant_Distant_mesh);
 
-    for (int i = 0; i < 4; i++)
+    //for (int i = 0; i < 4; i++)
         //mObjects[i]->draw();
     
     mSky->draw();

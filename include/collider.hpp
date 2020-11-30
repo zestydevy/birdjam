@@ -225,9 +225,27 @@ struct TCollideUtil {
     TVec3F const & center, float radius
   );
 
+  static bool testLineLine2D(
+    TVec2F const & a0, TVec2F const & b0,
+    TVec2F const & b1, TVec2F const & b2,
+    TVec2F * pt = nullptr
+  );
+
+  static bool isPtInBox2D(
+    TVec2F const & min,
+    TVec2F const & max,
+    TVec2F const & pt
+  );
+
   static float distPtLine(
     TVec3F const & a, TVec3F const & b,
     TVec3F const & src, TVec3F * dst = nullptr
+  );
+
+  static float calcLineSign2D(
+    TVec2F const & pt,
+    TVec2F const & a,
+    TVec2F const & b
   );
 
   static float distPtPoly(

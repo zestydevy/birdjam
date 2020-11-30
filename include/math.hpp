@@ -24,6 +24,13 @@ class TMath {
 
   static inline T mod(T x, T y) { return (x % y); }
 
+  static inline T min(T x, T y) { return (x < y ? x : y); }
+  static inline T max(T x, T y) { return (x > y ? x : y); }
+
+  static inline T clamp(T x, T a, T b) {
+    return min(max(x, a), b);
+  }
+
 };
 
 // -------------------------------------------------------------------------- //
@@ -43,6 +50,13 @@ class TMath<float> {
 
   static inline float mod(float x, float y) {
     return (x - static_cast<u64>(x / y) * y);
+  }
+
+  static inline float min(float x, float y) { return (x < y ? x : y); }
+  static inline float max(float x, float y) { return (x > y ? x : y); }
+
+  static inline float clamp(float x, float a, float b) {
+    return min(max(x, a), b);
   }
 
 };

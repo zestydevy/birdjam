@@ -431,6 +431,51 @@ bool TCollideUtil::testBoxSphere3D(
 
 // -------------------------------------------------------------------------- //
 
+bool TCollideUtil::testLineLine2D(
+  TVec2F const & a0, TVec2F const & b0,
+  TVec2F const & a1, TVec2F const & b1,
+  TVec2F * pt
+) {
+  TVec2F ab0, ab1;
+  float c0, c1, d;
+
+  ab0.sub(b0, a0);
+  ab1.sub(b1, a1);
+  c0 = ab0.dot(a0);
+  c1 = ab1.dot(a1);
+  d = (ab0.y() * ab0.x() - ab1.x() * ab1.y());
+
+  if (TMath<float>::abs(d) < TMath<float>::epsilon()) {
+    return false;
+  }
+
+  if (pt != nullptr) {
+    d = (1.0F / d);
+
+    pt->set(
+      ((ab0.x() * c0 - ab1.y() * c1) * d),
+      ((ab0.y() * c1 - ab1.x() * c0) * d)
+    );
+  }
+
+  return true;
+}
+
+// -------------------------------------------------------------------------- //
+
+bool TCollideUtil::isPtInBox2D(
+  TVec2F const & min,
+  TVec2F const & max,
+  TVec2F const & pt
+) {
+  return (
+    (min.x() <= pt.x() && pt.x() <= max.x()) &&
+    (min.y() <= pt.y() && pt.y() <= max.y())
+  );
+}
+
+// -------------------------------------------------------------------------- //
+
 float TCollideUtil::distPtLine(
   TVec3F const & a, TVec3F const & b,
   TVec3F const & src, TVec3F * dst
@@ -467,6 +512,19 @@ float TCollideUtil::distPtLine(
   }
 
   return d;
+}
+
+// -------------------------------------------------------------------------- //
+
+float TCollideUtil::calcLineSign2D(
+  TVec2F const & pt,
+  TVec2F const & a,
+  TVec2F const & b
+) {
+  return (
+    (pt.x() - b.x()) * ( a.y() - b.y()) -
+    ( a.x() - b.x()) * (pt.y() - b.y())
+  );
 }
 
 // -------------------------------------------------------------------------- //
