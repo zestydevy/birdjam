@@ -65,7 +65,7 @@ void TCollider::calcCollideMinMax(
 // -------------------------------------------------------------------------- //
 
 void TCollider::init() {
-  sColliderList = TDoubleLinkList<TCollider> {};
+  sColliderList.clear();
 }
 
 // -------------------------------------------------------------------------- //
