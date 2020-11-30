@@ -8,21 +8,21 @@
 #include "../models/world/shadow.h"
 
 const float BIRD_FLYGRAVITY = 0.02f;
-const float BIRD_MAXSPEED = 12.0f;
-const float BIRD_FASTSPEED = 9.0f; //When you start fast animation
-const float BIRD_SLOWSPEED = 6.0f; //When you start slow animation and speed up
+const float BIRD_MAXSPEED = 10.0f;
+const float BIRD_FASTSPEED = 7.5f; //When you start fast animation
+const float BIRD_SLOWSPEED = 5.0f; //When you start slow animation and speed up
 const float BIRD_ACCEL = 0.05f;    //Acceleration when below slowspeed
 const float BIRD_MINSPEED = 4.0f;
 const float BIRD_FLAPSPEED = 4.0f;
 const float BIRD_FLAPASCENDSPEED = 4.0f;
 const float BIRD_FLAPDESCENDSPEED = 4.0f;
 const float BIRD_BANKDEGREES = 45.0f;
-const float BIRD_WINDRES = 0.0075f;
+const float BIRD_WINDRES = 0.007f;
 const float BIRD_GRAVITY = 2.5f;
 
 const float BIRD_STUTTERDEG = 10.0f;
 
-const float BIRD_RADIUS = 15.0f;
+const float BIRD_RADIUS = 10.0f;
 
 // -------------------------------------------------------------------------- //
 
@@ -97,58 +97,22 @@ void TPlayer::update()
         // walk controls
         case playerstate_t::PLAYERSTATE_FALLING:
         
-        if (mClosestFace == nullptr) {
-            mVelocity += BIRD_GRAVITY * kInterval;
-            mPosition -= {0.0f, mVelocity, 0.0f};
-        } else {
-            // we touched the ground, idle
-            mState = playerstate_t::PLAYERSTATE_IDLE;
-            mVelocity = 0.0f;
-            mAnim->setAnimation(bird_Bird_Idle_Length, mAnim_Idle);
-        }
-        
-        moveCameraRelative(move, forward, right);
-        
-        mCameraTarget = mPosition + (up * 60.00f) + (mDirection * mSpeed * 10.0f);  //Target slightly above player and slightly in front of player
-        
-        break;
+            if (mClosestFace == nullptr) {
+                mVelocity += BIRD_GRAVITY * kInterval;
+                mPosition -= {0.0f, mVelocity, 0.0f};
+            } else {
+                // we touched the ground, idle
+                mState = playerstate_t::PLAYERSTATE_IDLE;
+                mVelocity = 0.0f;
+                mAnim->setAnimation(bird_Bird_Idle_Length, mAnim_Idle);
+            }
+            
+            moveCameraRelative(move, forward, right);
+            
+            mCameraTarget = mPosition + (up * 35.00f) + (mDirection * mSpeed * 10.0f);  //Target slightly above player and slightly in front of player
 
-        // -------------------------------------------------------------------- //
-        // idle. c'mon let's get a move on...
-        case playerstate_t::PLAYERSTATE_IDLE:
-
-        // attach to the closet point of the ground
-        mPosition.y() = (mGroundFace->calcYAt(mPosition.xz()) + BIRD_RADIUS);
-
-        moveCameraRelative(move, forward, right);
-        
-        // played moved, change to walking state
-        if (mPad->getAnalogX() != 0 || mPad->getAnalogY() != 0) {
-            mState = playerstate_t::PLAYERSTATE_WALKING;
-            mAnim->setAnimation(bird_Bird_Walk_Length, mAnim_Walk, true, 0.3f);
-        }
-        
-        break;
-
-        // -------------------------------------------------------------------- //
-        // walking on the ground
-        case playerstate_t::PLAYERSTATE_WALKING:
-
-        // attach to the closet point of the ground
-        mPosition.y() = (mGroundFace->calcYAt(mPosition.xz()) + BIRD_RADIUS);
-
-        moveCameraRelative(move, forward, right);
-
-        mCameraTarget = mPosition + (up * 60.00f) + (mDirection * mSpeed * 10.0f);  //Target slightly above player and slightly in front of player
-
-        // played moved, change to walking state
-        if (mPad->getAnalogX() == 0 && mPad->getAnalogY() == 0) {
-            // back to idle
-            mState = playerstate_t::PLAYERSTATE_IDLE;
-            mAnim->setAnimation(bird_Bird_Idle_Length, mAnim_Idle);
-        }
-
-        if (mPad->isPressed(Z)){    //Start flying
+            // Switch to flying state
+            if (mPad->isPressed(Z)){    //Start flying
                 // Set state and animation
                 mState = PLAYERSTATE_FLYING;
                 mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, false, 0.25f);
@@ -163,7 +127,112 @@ void TPlayer::update()
                 mGoingFast = false;
 
                 mCamera->setMode(true);
-        }
+            }
+            //Switch to flapping state
+            if (mPad->isPressed(A)){    //Return back to flapping
+                mState = PLAYERSTATE_FALLING;
+                mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, true, 0.0f);
+                mRotation = TVec3<s16>((s16)0, mRotation.y(), (s16)0);
+
+                mCamera->setMode(false);
+
+                // Convert direction into velocity for flapping
+                mDirection = mDirection * mSpeed;
+                mSpeed = 1.0f;
+            }
+        break;
+
+        // -------------------------------------------------------------------- //
+        // idle. c'mon let's get a move on...
+        case playerstate_t::PLAYERSTATE_IDLE:
+            // attach to the closet point of the ground
+            mPosition.y() = (mGroundFace->calcYAt(mPosition.xz()) + BIRD_RADIUS);
+
+            moveCameraRelative(move, forward, right);
+            
+            // played moved, change to walking state
+            if (mPad->getAnalogX() != 0 || mPad->getAnalogY() != 0) {
+                mState = playerstate_t::PLAYERSTATE_WALKING;
+                mAnim->setAnimation(bird_Bird_Walk_Length, mAnim_Walk, true, 0.3f);
+            }
+
+            if (mPad->isPressed(Z)){    //Start flying
+                    // Set state and animation
+                    mState = PLAYERSTATE_FLYING;
+                    mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, false, 0.25f);
+
+                    mFlappingWings = true;
+
+                    // Set initial flight direction to the facing direction
+                    mDirection.set(TSine::ssin(mRotation.y()), 0.0f, TSine::scos(mRotation.y()));
+
+                    // Set initial flight speed
+                    mSpeed = 25.0f;
+                    mGoingFast = false;
+
+                    mCamera->setMode(true);
+            }
+            if (mPad->isPressed(A)){    //Return back to flapping
+                mState = PLAYERSTATE_FALLING;
+                mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, true, 0.0f);
+                mRotation = TVec3<s16>((s16)0, mRotation.y(), (s16)0);
+
+                mCamera->setMode(false);
+
+                // Convert direction into velocity for flapping
+                mDirection = mDirection * mSpeed;
+                mSpeed = 1.0f;
+            }
+        
+        break;
+
+        // -------------------------------------------------------------------- //
+        // walking on the ground
+        case playerstate_t::PLAYERSTATE_WALKING:
+
+            // attach to the closet point of the ground
+            mPosition.y() = (mGroundFace->calcYAt(mPosition.xz()) + BIRD_RADIUS);
+
+            moveCameraRelative(move, forward, right);
+
+            mCameraTarget = mPosition + (up * 35.00f) + (mDirection * mSpeed * 10.0f);  //Target slightly above player and slightly in front of player
+
+            // played moved, change to walking state
+            if (mPad->getAnalogX() == 0 && mPad->getAnalogY() == 0) {
+                // back to idle
+                mState = playerstate_t::PLAYERSTATE_IDLE;
+                mAnim->setAnimation(bird_Bird_Idle_Length, mAnim_Idle);
+            }
+
+            // Switch to flying state
+            if (mPad->isPressed(Z)){    //Start flying
+                // Set state and animation
+                mState = PLAYERSTATE_FLYING;
+                mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, false, 0.25f);
+
+                mFlappingWings = true;
+
+                // Set initial flight direction to the facing direction
+                mDirection.set(TSine::ssin(mRotation.y()), 0.0f, TSine::scos(mRotation.y()));
+
+                // Set initial flight speed
+                mSpeed = 25.0f;
+                mGoingFast = false;
+
+                mCamera->setMode(true);
+            }
+            //Switch to flapping state
+            if (mPad->isPressed(A)){    //Return back to flapping
+                mState = PLAYERSTATE_FALLING;
+                mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, true, 0.0f);
+                mRotation = TVec3<s16>((s16)0, mRotation.y(), (s16)0);
+
+                mCamera->setMode(false);
+
+                // Convert direction into velocity for flapping
+                mDirection = mDirection * mSpeed;
+                mSpeed = 1.0f;
+            }
         
         break;
         
@@ -205,7 +274,7 @@ void TPlayer::update()
             }
 
             // Configure the camera (position is handled by the camera itself)
-            mCameraTarget = mPosition + (up * 60.00f) + (mDirection * mSpeed * 10.0f);  //Target slightly above player and slightly in front of player
+            mCameraTarget = mPosition + (up * 35.00f) + (mDirection * mSpeed * 10.0f);  //Target slightly above player and slightly in front of player
             break;
 
         // -------------------------------------------------------------------- //
