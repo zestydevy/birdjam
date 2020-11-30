@@ -7,7 +7,7 @@ extern "C"{
 
 #include <ultra64.h>
 
-typedef struct TSceneEntry
+struct TSceneEntry
 {
     s32 id;
 

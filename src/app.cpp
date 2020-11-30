@@ -138,8 +138,8 @@ void CApp::appError(void * arg)
             sprintf(str, "pc    | %08x", (u32)context->pc);
             debug_draw_string(buffer, 5, 15, str);
 
-            debug_printreg(buffer, 5, 25, (u8)context->cause, "cause", const_cast<reg_desc *>(causeDesc));
-            debug_printreg(buffer, 5, 35, (u32)context->sr, "sr   ", const_cast<reg_desc *>(srDesc));
+            debug_printreg(buffer, 5, 25, (u8)context->cause, const_cast<char *>("cause"), const_cast<reg_desc *>(causeDesc));
+            debug_printreg(buffer, 5, 35, (u32)context->sr, const_cast<char *>("sr   "), const_cast<reg_desc *>(srDesc));
 
             sprintf(str, "badvaddr | %08x", (u32)context->badvaddr);
             debug_draw_string(buffer, 5, 45, str);
@@ -167,7 +167,7 @@ void CApp::appError(void * arg)
             debug_draw_string(buffer, 5, 145, str);
 
             // Print the floating point registers
-            debug_printreg(buffer, 5, 165, (u32)context->fpcsr, "fpcsr", const_cast<reg_desc *>(fpcsrDesc));
+            debug_printreg(buffer, 5, 165, (u32)context->fpcsr, const_cast<char *>("fpcsr"), const_cast<reg_desc *>(fpcsrDesc));
             sprintf(str, "d0  %.4e | d2  %.4e | d4  %.4e", context->fp0.d,  context->fp2.d, context->fp4.d);
             debug_draw_string(buffer, 5, 175, str);
             debug_draw_string(buffer, 5, 175, str);
