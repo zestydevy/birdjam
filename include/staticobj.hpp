@@ -39,6 +39,10 @@ enum EObjType : s16
     STORE_B,
     STEPPINGSTONE,
     FENCE,
+    TRUNK,
+    LEAVES,
+    BRANCH,
+    ROOTS,
     INVALID
 };
 
@@ -60,6 +64,8 @@ class TObject
     TVec3<f32> const & getPosition() {return mPosition;}
     TVec3<s16> const & getRotation() {return mRotation;}
     TVec3<f32> const & getScale() {return mScale;}
+
+    virtual void updateMtx();
 
     virtual void init();
     virtual void update();

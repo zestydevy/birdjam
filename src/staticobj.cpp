@@ -29,6 +29,10 @@
 #include "../models/objects/store_e/model_storee.h"
 #include "../models/objects/steppingstone/model_steppingstone.h"
 #include "../models/objects/fence/model_fence.h"
+#include "../models/objects/trunk/model_trunk.h"
+#include "../models/objects/leaves/model_leaves.h"
+#include "../models/objects/branch/model_branch.h"
+#include "../models/objects/roots/model_roots.h"
 
 
 // -------------------------------------------------------------------------- //
@@ -63,6 +67,10 @@ static Gfx * gObjMeshList[] =
     store_b_B_mesh,
     steppingstone_SteppingStone_mesh,
     fence_Fence_mesh,
+    trunk_Trunk_mesh,
+    leaves_Leaves_mesh,
+    branch_Branch_mesh,
+    roots_Roots_mesh,
     nullptr
 };
 
@@ -71,63 +79,58 @@ static Gfx * gObjMeshList[] =
 void TObject::setPosition(TVec3<f32> const & pos)
 {
     mPosition = pos;
+    updateMtx();
 }
 
 void TObject::setRotation(TVec3<f32> const & rot)
 {
     mRotation.set(rot.x(), rot.y(), rot.z());
+    updateMtx();
 }
 
 void TObject::setScale(TVec3<f32> const & scale)
 {
     mScale = scale;
+    updateMtx();
 }
 
 void TObject::init()
 {
-    // ...
-    mPosMtx.identity();
-    mRotMtx.identity();
-    mScaleMtx.identity();
+    updateMtx();
+}
+
+void TObject::updateMtx()
+{
+    TMtx44 temp1, temp2, temp3;
+    
+    mPosMtx.translate(mPosition);
+    temp1.rotateAxisX(mRotation.x());
+    temp2.rotateAxisY(mRotation.y());
+    temp3.rotateAxisZ(mRotation.z());
+    TMtx44::concat(temp2, temp1, mRotMtx);
+    TMtx44::concat(mRotMtx, temp3, mRotMtx);
+    mScaleMtx.scale(mScale);
+
+    TMtx44::floatToFixed(mPosMtx, mFPosMtx);
+    TMtx44::floatToFixed(mRotMtx, mFRotMtx);
+    TMtx44::floatToFixed(mScaleMtx, mFScaleMtx);
 }
 
 void TObject::update() {}
 
 void TObject::draw()
 {
-    // ...
-    
-    //mtx.identity();
-    //mtx.rotateEuler({0,angle,0});
-    //mtx.floatToFixed(mtx, gBirdRot);
-
-    TMtx44 temp1, temp2, temp3;
-    
-    mPosMtx.translate(mPosition);
-    temp1.rotateAxis(TVec3<f32>(-TSine::scos(mRotation.y()), 0.0f, TSine::ssin(mRotation.y())), -mRotation.x());
-    temp2.rotateAxisY(mRotation.y());
-    TMtx44::concat(temp1, temp2, temp3);
-    temp1.rotateAxis(temp3.mul(TVec3<f32>(0.0f, 0.0f, 1.0f)), mRotation.z());
-    TMtx44::concat(temp1, temp3, mRotMtx);
-    mScaleMtx.scale(mScale);
-
-    TMtx44::floatToFixed(mPosMtx, mFPosMtx);
-    TMtx44::floatToFixed(mRotMtx, mFRotMtx);
-    TMtx44::floatToFixed(mScaleMtx, mFScaleMtx);
-    
     gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFPosMtx),
 	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
-    gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFScaleMtx),
-	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
     gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFRotMtx),
-	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
+	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
+    gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFScaleMtx),
+	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
         
     if (mMesh != nullptr) {
         gSPDisplayList(mDynList->pushDL(), mMesh);
     }
 
-    gSPPopMatrix(mDynList->pushDL(), G_MTX_MODELVIEW);
-    gSPPopMatrix(mDynList->pushDL(), G_MTX_MODELVIEW);
     gSPPopMatrix(mDynList->pushDL(), G_MTX_MODELVIEW);
 }
 

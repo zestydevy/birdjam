@@ -426,9 +426,28 @@ void TPlayer::update()
     mAnim->update();
 }
 
+void TPlayer::updateMtx()
+{
+    TMtx44 temp1, temp2, temp3;
+    
+    mPosMtx.translate(mPosition);
+    temp1.rotateAxis(TVec3<f32>(-TSine::scos(mRotation.y()), 0.0f, TSine::ssin(mRotation.y())), -mRotation.x());
+    temp2.rotateAxisY(mRotation.y());
+    TMtx44::concat(temp1, temp2, temp3);
+    temp1.rotateAxis(temp3.mul(TVec3<f32>(0.0f, 0.0f, 1.0f)), mRotation.z());
+    TMtx44::concat(temp1, temp3, mRotMtx);
+    mScaleMtx.scale(mScale);
+
+    TMtx44::floatToFixed(mPosMtx, mFPosMtx);
+    TMtx44::floatToFixed(mRotMtx, mFRotMtx);
+    TMtx44::floatToFixed(mScaleMtx, mFScaleMtx);
+}
+
 void TPlayer::draw()
 {
     mShadow->draw();
+    
+    updateMtx();
     TObject::draw();
     
 #if 0

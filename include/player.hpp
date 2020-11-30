@@ -50,6 +50,8 @@ class TPlayer :
         return mGroundFace;
     }
 
+    virtual void updateMtx() override;
+
     virtual void init() override;
     virtual void update() override;
     virtual void draw() override;
