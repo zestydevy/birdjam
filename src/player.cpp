@@ -111,6 +111,7 @@ void TPlayer::update()
                 mState = playerstate_t::PLAYERSTATE_IDLE;
                 mVelocity = 0.0f;
                 mAnim->setAnimation(bird_Bird_Idle_Length, mAnim_Idle);
+                mIdleTimer = 0;
             }
             
             moveCameraRelative(move, forward, right);
@@ -136,7 +137,7 @@ void TPlayer::update()
             }
             //Switch to flapping state
             if (mPad->isPressed(A)){    //Return back to flapping
-                mState = PLAYERSTATE_FALLING;
+                mState = PLAYERSTATE_FLAPPING;
                 mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, true, 0.0f);
                 mRotation = TVec3<s16>((s16)0, mRotation.y(), (s16)0);
 
@@ -157,6 +158,11 @@ void TPlayer::update()
             }
 
             moveCameraRelative(move, forward, right);
+
+            if (mIdleTimer++ == 150)
+                mAnim->setAnimation(bird_Bird_IdlePreen_Length, mAnim_IdlePreen, false, 0.3f);
+            else if (mIdleTimer > 150 && mAnim->isAnimationCompleted())
+                mAnim->setAnimation(bird_Bird_Idle_Length, mAnim_Idle);
             
             // played moved, change to walking state
             if (mPad->getAnalogX() != 0 || mPad->getAnalogY() != 0) {
@@ -200,8 +206,14 @@ void TPlayer::update()
 
             // attach to the closet point of the ground
             if (mGroundFace != nullptr) {
-                mPosition.y() = (mGroundFace->calcYAt(mPosition.xz()) + BIRD_RADIUS);
+                float yPos = mGroundFace->calcYAt(mPosition.xz()) + BIRD_RADIUS;
+                if (mPosition.y() - yPos <= BIRD_RADIUS)
+                    mPosition.y() = yPos;
+                else
+                    mState = PLAYERSTATE_FALLING;
             }
+            else
+                mState = PLAYERSTATE_FALLING;
 
             moveCameraRelative(move, forward, right);
 
@@ -212,7 +224,10 @@ void TPlayer::update()
                 // back to idle
                 mState = playerstate_t::PLAYERSTATE_IDLE;
                 mAnim->setAnimation(bird_Bird_Idle_Length, mAnim_Idle);
+                mIdleTimer = 0;
             }
+
+            mAnim->setTimescale(move.getLength() * 0.1f);
 
             // Switch to flying state
             if (mPad->isPressed(Z)){    //Start flying
@@ -415,7 +430,7 @@ void TPlayer::update()
                 mLastDirection = mDirection;
                 mDirection += d * mClosestFace->nrm * 2.0f;
                 mState = PLAYERSTATE_STUNNED;
-                mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, false, 0.25f);
+                mAnim->setAnimation(bird_Bird_GlideCrash_Length, mAnim_GlideCrash, false, 0.4f);
             }
             else{   //Bounce
                 mDirection += d * mClosestFace->nrm * 2.0f;

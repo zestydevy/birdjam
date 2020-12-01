@@ -1,5 +1,5 @@
 #include <ultra64.h>
-/*
+
 Vtx bird_Bird_GlideCrash_vtx_0_0[265] = {
 	{{{117, 334, 572},0, {528, 104},{0x7A, 0x21, 0xC, 0xFF}}},
 	{{{91, 369, 571},0, {557, 97},{0x45, 0x6A, 0x4, 0xFF}}},
@@ -5150,4 +5150,4 @@ Vtx* bird_Bird_GlideCrash_3[12] = {
 	bird_Bird_GlideCrash_vtx_3_9,
 	bird_Bird_GlideCrash_vtx_3_10,
 	bird_Bird_GlideCrash_vtx_3_11
-};*/
+};

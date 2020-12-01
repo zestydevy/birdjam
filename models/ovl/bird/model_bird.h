@@ -43,12 +43,11 @@ extern Vtx* bird_Bird_GlideFlap_1[];
 extern Vtx* bird_Bird_GlideFlap_2[];
 extern Vtx* bird_Bird_GlideFlap_3[];
 
-/*
 extern int bird_Bird_GlideCrash_Length;
 extern Vtx* bird_Bird_GlideCrash_0[];
 extern Vtx* bird_Bird_GlideCrash_1[];
 extern Vtx* bird_Bird_GlideCrash_2[];
-extern Vtx* bird_Bird_GlideCrash_3[];*/
+extern Vtx* bird_Bird_GlideCrash_3[];
 
 extern int bird_Bird_Idle_Length;
 extern Vtx* bird_Bird_Idle_0[];
