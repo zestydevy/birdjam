@@ -48,7 +48,14 @@ void TScene::loadObjects(TSceneEntry const list[])
                 obj->setMesh(TObject::getMeshGfx(type));
                 break;
             default: 
-                obj = new TNestObj(mDynList, type);
+                switch (TObject::getNestObjectInfo((EObjType)list[i].id).colType){
+                    case 0:
+                        obj = new TNestObjSphere(mDynList, type);
+                        break;
+                    case 1:
+                    obj = new TNestObjBox(mDynList, type);
+                        break;
+                }
                 break;
         }
 

@@ -59,7 +59,7 @@ class TPlayer :
     }
 
     TVec3F getVelocity() {
-        return mDirection * mVelocity;
+        return mDirection * mSpeed;
     }
 
     virtual void updateMtx() override;

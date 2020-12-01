@@ -104,24 +104,21 @@ TNestObj::TNestObj(
 
 // -------------------------------------------------------------------------- //
 
+float TNestObj::getHalfHeight() {
+  return 0.0f;
+}
+
+// -------------------------------------------------------------------------- //
+
 void TNestObj::init() {
   TObject::init();
 
-  float scale = (mScale.x() + mScale.y() + mScale.z()) / 3.0f;
-
   setMesh(mData->mesh);
-  mObjRadius = mData->sizex;
-  mObjWeight = scale * mObjRadius * mData->mass;
-
-  initCollider(TAG_NESTOBJ, 0, TAG_PLAYER, 1);
-  setCollideCenter(mPosition + mRotMtx.mul(mScaleMtx.mul(TVec3F(mData->offsetx, mData->offsety, mData->offsetz))));
-  setCollideRadius(mObjRadius * scale);
+  mObjWeight = getObjScale() * mData->mass;
 
   // mDebugCube = new TObject { mDynList };
   // mDebugCube->init();
   // mDebugCube->setMesh(TObject::getMeshGfx(EObjType::DEBUG_CUBE));
-
-  updateBlkMap();
 }
 
 // -------------------------------------------------------------------------- //
@@ -136,9 +133,9 @@ void TNestObj::update() {
     case EState::CARRYING: {
       //Calculate hanging angle
       speedRot = TVec3S(
-                    TSine::atan2(v.z(), 2.0f),
+                    TSine::atan2(v.z(), 4.0f),
                     (s16)0,
-                    TSine::atan2(-v.x(), 2.0f));
+                    TSine::atan2(-v.x(), 4.0f));
 
       //Set rotation before hanging angle is applied
       mMountRot.set((s16)mMountRot.x(), (s16)(mMountRotY + mPlayer->getRotation().y() + (TSine::ssin(mMountTimer) * TSine::fromDeg(7.0f))), (s16)mMountRot.z());
@@ -158,15 +155,15 @@ void TNestObj::update() {
       mPosition.y() -= 1.0F;
 
       gr = TCollision::findGroundBelow(
-        mPosition, getCollideRadius()
+        mPosition, getHalfHeight()
       );
 
       if (gr != nullptr) {
         mPosition.y() = (gr->calcYAt(
-          mPosition.xz()) + getCollideRadius()
+          mPosition.xz()) + getHalfHeight()
         );
 
-        mReceiveMask = TAG_PLAYER; // turn on collision
+        setCollision(true);
         mState = EState::IDLE;
       }
       updateMtx();
@@ -209,6 +206,14 @@ void TNestObj::draw() {
 
 // -------------------------------------------------------------------------- //
 
+void TNestObj::updateCollider(){}
+
+// -------------------------------------------------------------------------- //
+
+void TNestObj::setCollision(bool set){}
+
+// -------------------------------------------------------------------------- //
+
 void TNestObj::updateMtx()
 {
     TObject::updateMtx();
@@ -224,7 +229,7 @@ void TNestObj::updateMtx()
       TMtx44::floatToFixed(mMountRotMtx, mFMountRotMtx);
     }
 
-    setCollideCenter(mPosition + mRotMtx.mul(mScaleMtx.mul(TVec3F(mData->offsetx, mData->offsety, mData->offsetz))));
+    updateCollider();
 }
 
 // -------------------------------------------------------------------------- //
@@ -249,19 +254,16 @@ TVec3F TNestObj::getMountPoint()
 
 // -------------------------------------------------------------------------- //
 
-void TNestObj::onCollide(
+void TNestObj::onPickup(
   TCollider * const other
 ) {
   if (mPlayer != nullptr) {
     return; // how did this happen?
   }
 
-  float scale = (mScale.x() + mScale.y() + mScale.z()) / 3.0f;
-
   // we can assume this is the player due to collision masks
   mPlayer = static_cast<TPlayer *>(other);
 
-  mMountDist = mObjRadius * scale;
 
   //Save the rotation before it gets picked up, so we don't need to calculate the hanging angle every frame
   mFMountRotMtx = mFRotMtx;
@@ -272,7 +274,122 @@ void TNestObj::onCollide(
   TFlockObj::getFlockObj()->grabObject(this);
 
   mState = EState::CARRYING;
-  mReceiveMask = 0; // turn off collision
+}
+
+// -------------------------------------------------------------------------- //
+
+TNestObjSphere::TNestObjSphere(
+  TDynList2 * dl, EObjType type
+) : TNestObj { dl, type }
+{
+}
+
+// -------------------------------------------------------------------------- //
+
+void TNestObjSphere::updateCollider(){
+  setCollideCenter(mPosition + mRotMtx.mul(mScaleMtx.mul(TVec3F(mData->offsetx, mData->offsety, mData->offsetz))));
+}
+
+// -------------------------------------------------------------------------- //
+
+void TNestObjSphere::setCollision(bool set){
+  if (set)
+    mReceiveMask = TAG_PLAYER; // turn on collision
+  else
+    mReceiveMask = 0;
+}
+
+// -------------------------------------------------------------------------- //
+
+void TNestObjSphere::init() {
+  TNestObj::init();
+
+  mObjRadius = mData->sizex;
+
+  initCollider(TAG_NESTOBJ, 0, TAG_PLAYER, 1);
+  setCollideCenter(mPosition + mRotMtx.mul(mScaleMtx.mul(TVec3F(mData->offsetx, mData->offsety, mData->offsetz))));
+  setCollideRadius(mObjRadius * getObjScale());
+
+  updateBlkMap();
+}
+
+// -------------------------------------------------------------------------- //
+
+float TNestObjSphere::getHalfHeight() {
+  return getCollideRadius();
+}
+
+// -------------------------------------------------------------------------- //
+
+void TNestObjSphere::onCollide(
+  TCollider * const other
+) {
+  if (mPlayer != nullptr) {
+    return; // how did this happen?
+  }
+
+  onPickup(other);
+
+  mMountDist = mObjRadius * getObjScale();
+  setCollision(false);
+}
+
+// -------------------------------------------------------------------------- //
+
+TNestObjBox::TNestObjBox(
+  TDynList2 * dl, EObjType type
+) : TNestObj { dl, type }
+{
+}
+
+// -------------------------------------------------------------------------- //
+
+void TNestObjBox::updateCollider(){
+  setCollideCenter(mPosition + mRotMtx.mul(mScaleMtx.mul(TVec3F(mData->offsetx, mData->offsety, mData->offsetz))));
+}
+
+// -------------------------------------------------------------------------- //
+
+void TNestObjBox::setCollision(bool set){
+  if (set)
+    mReceiveMask = TAG_PLAYER; // turn on collision
+  else
+    mReceiveMask = 0;
+}
+
+// -------------------------------------------------------------------------- //
+
+void TNestObjBox::init() {
+  TNestObj::init();
+
+  mSize = TVec3F(mData->sizex, mData->sizey, mData->sizez);
+
+  initCollider(TAG_NESTOBJ, 0, TAG_PLAYER, 1);
+  setCollideCenter(mPosition + mRotMtx.mul(mScaleMtx.mul(TVec3F(mData->offsetx, mData->offsety, mData->offsetz))));
+  setCollideSize(TVec3F(mSize.x() * mScale.x(), mSize.y() * mScale.y(), mSize.z() * mScale.z()) * 2.0f);
+
+  updateBlkMap();
+}
+
+// -------------------------------------------------------------------------- //
+
+float TNestObjBox::getHalfHeight() {
+  return getCollideSize().y() / 2.0f;
+}
+
+// -------------------------------------------------------------------------- //
+
+void TNestObjBox::onCollide(
+  TCollider * const other
+) {
+  if (mPlayer != nullptr) {
+    return; // how did this happen?
+  }
+
+  onPickup(other);
+
+  mMountDist = getCollideSize().y() * 2.0f * getObjScale();
+  setCollision(false);
 }
 
 // -------------------------------------------------------------------------- //

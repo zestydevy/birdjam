@@ -52,8 +52,7 @@ class TFlockObj :
 // -------------------------------------------------------------------------- //
 
 class TNestObj :
-  public TObject,
-  public TSphereCollider
+  public TObject
 {
 
   public:
@@ -62,6 +61,7 @@ class TNestObj :
   virtual ~TNestObj() = default;
 
   float getObjWeight() const { return mObjWeight; }
+  float getObjScale() const { return (mScale.x() + mScale.y() + mScale.z()) / 3.0f; }
 
   void drop();
   TVec3F getMountPoint();
@@ -73,6 +73,9 @@ class TNestObj :
   virtual void draw() override;
 
   protected:
+  virtual void setCollision(bool set);
+  virtual void updateCollider();
+  virtual float getHalfHeight();
 
   enum class EState {
 
@@ -84,7 +87,6 @@ class TNestObj :
   };
 
   float mObjWeight { 0.0F };
-  float mObjRadius { 0.0F };
   TPlayer * mPlayer { nullptr };
   EObjType mObjType { EObjType::INVALID };
   EState mState { EState::IDLE };
@@ -103,8 +105,55 @@ class TNestObj :
 
   const TObjectData * mData{nullptr};
 
-  virtual void onCollide(TCollider *) override;
+  void onPickup(TCollider *);
+};
 
+// -------------------------------------------------------------------------- //
+
+class TNestObjSphere :
+  public TNestObj,
+  public TSphereCollider
+{
+
+  public:
+
+  TNestObjSphere(TDynList2 *, EObjType);
+  virtual ~TNestObjSphere() = default;
+
+  virtual void init() override;
+
+  protected:
+  virtual void setCollision(bool set) override;
+  virtual void updateCollider() override;
+  virtual float getHalfHeight() override;
+
+  float mObjRadius { 0.0F };
+
+  virtual void onCollide(TCollider *) override;
+};
+
+// -------------------------------------------------------------------------- //
+
+class TNestObjBox :
+  public TNestObj,
+  public TBoxCollider
+{
+
+  public:
+
+  TNestObjBox(TDynList2 *, EObjType);
+  virtual ~TNestObjBox() = default;
+
+  virtual void init() override;
+
+  protected:
+  virtual void setCollision(bool set) override;
+  virtual void updateCollider() override;
+  virtual float getHalfHeight() override;
+
+  TVec3F mSize;
+
+  virtual void onCollide(TCollider *) override;
 };
 
 // -------------------------------------------------------------------------- //
