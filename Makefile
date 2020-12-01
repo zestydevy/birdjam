@@ -9,13 +9,13 @@ LIB = $(ROOT)/usr/lib
 LPR = $(LIB)/PR
 INC = $(ROOT)/usr/include
 
-NUAUDIOLIB = -lnualstl_n_d -ln_mus_d -ln_audio_sc
+NUAUDIOLIB = -lnualstl_n -ln_mus -ln_audio_sc
 
 OPTIMIZER       = -O1
-LCDEFS          = -DNDEBUG -DF3DEX_GBI_2
+LCDEFS          = -DNDEBUG -D_FINALROM -DF3DEX_GBI_2
 N64LIB          = -lultra_rom
-CFLAGS := $(CFLAGS) -G 0 -I. -Iinclude -I$(NUSYSINCDIR) -I$(ROOT)/usr/include/PR
-CXXFLAGS := $(CXXFLAGS) -DNDEBUG -DF3DEX_GBI_2 -G 0 -std=c++20 -fno-builtin -fno-exceptions -fno-rtti -Iinclude -I$(NUSYSINCDIR) -I$(ROOT)/usr/include/PR
+CFLAGS := $(CFLAGS) -DNDEBUG -D_FINALROM -G 0 -I. -Iinclude -I$(NUSYSINCDIR) -I$(ROOT)/usr/include/PR
+CXXFLAGS := $(CXXFLAGS) -DNDEBUG -D_FINALROM -DF3DEX_GBI_2 -G 0 -std=c++20 -fno-builtin -fno-exceptions -fno-rtti -Iinclude -I$(NUSYSINCDIR) -I$(ROOT)/usr/include/PR
 
 APP =		$(PROJECT).out
 
@@ -27,7 +27,8 @@ CODEFILES   := $(wildcard src/*.c)
 CXXFILES    := $(wildcard src/*.cpp)
 DATAFILES   := $(wildcard data/*.c)
 SCENEFILES  := $(wildcard scene/*.c)
-MODELFILES  := $(wildcard models/*/*.c) $(wildcard models/objects/*/*.c)
+MODELFILES  := $(wildcard models/static/*/*.c) $(wildcard models/static/objects/*/*.c)
+MODELOVLFILES := $(wildcard models/ovl/*/*.c)
 LIBFILES    := $(wildcard lib/*.o)
 
 OBJPATH		= 	./build/obj
@@ -36,7 +37,7 @@ CODEOBJECTS =	$(CODEFILES:.c=.o) $(CXXFILES:.cpp=.o) $(SCENEFILES:.c=.o) $(MODEL
 CODEOBJNAME =   $(notdir $(CODEOBJECTS))
 CODEOBJPATH =   $(addprefix $(OBJPATH)/,$(CODEOBJNAME))
 
-DATAOBJECTS =	$(DATAFILES:.c=.o)
+DATAOBJECTS =	$(DATAFILES:.c=.o) $(MODELOVLFILES:.c=.o)
 DATAOBJNAME =   $(notdir $(DATAOBJECTS))
 DATAOBJPATH =   $(addprefix $(OBJPATH),$(DATAOBJECTS))
 
@@ -48,7 +49,7 @@ LCINCS =	-I. -I$(NUSYSINCDIR) -I$(ROOT)/usr/include/PR
 LCOPTS =	-G 0
 LDIRT  =	$(APP) $(TARGETS)
 
-LDFLAGS =	$(MKDEPOPT) -L$(LIB) -L$(NUSYSLIBDIR) $(NUAUDIOLIB) -lnusys_d -lultra_d -L$(N64_LIBGCCDIR) -lgcc  -lnustd
+LDFLAGS =	$(MKDEPOPT) -L$(LIB) -L$(NUSYSLIBDIR) $(NUAUDIOLIB) -lnusys -lultra -L$(N64_LIBGCCDIR) -lgcc  -lnustd
 
 default: $(TARGETS)
 

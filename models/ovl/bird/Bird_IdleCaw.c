@@ -1,5 +1,5 @@
 #include <ultra64.h>
-#include "../models/bird/model_bird.h"
+#include "../models/ovl/bird/model_bird.h"
 
 /* probably not putting back in
 

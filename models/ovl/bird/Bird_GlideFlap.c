@@ -1,5 +1,5 @@
 #include <ultra64.h>
-#include "../models/bird/model_bird.h"
+#include "../models/ovl/bird/model_bird.h"
 
 Vtx bird_Bird_GlideFlap_vtx_0_0[265] = {
 	{{{73, 243, 644},0, {528, 104},{0x5F, 0xE9, 0x52, 0xFF}}},

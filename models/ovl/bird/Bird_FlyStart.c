@@ -1,5 +1,5 @@
 #include <ultra64.h>
-#include "../models/bird/model_bird.h"
+#include "../models/ovl/bird/model_bird.h"
 
 Vtx bird_Bird_FlyStart_vtx_0_0[265] = {
 	{{{100, 543, 370},0, {528, 104},{0x5F, 0xFC, 0x55, 0xFF}}},

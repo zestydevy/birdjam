@@ -5,7 +5,7 @@
 #include "math.hpp"
 #include "dynlist.hpp"
 
-#include "../models/cube/model_cube.h"
+#include "../models/static/cube/model_cube.h"
 
 // -------------------------------------------------------------------------- //
 

@@ -5,7 +5,7 @@
 #include "animator.hpp"
 #include "util.hpp"
 
-#include "../models/world/shadow.h"
+#include "../models//ovl/world/shadow.h"
 
 const float BIRD_FLYGRAVITY = 0.02f;
 const float BIRD_MAXSPEED = 10.0f;

@@ -8,8 +8,8 @@
 #include "graphic.h"
 #include "audio.hpp"
 
-#include "../models/sprites/sprite_time.h"
-#include "../models/sprites/sprite_items.h"
+#include "../models/static/sprites/sprite_time.h"
+#include "../models/static/sprites/sprite_items.h"
 
 // -------------------------------------------------------------------------- //
 TGame * TGame::sGameInstance{nullptr};

@@ -13,6 +13,8 @@
 extern char _codeSegmentStart[];         /* code segment start */
 extern char _codeSegmentEnd[];           /* code segment end */
 
+extern u8 _bird_ovlSegmentRomStart[];
+extern u8 _bird_ovlSegmentRomEnd[];
 extern u8 _seqSegmentRomStart[];
 extern u8 _seqSegmentRomEnd[];
 extern u8 _midibankSegmentRomStart[];

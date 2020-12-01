@@ -1,5 +1,5 @@
 #include <ultra64.h>
-#include "../models/bird/model_bird.h"
+#include "../models/ovl/bird/model_bird.h"
 
 Vtx bird_Bird_Walk_vtx_0_0[265] = {
 	{{{142, 526, 331},0, {528, 104},{0x60, 0xED, 0x50, 0xFF}}},

@@ -11,7 +11,7 @@
 #include "pad.hpp"
 #include "staticobj.hpp"
 
-#include "../models/bird/model_bird.h"
+#include "../models/ovl/bird/model_bird.h"
 
 enum playerstate_t : u16 {
     PLAYERSTATE_FALLING,    //Falling

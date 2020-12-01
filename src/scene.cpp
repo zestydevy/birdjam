@@ -6,14 +6,17 @@
 #include "sprite.hpp"
 #include "staticobj.hpp"
 #include "collision.h"
+#include "util.hpp"
 
 #include "scenedata.h"
+#include "segment.h"
+
 #include "../scene/scene_world.h"
-#include "../models/world/model_world_col.h"
-#include "../models/world/model_world.h"
-#include "../models/world/model_distant.h"
-#include "../models/world/model_sky.h"
-#include "../models/world/shadow.h"
+#include "../models/ovl/world/model_world_col.h"
+#include "../models/ovl/world/model_world.h"
+#include "../models/ovl/world/model_distant.h"
+#include "../models/ovl/world/model_sky.h"
+#include "../models/ovl/world/shadow.h"
 
 // -------------------------------------------------------------------------- //
 
@@ -70,6 +73,9 @@ void TTestScene::init()
 {
     // ...
     mStatus = ESceneState::RUNNING;
+
+    TUtil::toMemory(reinterpret_cast<void *>(_codeSegmentEnd), _bird_ovlSegmentRomStart, _bird_ovlSegmentRomEnd-_bird_ovlSegmentRomStart);
+
     mPad = new TPad(0);
     mCamera = new TCamera(mDynList);
     mBird = new TPlayer(mDynList);
