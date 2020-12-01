@@ -65,7 +65,7 @@ void TCollider::calcCollideMinMax(
 // -------------------------------------------------------------------------- //
 
 void TCollider::init() {
-  sColliderList = TDoubleLinkList<TCollider> {};
+  sColliderList.clear();
 }
 
 // -------------------------------------------------------------------------- //
@@ -74,7 +74,7 @@ void TCollider::frameBegin() {
   auto node = sColliderList.begin();
   TCollider * collider;
 
-  while (node != nullptr) {
+  while (node != sColliderList.end()) {
     collider = node->data;
     collider->mHitNum = 0;
     node = node->next;
@@ -91,7 +91,7 @@ void TCollider::frameEnd() {
 
   first = sColliderList.begin();
 
-  while (first != nullptr) {
+  while (first != sColliderList.end()) {
     lhs = first->data;
     second = first = first->next;
 
@@ -99,7 +99,7 @@ void TCollider::frameEnd() {
       continue;
     }
 
-    while (second != nullptr) {
+    while (second != sColliderList.end()) {
       rhs = second->data;
       second = second->next;
 

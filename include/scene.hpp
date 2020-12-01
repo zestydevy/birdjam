@@ -9,6 +9,7 @@
 #include "player.hpp"
 #include "collision.hpp"
 #include "staticobj.hpp"
+#include "score.hpp"
 #include "scenedata.h"
 
 // -------------------------------------------------------------------------- //
@@ -75,6 +76,7 @@ class TTestScene final
     TCamera * mCamera{nullptr};
     TPad * mPad{nullptr};
     TPlayer * mBird{nullptr};
+    TFlockObj * mFlock{nullptr};
 
 //    TObject * mObjects[4];
     TObject * mSky{nullptr};

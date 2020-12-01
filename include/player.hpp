@@ -59,6 +59,8 @@ class TPlayer :
     //For debug only
     const TCollFace * mClosestFace;
 
+    TVec3<f32> mHeldPos;
+
     protected:
 
     TAnimator * mAnim{nullptr};

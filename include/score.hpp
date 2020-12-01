@@ -46,10 +46,12 @@ class TNestObj :
 
   public:
 
-  TNestObj(TDynList2 *, EObjType, float r, float wt);
+  TNestObj(TDynList2 *, EObjType);
   virtual ~TNestObj() = default;
 
   float getObjWeight() const { return mObjWeight; }
+
+  virtual void updateMtx() override;
 
   virtual void init() override;
   virtual void update() override;
@@ -70,6 +72,8 @@ class TNestObj :
   TPlayer * mPlayer { nullptr };
   EObjType mObjType { EObjType::INVALID };
   EState mState { EState::IDLE };
+
+  const TObjectData * mData{nullptr};
 
   virtual void onCollide(TCollider *) override;
 

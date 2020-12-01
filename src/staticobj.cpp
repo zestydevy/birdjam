@@ -3,6 +3,8 @@
 #include "staticobj.hpp"
 #include "math.hpp"
 
+
+#include "../models/static/cube/model_cube.h"
 #include "../models/static/objects/balloon/model_balloon.h"
 #include "../models/static/objects/lunchtable/model_lunchtable.h"
 #include "../models/static/objects/chair/model_chair.h"
@@ -33,7 +35,6 @@
 #include "../models/static/objects/leaves/model_leaves.h"
 #include "../models/static/objects/branch/model_branch.h"
 #include "../models/static/objects/roots/model_roots.h"
-
 
 // -------------------------------------------------------------------------- //
 
@@ -116,7 +117,8 @@ void TObject::updateMtx()
     TMtx44::floatToFixed(mScaleMtx, mFScaleMtx);
 }
 
-void TObject::update() {}
+void TObject::update() {
+}
 
 void TObject::draw()
 {
@@ -144,6 +146,16 @@ Gfx * TObject::getMeshGfx(
     }
 
     return gObjMeshList[(u32)type];
+}
+
+const TObjectData & TObject::getNestObjectInfo(
+    EObjType const type
+) {
+    if (type >= EObjType::INVALID) {
+        return gObjectDataList[0];
+    }
+
+    return gObjectDataList[(u32)type];
 }
 
 // -------------------------------------------------------------------------- //

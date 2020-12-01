@@ -42,23 +42,28 @@ void TFlockObj::incFlock(u32 n, float strength) {
 // -------------------------------------------------------------------------- //
 
 TNestObj::TNestObj(
-  TDynList2 * dl, EObjType type,
-  float radius, float weight
+  TDynList2 * dl, EObjType type
 ) :
   TObject { dl },
-  mObjType { type },
-  mObjRadius { radius },
-  mObjWeight { weight }
-{}
+  mObjType { type }
+{
+  mData = &TObject::getNestObjectInfo(type);
+}
 
 // -------------------------------------------------------------------------- //
 
 void TNestObj::init() {
   TObject::init();
-  setMesh(TObject::getMeshGfx(mObjType));
+
+  float scale = (mScale.x() + mScale.y() + mScale.z()) / 3.0f;
+
+  setMesh(mData->mesh);
+  mObjRadius = mData->sizex;
+  mObjWeight = scale * mObjRadius * mData->mass;
+
   initCollider(TAG_NESTOBJ, 0, TAG_PLAYER, 1);
-  setCollideCenter(mPosition);
-  setCollideRadius(mObjRadius);
+  setCollideCenter(mPosition + mRotMtx.mul(mScaleMtx.mul(TVec3F(mData->offsetx, mData->offsety, mData->offsetz))));
+  setCollideRadius(mObjRadius * scale);
 }
 
 // -------------------------------------------------------------------------- //
@@ -68,7 +73,8 @@ void TNestObj::update() {
 
   switch (mState) {
     case EState::CARRYING: {
-      mPosition = mPlayer->getPosition();
+      mPosition = mPlayer->mHeldPos;
+      updateMtx();
       break;
     }
     case EState::DROPPING: {
@@ -87,10 +93,19 @@ void TNestObj::update() {
         mReceiveMask = TAG_PLAYER; // turn on collision
         mState = EState::IDLE;
       }
+      updateMtx();
 
       break;
     }
   }
+}
+
+// -------------------------------------------------------------------------- //
+
+void TNestObj::updateMtx()
+{
+    TObject::updateMtx();
+    setCollideCenter(mPosition + mRotMtx.mul(mScaleMtx.mul(TVec3F(mData->offsetx, mData->offsety, mData->offsetz))));
 }
 
 // -------------------------------------------------------------------------- //

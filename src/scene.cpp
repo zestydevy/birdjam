@@ -40,17 +40,16 @@ void TScene::loadObjects(TSceneEntry const list[])
         }
 
         TObject * obj = nullptr;
+        auto type = (EObjType)list[i].id;
 
         switch(list[i].id) {
             case EObjType::DEBUG_CUBE:
-            case EObjType::BALLOON:
-            case EObjType::LUNCHTABLE: {
                 obj = new TObject(mDynList);
+                obj->setMesh(TObject::getMeshGfx(type));
                 break;
             default: 
-                obj = new TObject(mDynList);
+                obj = new TNestObj(mDynList, type);
                 break;
-            }
         }
 
         if (obj == nullptr) {
@@ -62,9 +61,6 @@ void TScene::loadObjects(TSceneEntry const list[])
         obj->setRotation({TSine::fromDeg(list[i].rotationX), TSine::fromDeg(list[i].rotationY), TSine::fromDeg(list[i].rotationZ)});
         obj->setScale({list[i].scaleX, list[i].scaleY, list[i].scaleZ});
 
-        auto type = (EObjType)list[i].id;
-        Gfx * gfx = TObject::getMeshGfx(type);
-        obj->setMesh(gfx);
         mObjList.push(obj);
     }
 }
@@ -79,6 +75,7 @@ void TTestScene::init()
     mPad = new TPad(0);
     mCamera = new TCamera(mDynList);
     mBird = new TPlayer(mDynList);
+    mFlock = new TFlockObj(mDynList);
     mSky = new TObject(mDynList);
     mObjList.setHeap(THeap::getCurrentHeap());
 
@@ -131,6 +128,8 @@ void TTestScene::init()
 
 void TTestScene::update()
 {
+    TCollider::frameBegin();
+
     // ...
     mPad->read();
     mBird->update();
@@ -144,6 +143,12 @@ void TTestScene::update()
 //        mObjects[2]->setPosition(mBird->mClosestFace->vtx[2]);
 //        mObjects[3]->setPosition(pt);
 //    }
+
+    for (int i = 0; i < mObjList.capacity(); ++i) {
+        mObjList[i]->update();
+    }
+
+    TCollider::frameEnd();
 }
 
 void TTestScene::draw()
