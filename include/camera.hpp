@@ -24,6 +24,9 @@ class TCamera
     void setAngle(u16 angle) {mAngle = angle;}
     u16 const & getAngle() {return mAngle;}
 
+    float getFOV() {return mFov;}
+    void setFOV(float fovy) {mFov = fovy;}
+
     Mtx mProjectionMtx{};
     Mtx mFViewMtx{};
     Mtx mIdentityMtx{};

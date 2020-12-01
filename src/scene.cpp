@@ -92,6 +92,9 @@ void TTestScene::init()
     mBird->setRotation({0,0,0});
     mBird->setScale({0.03f,0.03f,0.03f});
 
+    mFlock->setPosition(mBird->getPosition());
+    mFlock->init();
+
     mSky->init();
     mSky->setPosition({0.0f,-2000.0f,0.0f});
     mSky->setScale(TVec3F(80.0f, 80.0f, 80.0f));
@@ -151,6 +154,8 @@ void TTestScene::update()
         mObjList[i]->update();
     }
 
+    mFlock->update();
+
     TCollider::frameEnd();
 }
 
@@ -176,6 +181,8 @@ void TTestScene::draw()
     }
 
     mBird->draw();
+
+    mFlock->draw();
 
     /*
 

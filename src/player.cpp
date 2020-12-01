@@ -9,9 +9,10 @@
 
 const float BIRD_FLYGRAVITY = 0.02f;
 const float BIRD_MAXSPEED = 10.0f;
+const float BIRD_INITSPEED = 7.0f;
 const float BIRD_FASTSPEED = 7.5f; //When you start fast animation
 const float BIRD_SLOWSPEED = 5.0f; //When you start slow animation and speed up
-const float BIRD_ACCEL = 0.05f;    //Acceleration when below slowspeed
+const float BIRD_ACCEL = 0.01f;    //Acceleration when below slowspeed
 const float BIRD_MINSPEED = 4.0f;
 const float BIRD_FLAPSPEED = 4.0f;
 const float BIRD_FLAPASCENDSPEED = 4.0f;
@@ -130,7 +131,7 @@ void TPlayer::update()
                 mDirection.set(TSine::ssin(mRotation.y()), 0.0f, TSine::scos(mRotation.y()));
 
                 // Set initial flight speed
-                mSpeed = 25.0f;
+                mSpeed = BIRD_INITSPEED;
                 mGoingFast = false;
 
                 mCamera->setMode(true);
@@ -181,7 +182,7 @@ void TPlayer::update()
                     mDirection.set(TSine::ssin(mRotation.y()), 0.0f, TSine::scos(mRotation.y()));
 
                     // Set initial flight speed
-                    mSpeed = 25.0f;
+                    mSpeed = BIRD_INITSPEED;
                     mGoingFast = false;
 
                     mCamera->setMode(true);
@@ -241,7 +242,7 @@ void TPlayer::update()
                 mDirection.set(TSine::ssin(mRotation.y()), 0.0f, TSine::scos(mRotation.y()));
 
                 // Set initial flight speed
-                mSpeed = 25.0f;
+                mSpeed = BIRD_INITSPEED;
                 mGoingFast = false;
 
                 mCamera->setMode(true);
@@ -292,7 +293,7 @@ void TPlayer::update()
                 mDirection.set(TSine::ssin(mRotation.y()), 0.0f, TSine::scos(mRotation.y()));
 
                 // Set initial flight speed
-                mSpeed = 25.0f;
+                mSpeed = BIRD_INITSPEED;
                 mGoingFast = false;
 
                 mCamera->setMode(true);
@@ -340,9 +341,9 @@ void TPlayer::update()
             if (mSpeed > BIRD_MAXSPEED)
                 mSpeed = BIRD_MAXSPEED; // Max Speed
 
-            if (mSpeed < BIRD_SLOWSPEED && mFlapTimer < 0){ // Flapping speed
+            if ((mPad->isHeld(A) || mSpeed < BIRD_SLOWSPEED) && mSpeed < BIRD_FASTSPEED){ // Flapping speed - when you hold A, or when going too slow. Can't do this when going too fast.
                 mGoingFast = false;
-                if (mFlappingWings == false){
+                if (mFlapTimer < 0 && mFlappingWings == false){
                     mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, false, 0.25f);
                     mFlappingWings = true;
                 }
@@ -392,6 +393,21 @@ void TPlayer::update()
             // Configure the camera
             mCamera->setPosition(mPosition + (fback * 150.0f));
             mCameraTarget.lerp(mPosition + (up * 80.00f) + (mDirection * mSpeed * 20.0f), 0.1f);  //Target slightly above player and slightly in front of player
+
+            //Flight camera controls
+            if (mPad->isHeld(C_DOWN))
+                mCameraTarget += (up * -20.00f);
+            if (mPad->isHeld(C_UP))
+                mCameraTarget += (up * 20.00f);
+            if (mPad->isHeld(C_LEFT))
+                mCameraTarget += (fright * -20.00f);
+            if (mPad->isHeld(C_RIGHT))
+                mCameraTarget += (fright * 20.00f);
+
+            if (mPad->isHeld(R)){
+                mCamera->setPosition(mPosition + TVec3F(0.0f, -15.00f, 0.0f));
+                mCameraTarget.lerp(mPosition + TVec3F(0.0f, -2000.00f, 0.0f), 0.1f);
+            }
             break;
 
         // -------------------------------------------------------------------- //
@@ -444,6 +460,12 @@ void TPlayer::update()
             //mPosition = p + mClosestFace->nrm * BIRD_RADIUS;
         }
     }
+
+    //Adjust FOV based on speed
+    float fov = ((mSpeed - BIRD_SLOWSPEED) / (BIRD_FASTSPEED - BIRD_SLOWSPEED)) * (75.0f - 45.0f) + 45.0f;
+    fov = TMath<float>::clamp(fov, 45.0f, 75.0f);
+    mCamera->setFOV(mCamera->getFOV() * 0.25f + (fov * 0.75f));
+    
 
     // set shadow position and rotation to floor
     if (getGroundFace() != nullptr) {

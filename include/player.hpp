@@ -58,6 +58,10 @@ class TPlayer :
         return mGroundFace;
     }
 
+    TVec3F getVelocity() {
+        return mDirection * mVelocity;
+    }
+
     virtual void updateMtx() override;
 
     virtual void init() override;

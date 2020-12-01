@@ -10,6 +10,8 @@
 #include "player.hpp"
 #include "staticobj.hpp"
 
+class TNestObj;
+
 // -------------------------------------------------------------------------- //
 
 class TFlockObj :
@@ -24,6 +26,13 @@ class TFlockObj :
   void incFlock(u32 n, float strength);
   float getStrength() const { return mStrength; }
 
+  bool grabObject(TNestObj * obj);
+  bool dropAllObjects();
+
+  virtual void init() override;
+  virtual void update() override;
+  virtual void draw() override;
+
   static TFlockObj * getFlockObj();
 
   protected:
@@ -32,6 +41,9 @@ class TFlockObj :
   float mStrength { 1.0F };
 
   private:
+
+  int mHeldNum { 0 };
+  TNestObj * mHeldObjects[32];
 
   static TFlockObj * sFlockObj;
 
@@ -50,6 +62,9 @@ class TNestObj :
   virtual ~TNestObj() = default;
 
   float getObjWeight() const { return mObjWeight; }
+
+  void drop();
+  TVec3F getMountPoint();
 
   virtual void updateMtx() override;
 
@@ -74,6 +89,17 @@ class TNestObj :
   EObjType mObjType { EObjType::INVALID };
   EState mState { EState::IDLE };
   TObject * mDebugCube { nullptr };
+
+  TMtx44 mIRotMtx{};
+
+  s16 mMountTimer {0};
+  s16 mMountRotY {0};
+  float mMountDist {0.0f};
+
+
+  TVec3S mMountRot;
+  TMtx44 mMountRotMtx{};
+  Mtx mFMountRotMtx{};
 
   const TObjectData * mData{nullptr};
 
