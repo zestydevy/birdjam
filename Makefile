@@ -9,7 +9,7 @@ LIB = $(ROOT)/usr/lib
 LPR = $(LIB)/PR
 INC = $(ROOT)/usr/include
 
-NUAUDIOLIB = -lnualstl_n_d -ln_mus_d -ln_audio_sc
+NUAUDIOLIB = -lnualstl_n -ln_mus -ln_audio_sc
 
 OPTIMIZER       = -O1
 LCDEFS          = -DNDEBUG -DF3DEX_GBI_2
@@ -48,7 +48,7 @@ LCINCS =	-I. -I$(NUSYSINCDIR) -I$(ROOT)/usr/include/PR
 LCOPTS =	-G 0
 LDIRT  =	$(APP) $(TARGETS)
 
-LDFLAGS =	$(MKDEPOPT) -L$(LIB) -L$(NUSYSLIBDIR) $(NUAUDIOLIB) -lnusys_d -lultra_d -L$(N64_LIBGCCDIR) -lgcc  -lnustd
+LDFLAGS =	$(MKDEPOPT) -L$(LIB) -L$(NUSYSLIBDIR) $(NUAUDIOLIB) -lnusys -lultra -L$(N64_LIBGCCDIR) -lgcc  -lnustd
 
 default: $(TARGETS)
 
