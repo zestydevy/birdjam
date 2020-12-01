@@ -30,6 +30,7 @@ void TPlayer::init()
 {
     TObject::init();
 
+
     // set up to start in flight for testing:
     mDirection = TVec3<f32>(0.0f, 0.0f, 0.0f);
     mRotation = TVec3<f32>(0.0f, 0.0f, 0.0f);
@@ -90,6 +91,7 @@ void TPlayer::update()
     /* Collision check */
     mClosestFace = TCollision::findClosest(mPosition, BIRD_RADIUS);
 
+    mHeldPos = mPosition + (TVec3F(0.0f, -1.0f, 0.0f) * BIRD_RADIUS);
 
     switch (mState){
         
@@ -287,8 +289,11 @@ void TPlayer::update()
             fright = TVec3<f32>(-mDirection.z(), 0.0f, mDirection.x());  //Flight right
             fback = TVec3<f32>(-mDirection.x(), -mDirection.y(), -mDirection.z());  //Flight back
 
+
             temp1.rotateAxis(fright, TSine::fromDeg(90.0f));
             up = temp1.mul(mDirection);  //Flight back
+
+            mHeldPos = mPosition - (up * BIRD_RADIUS);
 
             // Flight controls
             temp1.rotateAxis(fright, TSine::fromDeg(1.0f * -mPad->getAnalogY() / 80.0f));

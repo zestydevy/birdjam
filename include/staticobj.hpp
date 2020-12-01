@@ -4,8 +4,7 @@
 
 #include "math.hpp"
 #include "dynlist.hpp"
-
-#include "../models/cube/model_cube.h"
+#include "../scene/object_info.h"
 
 // -------------------------------------------------------------------------- //
 
@@ -72,6 +71,7 @@ class TObject
     virtual void draw();
 
     static Gfx * getMeshGfx(EObjType type);
+    static const TObjectData & getNestObjectInfo(EObjType type);
 
     protected:
 
