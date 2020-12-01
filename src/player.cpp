@@ -26,6 +26,10 @@ const float BIRD_RADIUS = 10.0f;
 
 // -------------------------------------------------------------------------- //
 
+TPlayer * gPlayer { nullptr };
+
+// -------------------------------------------------------------------------- //
+
 void TPlayer::init()
 {
     TObject::init();
@@ -49,7 +53,7 @@ void TPlayer::init()
     mShadow->setMesh(shadow_Plane_mesh);
 
     setMesh(bird_Bird_mesh);
-    initCollider(TAG_PLAYER, TAG_NESTOBJ, 0, 1);
+    initCollider(TAG_PLAYER, TAG_PLAYER, 0, 1);
     setCollideRadius(BIRD_RADIUS);
     setCollideCenter(mPosition);
 }
@@ -434,6 +438,7 @@ void TPlayer::update()
         mShadow->setRotation(TVec3<s16>((s16)TSine::asin(mGroundFace->nrm.z()), (s16)TSine::ssin(mGroundFace->nrm.x()), (s16)TSine::scos(mGroundFace->nrm.z())));
     }
 
+    updateBlkMap();
     mAnim->update();
 }
 

@@ -24,6 +24,12 @@ enum playerstate_t : u16 {
 
 // -------------------------------------------------------------------------- //
 
+class TPlayer;
+
+extern TPlayer * gPlayer;
+
+// -------------------------------------------------------------------------- //
+
 class TPlayer :
     public TObject,
     public TSphereCollider
@@ -33,7 +39,9 @@ class TPlayer :
 
     TPlayer(TDynList2 * dl) :
         TObject { dl }
-    {}
+    {
+        gPlayer = this;
+    }
 
     virtual ~TPlayer() = default;
 

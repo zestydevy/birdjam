@@ -18,6 +18,8 @@ enum class ECollideType {
 
 };
 
+#define NUM_COLLIDER_TYPES ((u32)ECollideType::CYLINDER + 1)
+
 // -------------------------------------------------------------------------- //
 
 enum : u32 {
@@ -43,8 +45,14 @@ class TCollider {
     u32 max_hit, THeap * = nullptr
   );
 
+  // TCollider ** getBlkMap() { return mBlkMap; }
+
   virtual ECollideType getCollideType() const = 0;
+  float getCollideCullRadius() const { return mCullRadius; }
   u32 getCollideTag() const { return mTag; }
+
+  bool isCollideActive() const { return mActive; }
+  void setCollideActive(bool active) { mActive = active; }
 
   TVec3F const & getCollideCenter() const { return mCenter; }
   void setCollideCenter(TVec3F const & pt) { mCenter = pt; }
@@ -57,29 +65,50 @@ class TCollider {
   virtual float getCollideMaxZ() const = 0;
   void calcCollideMinMax(TVec3F *, TVec3F *) const;
 
-  static void init();
+  static bool startup(THeap *, u16 num_blk, float blk_sz);
+  static void shutdown();
+
   static void frameBegin(); // resets collider state
   static void frameEnd(); // tests colliders, calls onCollide
 
   protected:
 
+  bool mActive { true };
   TVec3F mCenter { 0.0F, 0.0F, 0.0F };
+  float mCullRadius { 0.0F };
   u32 mSendMask { 0 };
   u32 mReceiveMask { 0 };
   u32 mTag { 0 };
 
   virtual void onCollide(TCollider *) = 0;
-  virtual bool onCheckCollide(TCollider const *) const = 0;
+
+  void updateBlkMap();
 
   private:
 
+  static TCollider ** sBlkMap;
+  static float sBlkMapSz;
+  static u32 sNumBlkMap;
+
   static TDoubleLinkList<TCollider> sColliderList;
   TDoubleLinkListNode<TCollider> mListNode { this };
+
+  TCollider ** mBlkMap { nullptr };
+  TCollider * mNext { nullptr };
+
   TCollider ** mHitArray { nullptr };
   u32 mMaxHitNum { 0 };
   u32 mHitNum { 0 };
 
   bool pushCollision(TCollider *);
+  void notifyCollisions();
+
+  static u32 blkMapIdx(float, float, float);
+  static TCollider ** blkMapCell(TVec3F const &);
+  static void blkMapSpan(TVec3F const &, float, u32 *, u32 *, u32 *, u32 *);
+  static void blkMapLink(TCollider **, TCollider *);
+  static void blkMapUnlink(TCollider **, TCollider *);
+  static void blkMapTest(TCollider **, TCollider *);
 
 };
 
@@ -97,7 +126,7 @@ class TBoxCollider :
   virtual ECollideType getCollideType() const override;
 
   TVec3F const & getCollideSize() const { return mSize; }
-  void setCollideSize(TVec3F const & sz) { mSize = sz; }
+  void setCollideSize(TVec3F const & sz);
 
   virtual float getCollideMinX() const override;
   virtual float getCollideMinY() const override;
@@ -105,10 +134,6 @@ class TBoxCollider :
   virtual float getCollideMaxX() const override;
   virtual float getCollideMaxY() const override;
   virtual float getCollideMaxZ() const override;
-
-  protected:
-
-  virtual bool onCheckCollide(TCollider const *) const override;
 
   private:
 
@@ -130,7 +155,7 @@ class TSphereCollider :
   virtual ECollideType getCollideType() const override;
 
   float getCollideRadius() const { return mRadius; }
-  void setCollideRadius(float r) { mRadius = r; }
+  void setCollideRadius(float r);
 
   virtual float getCollideMinX() const override;
   virtual float getCollideMinY() const override;
@@ -138,10 +163,6 @@ class TSphereCollider :
   virtual float getCollideMaxX() const override;
   virtual float getCollideMaxY() const override;
   virtual float getCollideMaxZ() const override;
-
-  protected:
-
-  virtual bool onCheckCollide(TCollider const *) const override;
 
   private:
 
@@ -163,10 +184,10 @@ class TCylinderCollider :
   virtual ECollideType getCollideType() const override;
 
   float getCollideHeight() const { return mHeight; }
-  void setCollideHeight(float ht) { mHeight = ht; }
+  void setCollideHeight(float ht);
 
   float getCollideRadius() const { return mRadius; }
-  void setCollideRadius(float r) { mRadius = r; }
+  void setCollideRadius(float r);
 
   virtual float getCollideMinX() const override;
   virtual float getCollideMinY() const override;
@@ -175,14 +196,12 @@ class TCylinderCollider :
   virtual float getCollideMaxY() const override;
   virtual float getCollideMaxZ() const override;
 
-  protected:
-
-  virtual bool onCheckCollide(TCollider const *) const override;
-
   private:
 
   float mHeight { 0.0F };
   float mRadius { 0.0F };
+
+  float calcCullRadius() const;
 
 };
 
@@ -255,35 +274,13 @@ struct TCollideUtil {
     TVec3F const & v2
   );
 
-  static bool testColliders(
-    TBoxCollider const *,
-    TBoxCollider const *
-  );
+  static bool testBoxBox(TCollider const *, TCollider const *);
+  static bool testSphereSphere(TCollider const *, TCollider const *);
+  static bool testCylinderCylinder(TCollider const *, TCollider const *);
 
-  static bool testColliders(
-    TSphereCollider const *,
-    TSphereCollider const *
-  );
-
-  static bool testColliders(
-    TCylinderCollider const *,
-    TCylinderCollider const *
-  );
-
-  static bool testColliders(
-    TBoxCollider const *,
-    TSphereCollider const *
-  );
-
-  static bool testColliders(
-    TBoxCollider const *,
-    TCylinderCollider const *
-  );
-
-  static bool testColliders(
-    TSphereCollider const *,
-    TCylinderCollider const *
-  );
+  static bool testBoxSphere(TCollider const *, TCollider const *);
+  static bool testBoxCylinder(TCollider const *, TCollider const *);
+  static bool testSphereCylinder(TCollider const *, TCollider const *);
 
 };
 

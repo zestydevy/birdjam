@@ -45,6 +45,7 @@ class TScene
     ESceneState getState() {return mStatus;}
     bool isInitialized();
     virtual TPlayer * getPlayer() {return nullptr;}
+    TDynList2 * getDynList() { return mDynList; }
 
     ESceneState mStatus{ESceneState::IDLE};
     TDynList2 * mDynList{nullptr};

@@ -56,10 +56,10 @@ void TScene::loadObjects(TSceneEntry const list[])
             continue;
         }
 
-        obj->init();
         obj->setPosition({list[i].positionX, list[i].positionY, list[i].positionZ});
         obj->setRotation({TSine::fromDeg(list[i].rotationX), TSine::fromDeg(list[i].rotationY), TSine::fromDeg(list[i].rotationZ)});
         obj->setScale({list[i].scaleX, list[i].scaleY, list[i].scaleZ});
+        obj->init();
 
         mObjList.push(obj);
     }
@@ -71,6 +71,9 @@ void TTestScene::init()
     mStatus = ESceneState::RUNNING;
 
     TUtil::toMemory(reinterpret_cast<void *>(_codeSegmentEnd), _bird_ovlSegmentRomStart, _bird_ovlSegmentRomEnd-_bird_ovlSegmentRomStart);
+
+    // create this before any game objects
+    TCollider::startup(nullptr, 10, 512.0F);
 
     mPad = new TPad(0);
     mCamera = new TCamera(mDynList);

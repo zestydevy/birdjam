@@ -55,6 +55,7 @@ class TNestObj :
 
   virtual void init() override;
   virtual void update() override;
+  virtual void draw() override;
 
   protected:
 
@@ -72,6 +73,7 @@ class TNestObj :
   TPlayer * mPlayer { nullptr };
   EObjType mObjType { EObjType::INVALID };
   EState mState { EState::IDLE };
+  TObject * mDebugCube { nullptr };
 
   const TObjectData * mData{nullptr};
 

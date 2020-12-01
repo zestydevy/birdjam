@@ -4,8 +4,10 @@
 #include "collider.hpp"
 #include "collision.hpp"
 #include "dynlist.hpp"
+#include "game.hpp"
 #include "math.hpp"
 #include "player.hpp"
+#include "scene.hpp"
 #include "score.hpp"
 #include "staticobj.hpp"
 
@@ -64,6 +66,12 @@ void TNestObj::init() {
   initCollider(TAG_NESTOBJ, 0, TAG_PLAYER, 1);
   setCollideCenter(mPosition + mRotMtx.mul(mScaleMtx.mul(TVec3F(mData->offsetx, mData->offsety, mData->offsetz))));
   setCollideRadius(mObjRadius * scale);
+
+  // mDebugCube = new TObject { mDynList };
+  // mDebugCube->init();
+  // mDebugCube->setMesh(TObject::getMeshGfx(EObjType::DEBUG_CUBE));
+
+  updateBlkMap();
 }
 
 // -------------------------------------------------------------------------- //
@@ -98,6 +106,24 @@ void TNestObj::update() {
       break;
     }
   }
+
+  // mDebugCube->setPosition(getCollideCenter());
+
+  // mDebugCube->setScale({
+  //   (getCollideRadius() * 0.004F),
+  //   (getCollideRadius() * 0.004F),
+  //   (getCollideRadius() * 0.004F),
+  // });
+}
+
+// -------------------------------------------------------------------------- //
+
+void TNestObj::draw() {
+  TObject::draw();
+
+  // if (gPlayer->getBlkMap() == getBlkMap()) {
+  //   mDebugCube->draw();
+  // }
 }
 
 // -------------------------------------------------------------------------- //
