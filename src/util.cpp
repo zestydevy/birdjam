@@ -10,7 +10,11 @@ void TUtil::toMemory(void * dest, void * src, s32 size)
     if (size & 1) {
         ++size;
     }
+    
     nuPiReadRom(reinterpret_cast<u32>(src), dest, size);
+
+    // invalidate data cache
+    osInvalDCache(dest, size);
 }
 
 // -------------------------------------------------------------------------- //
