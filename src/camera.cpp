@@ -75,8 +75,7 @@ void TCamera::render()
         mPosition.set(x, y, z);
     }
 
-    //mPosition.set(x, 0.0f, z);
-    mOldPos.lerp({x, y, z}, 4.0f * kInterval);
+    mOldPos.lerpTime({x, y, z}, 0.0667f, kInterval);
     mViewMtx.lookAt(mOldPos * 0.1f, mTarget->xyz() * 0.1f, {0.0f,1.0f,0.0f});
     mRotMtx.rotateAxis(mRotation, 0);
     mScaleMtx.scale(mScale * 0.1f);

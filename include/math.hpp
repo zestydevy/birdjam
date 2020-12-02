@@ -422,6 +422,20 @@ class TVec3 {
     *this = *this + percent * (end - *this);
   }
 
+  void moveTowards(TVec3<T> const & end, float maxDistance) {
+    TVec3<T> a = end - *this;
+    float mag = a.getLength();
+    if (mag <= maxDistance || mag == 0.0f)
+      *this = end;
+    else
+      *this = *this + a / mag * maxDistance;
+  }
+
+  void lerpTime(TVec3<T> const & end, float percent, float interval) {
+    float dist = (end - *this).getLength();
+    moveTowards(end, dist * percent * interval * 60.0f);
+  }
+
   T getSqrLength() const { return dot(*this); }
   T getLength() const { return TMath<T>::sqrt(getSqrLength()); }
 
