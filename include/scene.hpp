@@ -37,7 +37,7 @@ class TScene
     virtual void init() = 0;
     virtual void update() = 0;
     virtual void draw() = 0;
-    virtual void exit() = 0;
+    virtual TScene * exit() = 0;
 
     void loadObjects(TSceneEntry const list[]);
 
@@ -57,6 +57,35 @@ class TScene
 
 // -------------------------------------------------------------------------- //
 
+class TLogoScene final
+    : public TScene
+{
+    public:
+
+    TLogoScene(char const * name, TDynList2 * list)
+        : TScene(name, list) {};
+
+    ~TLogoScene() = default;
+
+    virtual void init() override;
+    virtual void update() override;
+    virtual void draw() override;
+    virtual TScene * exit() override;
+
+    private:
+    
+    void runBootTimer();
+    void runLogoTimer();
+
+    TTimer * mTimer{nullptr};
+    TTimer * mShowTimer{nullptr};
+    s32 mLogoX{40};
+    s32 mLogoY{20};
+    u8 mAlpha{255};
+
+};
+// -------------------------------------------------------------------------- //
+
 class TTestScene final
     : public TScene
 {
@@ -68,7 +97,7 @@ class TTestScene final
     virtual void init() override;
     virtual void update() override;
     virtual void draw() override;
-    virtual void exit() override;
+    virtual TScene * exit() override;
     virtual TPlayer * getPlayer() override;
 
     private:

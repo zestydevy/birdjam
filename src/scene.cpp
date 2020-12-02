@@ -7,6 +7,7 @@
 #include "staticobj.hpp"
 #include "collision.h"
 #include "util.hpp"
+#include "audio.hpp"
 
 #include "scenedata.h"
 #include "segment.h"
@@ -18,6 +19,16 @@
 #include "../models/ovl/world/model_sky.h"
 #include "../models/ovl/world/shadow.h"
 
+#include "../models/static/sprites/sprite_time.h"
+#include "../models/static/sprites/sprite_items.h"
+#include "../models/ovl/sprites/sprite_logo.h"
+
+// -------------------------------------------------------------------------- //
+
+extern Gfx rdpinit_spr_dl[];
+extern Gfx rdpinit_dl[];
+extern Gfx rspinit_dl[];
+
 // -------------------------------------------------------------------------- //
 
 bool TScene::isInitialized()
@@ -25,6 +36,7 @@ bool TScene::isInitialized()
     return (mStatus == ESceneState::RUNNING);
 }
 
+// -------------------------------------------------------------------------- //
 
 void TScene::loadObjects(TSceneEntry const list[])
 {
@@ -65,12 +77,125 @@ void TScene::loadObjects(TSceneEntry const list[])
     }
 }
 
-void TTestScene::init()
+// -------------------------------------------------------------------------- //
+
+void TLogoScene::init()
 {
-    // ...
     mStatus = ESceneState::RUNNING;
 
-    TUtil::toMemory(reinterpret_cast<void *>(_codeSegmentEnd), _bird_ovlSegmentRomStart, _bird_ovlSegmentRomEnd-_bird_ovlSegmentRomStart);
+    // turn on screen
+    //nuGfxDisplayOn();
+
+    // load logo into memory
+    TUtil::toMemory(
+        reinterpret_cast<void *>(_codeSegmentEnd), 
+        _logo_ovlSegmentRomStart, 
+        _logo_ovlSegmentRomEnd-_logo_ovlSegmentRomStart
+    );
+
+    mTimer = new TTimer;
+    mShowTimer = new TTimer;
+
+    // fade timer
+    mTimer->start(3);
+    // scene start timer
+    mShowTimer->start(1);
+
+    // move logo off-screen
+    mLogoX = 512;
+}
+
+// -------------------------------------------------------------------------- //
+
+void TLogoScene::update()
+{
+    // wait two seconds to boot
+    if (mShowTimer != nullptr) {
+        runBootTimer();
+    }
+    
+    // fade if we reached two seconds
+    if (mTimer != nullptr) {
+        runLogoTimer();
+    }
+}
+
+// -------------------------------------------------------------------------- //
+
+void TLogoScene::draw()
+{
+    // ...
+    gSPDisplayList(mDynList->pushDL(), rdpinit_spr_dl);
+    TSprite::init(mDynList);
+
+    TSprite timeSpr = TSprite(&logo_sprite, mLogoX, mLogoY);
+    timeSpr.mScale = {1.0f,1.0f};
+    timeSpr.mColor = {255,255,255,mAlpha};
+    timeSpr.mAttributes = SP_TRANSPARENT;
+    timeSpr.render();
+
+    gSPDisplayList(mDynList->pushDL(), rdpinit_dl);
+	gSPDisplayList(mDynList->pushDL(), rspinit_dl);
+}
+
+// -------------------------------------------------------------------------- //
+
+TScene * TLogoScene::exit()
+{
+    // turn off screen
+    //nuGfxDisplayOff();
+
+    // destroy scene
+    delete this;
+
+    return new TTestScene("world", mDynList);
+
+}
+
+// -------------------------------------------------------------------------- //
+
+void TLogoScene::runBootTimer()
+{
+    if (mShowTimer->update()) {
+        delete mShowTimer;
+        mShowTimer = nullptr;
+        mLogoX = 40;        // move logo on screen
+        TAudio::playSound(ESfxType::SFX_CAW);
+    }
+}
+
+// -------------------------------------------------------------------------- //
+
+void TLogoScene::runLogoTimer()
+{
+    if (mTimer->update()) {
+        mAlpha -= 4;
+        if (mAlpha <= 4) {
+            mAlpha = 0;
+            
+            delete mTimer;
+            mTimer = nullptr;
+            
+            mStatus = ESceneState::EXITING;     // exit scene
+        }
+    }
+}
+
+// -------------------------------------------------------------------------- //
+
+void TTestScene::init()
+{
+    mStatus = ESceneState::RUNNING;
+
+    // turn on screen
+    nuGfxDisplayOn();
+    
+    // load bird and world models into memory
+    TUtil::toMemory(
+        reinterpret_cast<void *>(_codeSegmentEnd), 
+        _bird_ovlSegmentRomStart, 
+        _bird_ovlSegmentRomEnd-_bird_ovlSegmentRomStart
+    );
 
     mPad = new TPad(0);
     mCamera = new TCamera(mDynList);
@@ -126,6 +251,8 @@ void TTestScene::init()
     );
 }
 
+// -------------------------------------------------------------------------- //
+
 void TTestScene::update()
 {
     TCollider::frameBegin();
@@ -150,6 +277,8 @@ void TTestScene::update()
 
     TCollider::frameEnd();
 }
+
+// -------------------------------------------------------------------------- //
 
 void TTestScene::draw()
 {
@@ -180,10 +309,15 @@ void TTestScene::draw()
     */
 }
 
-void TTestScene::exit()
+// -------------------------------------------------------------------------- //
+
+TScene * TTestScene::exit()
 {
     // ...
+    return nullptr;
 }
+
+// -------------------------------------------------------------------------- //
 
 TPlayer * TTestScene::getPlayer() { return mBird; }
 

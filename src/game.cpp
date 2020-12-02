@@ -32,7 +32,7 @@ void TGame::init()
 
     //mCamera = new TCamera(mDynList);
 
-    setCurrentScene(new TTestScene("test", mDynList));
+    setCurrentScene(new TTestScene("world", mDynList));
 
     //initAudio();
 
@@ -128,8 +128,14 @@ void TGame::update()
     
     gSPDisplayList(mDynList->pushDL(), letters_setup_dl)
 
-    getCurrentScene()->draw();
+    auto scene = getCurrentScene();
+    
+    // check for null scene or scene that has not yet been initialized
+    if (scene != nullptr && scene->isInitialized()) {
+        scene->draw();
+    }
 
+    /*
     gSPDisplayList(mDynList->pushDL(), rdpinit_spr_dl);
     TSprite::init(mDynList);
 
@@ -147,6 +153,7 @@ void TGame::update()
 
     gSPDisplayList(mDynList->pushDL(), rdpinit_dl);
 	gSPDisplayList(mDynList->pushDL(), rspinit_dl);
+    */
 
     // that's a wrap for this frame. finalize
     gDPFullSync(mDynList->pushDL());
@@ -154,8 +161,9 @@ void TGame::update()
 
     nuGfxTaskStart(mDynList->getHead(),
         (s32)(mDynList->fetchCmdIndex()) * sizeof (Gfx),
-	    NU_GFX_UCODE_F3DEX , NU_SC_NOSWAPBUFFER);
+	    NU_GFX_UCODE_F3DEX, NU_SC_NOSWAPBUFFER);
 
+    /*
     TVec3F pPos = getCurrentScene()->getPlayer()->getPosition();
 
     char conbuff[64];
@@ -163,6 +171,7 @@ void TGame::update()
     nuDebConTextPos(0,3,3);
     sprintf(conbuff,"%.2f, %.2f, %.2f", pPos.x(), pPos.y(), pPos.z());
     nuDebConCPuts(0, conbuff);
+    */
     nuDebConDisp(NU_SC_SWAPBUFFER);
 
 }
@@ -283,8 +292,8 @@ void TGame::initFrameBuffer()
 {
     gDPSetColorImage(mDynList->pushDL(), G_IM_FMT_RGBA, G_IM_SIZ_16b, kResWidth,
         osVirtualToPhysical(nuGfxCfb_ptr));
-    gDPSetFillColor(mDynList->pushDL(), (GPACK_RGBA5551(255, 255, 255, 1) << 16 | 
-        GPACK_RGBA5551(255, 255, 255, 1)));
+    gDPSetFillColor(mDynList->pushDL(), (GPACK_RGBA5551(0, 0, 0, 1) << 16 | 
+        GPACK_RGBA5551(0, 0, 0, 1)));
     gDPFillRectangle(mDynList->pushDL(), 0, 0, kResWidth-1, kResHeight-1);
 }
 
@@ -295,6 +304,10 @@ void TGame::setCurrentScene(TScene * scene)
         // set scene array's heap for TArray
         mSceneList.setHeap(THeap::getCurrentHeap());
         mSceneList.push(scene);
+    } else {
+        //mSceneList.pop();
+        //mSceneList.push(scene);
+        mSceneList[0] = scene;
     }
 }
 
@@ -302,7 +315,7 @@ void TGame::testRender(u32 taskNum)
 {
     auto game = TGame::getInstance();
     auto scene = game->getCurrentScene();
-
+    
     switch(scene->getState())
     {
         case ESceneState::IDLE:
@@ -312,7 +325,8 @@ void TGame::testRender(u32 taskNum)
             scene->update();
             break;
         case ESceneState::EXITING:
-            scene->exit();
+            game->setCurrentScene(scene->exit());
+            
             break;
     }
     
@@ -322,4 +336,7 @@ void TGame::testRender(u32 taskNum)
     }
 
     game->draw();
+
+    // 30 fps
+    //nuGfxRetraceWait(2);
 }

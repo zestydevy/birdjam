@@ -61,6 +61,13 @@ beginseg
 endseg
 
 beginseg
+	name "logo_ovl"
+	after "code"
+	flags OBJECT
+	include "build/obj/sprite_logo.o"
+endseg
+
+beginseg
 	name "midibank"
 	flags RAW
 	include "sound/n64st1.wbk"
@@ -89,6 +96,7 @@ beginwave
 	name	"bird"
 	include	"code"
 	include "bird_ovl"
+	include "logo_ovl"
 	include "miditable"
 	include "midibank"
 	include "seq"
