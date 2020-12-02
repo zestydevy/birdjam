@@ -58,6 +58,9 @@ void TScene::loadObjects(TSceneEntry const list[])
         auto type = (EObjType)list[i].id;
 
         switch(list[i].id) {
+            case EObjType::PLAYERSTART:
+                gPlayer->setPosition({list[i].positionX, list[i].positionY, list[i].positionZ});
+                break;
             case EObjType::DEBUG_CUBE:
                 obj = new TObject(mDynList);
                 obj->setMesh(TObject::getMeshGfx(type));
@@ -238,7 +241,6 @@ void TTestScene::init()
     mSky->mAlwaysDraw = true;
     mObjList.setHeap(THeap::getCurrentHeap());
 
-    mBird->init();
     mBird->setPad(mPad);
     mCamera->setPad(mPad);
 
@@ -257,6 +259,10 @@ void TTestScene::init()
     mSky->init();
 
     loadObjects(scene_world);
+
+    mBird->init();
+
+    mCamera->jumpToTarget();
 
 //    for (int i = 0; i < 4; i++){
 //        mObjects[i] = new TObject(mDynList);

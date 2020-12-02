@@ -26,6 +26,7 @@ struct TSceneEntry
 
 enum EObject
 {
+    OBJECT_PLAYERSTART = -1,
     OBJECT_NULL = 0,
     OBJECT_CUBE,
     OBJECT_BALLOON,

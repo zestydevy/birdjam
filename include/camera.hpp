@@ -27,6 +27,8 @@ class TCamera
     float getFOV() {return mFov;}
     void setFOV(float fovy) {mFov = fovy;}
 
+    void jumpToTarget();
+
     Mtx mProjectionMtx{};
     Mtx mFViewMtx{};
     Mtx mIdentityMtx{};

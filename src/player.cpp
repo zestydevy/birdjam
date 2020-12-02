@@ -58,6 +58,8 @@ void TPlayer::init()
     initCollider(TAG_PLAYER, TAG_PLAYER, 0, 1);
     setCollideRadius(BIRD_RADIUS);
     setCollideCenter(mPosition);
+
+    mCameraTarget = mPosition;
 }
 
 void TPlayer::update()

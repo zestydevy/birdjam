@@ -73,7 +73,7 @@ void TFlockObj::draw() {
 // -------------------------------------------------------------------------- //
 
 bool TFlockObj::grabObject(TNestObj * obj) {
-  if (obj->getObjWeight() > mStrength - (mCarrySize / 2.0f))
+  if (obj->getObjWeight() > mStrength - (mCarrySize / 4.0f))
     return false;
   if (mHeldNum > 32)
     return false;
@@ -91,7 +91,7 @@ bool TFlockObj::dropAllObjects(TVec3F target) {
     mHeldObjects[i]->drop(TVec3F(0.0f, 0.0f, 0.0f));    //need to calculate what velocity to land in nest
     mHeldObjects[i]->setPosition(target);
     TNest::getNestObject()->assimilateObject(mHeldObjects[i]);
-    incFlock(1, mHeldObjects[i]->getObjWeight() / 2.0f);
+    incFlock(1, mHeldObjects[i]->getObjWeight());
   }
   mHeldNum = 0;
   mCarrySize = 0.0f;

@@ -35,6 +35,30 @@ bool TCamera::checkVisible(const TVec3F & pos){
     return dif.dot(dif) > 0.0f;
 }
 
+void TCamera::jumpToTarget(){
+    TVec3F dif = (*mTarget - mPosition);
+    float pdist = dif.getLength();
+
+    float x = mPosition.x();
+    float y = mPosition.y();
+    float z = mPosition.z();
+    if (!mExternallyControlled){
+        if (pdist > mDistance)      // Clamp camera distance between max and half max;
+            pdist = mDistance;
+        if (pdist < mDistance * 0.75f)
+            pdist = mDistance * 0.75f;
+
+        x = mTarget->x() - TSine::ssin(mAngle) * pdist;
+        y = mTarget->y() + 20.00f;
+        z = mTarget->z() - TSine::scos(mAngle) * pdist;
+        mPosition.set(x, y, z);
+    }
+    else
+        mPosition = *mTarget;
+
+    mOldPos = mPosition;
+}
+
 void TCamera::render()
 {    
     if (mDistance < 150.0f)

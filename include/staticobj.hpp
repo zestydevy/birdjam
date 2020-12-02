@@ -12,6 +12,7 @@
 
 enum EObjType : s16
 {
+    PLAYERSTART = -1,
     NONE = 0,
     DEBUG_CUBE,
     BALLOON,
