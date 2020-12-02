@@ -35,6 +35,8 @@
 #include "../models/static/objects/leaves/model_leaves.h"
 #include "../models/static/objects/branch/model_branch.h"
 #include "../models/static/objects/roots/model_roots.h"
+#include "../models/static/objects/mailbox/model_mailbox.h"
+#include "../models/static/nest/model_nest.h"
 
 // -------------------------------------------------------------------------- //
 
@@ -72,6 +74,8 @@ static Gfx * gObjMeshList[] =
     leaves_Leaves_mesh,
     branch_Branch_mesh,
     roots_Roots_mesh,
+    mailbox_Mailbox_mesh,
+    nest_Nest_mesh,
     nullptr
 };
 

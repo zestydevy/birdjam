@@ -62,6 +62,10 @@ void TScene::loadObjects(TSceneEntry const list[])
                 obj = new TObject(mDynList);
                 obj->setMesh(TObject::getMeshGfx(type));
                 break;
+            case EObjType::NEST:
+                obj = new TNest(mDynList);
+                obj->setMesh(TObject::getMeshGfx(type));
+                break;
             default: 
                 switch (TObject::getNestObjectInfo((EObjType)list[i].id).colType){
                     case 0:
@@ -274,11 +278,16 @@ void TTestScene::init()
     faceStart = vertSize * 3 + 4;
     u16 faceSizeL3 = worldcol_layer3[faceStart - 1];        //layer 3 face count
 
-    u16 faceSize = faceSizeMain + faceSizeL2 + faceSizeL3;
+    vertSize = worldcol_layernest[1];
+    faceStart = vertSize * 3 + 4;
+    u16 faceSizeNest = worldcol_layernest[faceStart - 1];        //save nest layer for last
+
+    u16 faceSize = faceSizeMain + faceSizeL2 + faceSizeL3 + faceSizeNest;
     mCollisionFaces = new TCollFace[faceSize];
     loadCollision(worldcol_collision, mCollisionFaces);
     loadCollision(worldcol_layer2, mCollisionFaces, faceSizeMain);
     loadCollision(worldcol_layer3, mCollisionFaces, faceSizeMain + faceSizeL2);
+    loadCollision(worldcol_layernest, mCollisionFaces, faceSizeMain + faceSizeL2 + faceSizeL3);
 
     mColL2Start = faceSizeMain;
     mColL2End = mColL2Start + faceSizeL2;

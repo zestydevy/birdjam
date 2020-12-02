@@ -27,7 +27,7 @@ class TFlockObj :
   float getStrength() const { return mStrength; }
 
   bool grabObject(TNestObj * obj);
-  bool dropAllObjects();
+  bool dropAllObjects(TVec3F target);
 
   virtual void init() override;
   virtual void update() override;
@@ -38,7 +38,8 @@ class TFlockObj :
   protected:
 
   u32 mFlockSize { 0 };
-  float mStrength { 1.0F };
+  float mStrength { 0.25F };
+  float mCarrySize { 0.0F };
 
   private:
 
@@ -63,7 +64,7 @@ class TNestObj :
   float getObjWeight() const { return mObjWeight; }
   float getObjScale() const { return (mScale.x() + mScale.y() + mScale.z()) / 3.0f; }
 
-  void drop();
+  void drop(TVec3F v);
   TVec3F getMountPoint();
 
   virtual void updateMtx() override;
@@ -71,6 +72,8 @@ class TNestObj :
   virtual void init() override;
   virtual void update() override;
   virtual void draw() override;
+
+  void startNesting();
 
   protected:
   virtual void setCollision(bool set);
@@ -105,7 +108,55 @@ class TNestObj :
 
   const TObjectData * mData{nullptr};
 
-  void onPickup(TCollider *);
+  bool onPickup(TCollider *);
+};
+
+// -------------------------------------------------------------------------- //
+
+class TNest;
+class TNestArea :
+  public TCylinderCollider
+{
+  public:
+
+  TNestArea(TDynList2 *, TNest * nest, TVec3F center, float radius, float height);
+  virtual ~TNestArea() = default;
+
+  protected:
+  TNest * mNest;
+  
+  virtual void onCollide(TCollider *) override;
+};
+
+// -------------------------------------------------------------------------- //
+
+class TNest :
+  public TObject,
+  public TCylinderCollider
+{
+  public:
+
+  TNest(TDynList2 *);
+  virtual ~TNest();
+
+  float getSize() const { return mSize; }
+  static TNest * getNestObject();
+
+  virtual void init() override;
+  virtual void update() override;
+  virtual void draw() override;
+
+  void areaCollide(TCollider *);
+
+  void assimilateObject(TNestObj * obj);
+
+  protected:
+  float mSize { 0.0F };
+  TNestArea * mNestArea;
+
+  static TNest * sNest;
+
+  virtual void onCollide(TCollider *) override;
 };
 
 // -------------------------------------------------------------------------- //

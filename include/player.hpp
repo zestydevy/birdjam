@@ -68,6 +68,8 @@ class TPlayer :
     virtual void update() override;
     virtual void draw() override;
 
+    void hitObject(TVec3F point, EObjType type);
+
     //For debug only
     const TCollFace * mClosestFace;
 

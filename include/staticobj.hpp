@@ -44,6 +44,8 @@ enum EObjType : s16
     LEAVES,
     BRANCH,
     ROOTS,
+    MAILBOX,
+    NEST,
     INVALID
 };
 

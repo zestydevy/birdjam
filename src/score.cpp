@@ -16,6 +16,7 @@
 // -------------------------------------------------------------------------- //
 
 TFlockObj * TFlockObj::sFlockObj { nullptr };
+TNest * TNest::sNest { nullptr };
 TTimer TTimer::sInstance;
 
 // -------------------------------------------------------------------------- //
@@ -72,20 +73,28 @@ void TFlockObj::draw() {
 // -------------------------------------------------------------------------- //
 
 bool TFlockObj::grabObject(TNestObj * obj) {
+  if (obj->getObjWeight() > mStrength - (mCarrySize / 2.0f))
+    return false;
   if (mHeldNum > 32)
     return false;
   mHeldObjects[mHeldNum++] = obj;
+  mCarrySize += obj->getObjWeight();
   return true;
 }
 
 // -------------------------------------------------------------------------- //
 
-bool TFlockObj::dropAllObjects() {
+bool TFlockObj::dropAllObjects(TVec3F target) {
   if (mHeldNum <= 0)
     return false;
-  for (int i = 0; i < mHeldNum; i++)
-    mHeldObjects[i]->drop();
+  for (int i = 0; i < mHeldNum; i++){
+    mHeldObjects[i]->drop(TVec3F(0.0f, 0.0f, 0.0f));    //need to calculate what velocity to land in nest
+    mHeldObjects[i]->setPosition(target);
+    TNest::getNestObject()->assimilateObject(mHeldObjects[i]);
+    incFlock(1, mHeldObjects[i]->getObjWeight() / 2.0f);
+  }
   mHeldNum = 0;
+  mCarrySize = 0.0f;
   return true;
 }
 
@@ -115,7 +124,7 @@ void TNestObj::init() {
   TObject::init();
 
   setMesh(mData->mesh);
-  mObjWeight = getObjScale() * mData->mass;
+  mObjWeight = mData->mass;
 
   // mDebugCube = new TObject { mDynList };
   // mDebugCube->init();
@@ -168,7 +177,6 @@ void TNestObj::update() {
         mState = EState::IDLE;
       }
       updateMtx();
-
       break;
     }
   }
@@ -207,6 +215,12 @@ void TNestObj::draw() {
 
 // -------------------------------------------------------------------------- //
 
+void TNestObj::startNesting(){
+  mState = EState::NESTING;
+}
+
+// -------------------------------------------------------------------------- //
+
 void TNestObj::updateCollider(){}
 
 // -------------------------------------------------------------------------- //
@@ -235,9 +249,10 @@ void TNestObj::updateMtx()
 
 // -------------------------------------------------------------------------- //
 
-void TNestObj::drop()
+void TNestObj::drop(TVec3F v)
 {
     mState = EState::DROPPING;
+    setCollision(true);
 
     //restore rotation to pre-pickup
     mMountRotMtx.identity();
@@ -255,26 +270,29 @@ TVec3F TNestObj::getMountPoint()
 
 // -------------------------------------------------------------------------- //
 
-void TNestObj::onPickup(
+bool TNestObj::onPickup(
   TCollider * const other
 ) {
-  if (mPlayer != nullptr) {
-    return; // how did this happen?
-  }
-
   // we can assume this is the player due to collision masks
   mPlayer = static_cast<TPlayer *>(other);
 
+  if (!TFlockObj::getFlockObj()->grabObject(this)){
+    if (!mData->hasMeshCol)
+      mPlayer->hitObject(mPosition, mObjType);
+    return false;
+  }
 
+  if (mObjType == EObjType::BALLOON)
+    setMesh(TObject::getMeshGfx(EObjType::BALLOON_DEFLATED));
+  
   //Save the rotation before it gets picked up, so we don't need to calculate the hanging angle every frame
   mFMountRotMtx = mFRotMtx;
   mMountRot = getRotation();
   mMountRotY = getRotation().y() - mPlayer->getRotation().y();
   setRotation(TVec3S((s16)0, (s16)0, (s16)0));
 
-  TFlockObj::getFlockObj()->grabObject(this);
-
   mState = EState::CARRYING;
+  return true;
 }
 
 // -------------------------------------------------------------------------- //
@@ -307,7 +325,7 @@ void TNestObjSphere::init() {
 
   mObjRadius = mData->sizex;
 
-  initCollider(TAG_NESTOBJ, 0, TAG_PLAYER, 1);
+  initCollider(TAG_NESTOBJ, TAG_NESTOBJ, TAG_PLAYER, 1);
   setCollideCenter(mPosition + mRotMtx.mul(mScaleMtx.mul(TVec3F(mData->offsetx, mData->offsety, mData->offsetz))));
   setCollideRadius(mObjRadius * getObjScale());
 
@@ -329,10 +347,10 @@ void TNestObjSphere::onCollide(
     return; // how did this happen?
   }
 
-  onPickup(other);
-
-  mMountDist = mObjRadius * getObjScale();
-  setCollision(false);
+  if (onPickup(other)){
+    mMountDist = mObjRadius * getObjScale();
+    setCollision(false);
+  }
 }
 
 // -------------------------------------------------------------------------- //
@@ -365,7 +383,7 @@ void TNestObjBox::init() {
 
   mSize = TVec3F(mData->sizex, mData->sizey, mData->sizez);
 
-  initCollider(TAG_NESTOBJ, 0, TAG_PLAYER, 1);
+  initCollider(TAG_NESTOBJ, TAG_NESTOBJ, TAG_PLAYER, 1);
   setCollideCenter(mPosition + mRotMtx.mul(mScaleMtx.mul(TVec3F(mData->offsetx, mData->offsety, mData->offsetz))));
   setCollideSize(TVec3F(mSize.x() * mScale.x(), mSize.y() * mScale.y(), mSize.z() * mScale.z()) * 2.0f);
 
@@ -387,10 +405,107 @@ void TNestObjBox::onCollide(
     return; // how did this happen?
   }
 
-  onPickup(other);
+  if (onPickup(other)){
+    mMountDist = getCollideSize().y() * 2.0f * getObjScale();
+    setCollision(false);
+  }
+}
 
-  mMountDist = getCollideSize().y() * 2.0f * getObjScale();
-  setCollision(false);
+// -------------------------------------------------------------------------- //
+
+TNest::TNest(
+  TDynList2 * dl
+) :
+  TObject { dl }
+{
+  initCollider(TAG_NEST, 0, TAG_NESTOBJ, 1);
+  setCollideCenter(mPosition + TVec3F(0.0f, -9.0f, 0.0f));
+  setCollideRadius(64.0f);
+  setCollideHeight(32.0f);
+
+  updateBlkMap();
+
+  mNestArea = new TNestArea(dl, this, mPosition, 64.0f, 5000.0f);
+
+  sNest = this;
+}
+
+// -------------------------------------------------------------------------- //
+
+TNest::~TNest()
+{
+  delete mNestArea;
+}
+
+// -------------------------------------------------------------------------- //
+
+TNest * TNest::getNestObject() {
+  return sNest;
+}
+
+// -------------------------------------------------------------------------- //
+
+void TNest::init() {
+  TObject::init();
+}
+
+// -------------------------------------------------------------------------- //
+
+void TNest::update() {
+  TObject::update();
+}
+
+// -------------------------------------------------------------------------- //
+
+void TNest::draw() {
+  TObject::draw();
+}
+
+void TNest::assimilateObject(TNestObj * obj){
+  obj->startNesting();
+  mSize += obj->getObjWeight();
+}
+
+// -------------------------------------------------------------------------- //
+// -----------------Collides with very tall nest area------------------------ //
+
+void TNest::areaCollide(
+  TCollider * const other
+) {
+  TFlockObj::getFlockObj()->dropAllObjects(mPosition);
+}
+
+// -------------------------------------------------------------------------- //
+// --------------------Collides with the nest itself------------------------- //
+
+void TNest::onCollide(
+  TCollider * const other
+) {
+  
+}
+
+// -------------------------------------------------------------------------- //
+
+TNestArea::TNestArea(
+  TDynList2 * dl, TNest * nest, TVec3F center, float radius, float height
+)
+{
+  initCollider(TAG_NEST, 0, TAG_PLAYER, 1);
+  setCollideCenter(center);
+  setCollideRadius(radius);
+  setCollideHeight(height);
+
+  updateBlkMap();
+
+  mNest = nest;
+}
+
+// -------------------------------------------------------------------------- //
+
+void TNestArea::onCollide(
+  TCollider * const other
+) {
+  mNest->areaCollide(other);
 }
 
 // -------------------------------------------------------------------------- //

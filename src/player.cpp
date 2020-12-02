@@ -480,28 +480,33 @@ void TPlayer::update()
             break;
     }
 
+    //Mesh collision
     if (mClosestFace != nullptr){  //collision!
         float d = -mDirection.dot(mClosestFace->nrm);
 
-        if (mState == playerstate_t::PLAYERSTATE_FLYING && d > 0.1f){
-            if (d > 0.9f){  //Head on crash
-                mLastDirection = mDirection;
-                mDirection += d * mClosestFace->nrm * 2.0f;
-                mState = PLAYERSTATE_STUNNED;
-                mAnim->setAnimation(bird_Bird_GlideCrash_Length, mAnim_GlideCrash, false, 0.4f);
+        if (mState == playerstate_t::PLAYERSTATE_FLYING){
+            if (d > 0.1f){
+                if (d > 0.9f){  //Head on crash
+                    mLastDirection = mDirection;
+                    mDirection += d * mClosestFace->nrm * 2.0f;
+                    mState = PLAYERSTATE_STUNNED;
+                    mAnim->setAnimation(bird_Bird_GlideCrash_Length, mAnim_GlideCrash, false, 0.4f);
+                }
+                else{   //Bounce
+                    mDirection += d * mClosestFace->nrm * 2.0f;
+                    mSpeed *= 1.0f - d;
+                    mStutterTimer = 1.0f;
+                }
             }
-            else{   //Bounce
-                mDirection += d * mClosestFace->nrm * 2.0f;
-                mSpeed *= 1.0f - d;
-                mStutterTimer = 1.0f;
+            else if (d >= 0.0f){   //keep the player from going oob
+                TVec3F p;
+                mClosestFace->project(mPosition, &p);
+                mPosition = p + mClosestFace->nrm * BIRD_RADIUS;
             }
-        }
-        else{   //keep the player from going oob
-            TVec3F p;
-            mClosestFace->project(mPosition, &p);
-            //mPosition = p + mClosestFace->nrm * BIRD_RADIUS;
         }
     }
+
+    //Object collision
 
     //Adjust FOV based on speed
     float fov = ((mSpeed - BIRD_SLOWSPEED) / (BIRD_FASTSPEED - BIRD_SLOWSPEED)) * (75.0f - 45.0f) + 45.0f;
@@ -519,6 +524,37 @@ void TPlayer::update()
 
     updateBlkMap();
     mAnim->update();
+}
+
+void TPlayer::hitObject(TVec3F point, EObjType type){
+    if (type == EObjType::LEAVES)
+        return;
+    if (mDirection.getSqrLength() <= 0.0f)
+        return;
+
+    TVec3F nrm = mPosition - point;
+    if (nrm.getSqrLength() <= 0.0f)
+        nrm = TVec3F(0.0f, 1.0f, 0.0f);
+    nrm.normalize();
+
+    float d = -mDirection.dot(nrm);
+
+    if (mState == playerstate_t::PLAYERSTATE_FLYING && d > 0.1f){
+        if (d > 0.9f){  //Head on crash
+            mLastDirection = mDirection;
+            mDirection += d * nrm * 2.0f;
+            mState = PLAYERSTATE_STUNNED;
+            mAnim->setAnimation(bird_Bird_GlideCrash_Length, mAnim_GlideCrash, false, 0.4f);
+        }
+        else{   //Bounce
+            mDirection += d * nrm * 2.0f;
+            mSpeed *= 1.0f - d;
+            mStutterTimer = 1.0f;
+        }
+    }
+    else{   //keep the player from going oob
+        mPosition = point + nrm * BIRD_RADIUS;
+    }
 }
 
 void TPlayer::updateMtx()
