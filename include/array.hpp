@@ -224,7 +224,7 @@ template<typename T>
 inline typename TArray<T>::TIterator
 TArray<T>::erase(TConstIterator first, TConstIterator last) {
   if (first == last) {
-    return last;
+    return const_cast<TIterator>(last);
   }
 
   if (first == mBegin && last == mEnd) {
