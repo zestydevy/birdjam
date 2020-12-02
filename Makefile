@@ -15,7 +15,7 @@ OPTIMIZER       = -O1
 LCDEFS          = -DNDEBUG -D_FINALROM -DF3DEX_GBI_2
 N64LIB          = -lultra_rom
 CFLAGS := $(CFLAGS) -DNDEBUG -D_FINALROM -G 0 -I. -Iinclude -I$(NUSYSINCDIR) -I$(ROOT)/usr/include/PR
-CXXFLAGS := $(CXXFLAGS) -DNDEBUG -D_FINALROM -DF3DEX_GBI_2 -G 0 -std=c++20 -fno-builtin -fno-exceptions -fno-rtti -Iinclude -I$(NUSYSINCDIR) -I$(ROOT)/usr/include/PR
+CXXFLAGS := $(CXXFLAGS) -DNDEBUG -D_FINALROM -DF3DEX_GBI_2 -G 0 -std=c++20 -fno-builtin -fno-exceptions -fno-rtti -fno-use-cxa-atexit -Iinclude -I$(NUSYSINCDIR) -I$(ROOT)/usr/include/PR
 
 APP =		$(PROJECT).out
 

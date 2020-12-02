@@ -2,6 +2,19 @@
 #include <nualstl_n.h>
 
 #include "audio.hpp"
+#include "heap.hpp"
+#include "util.hpp"
+#include "array.hpp"
+
+#include "segment.h"
+
+// -------------------------------------------------------------------------- //
+
+u8 * TAudio::sBankBuffer{nullptr};
+u8 * TAudio::sMusicBuffer{nullptr};
+u8 * TAudio::sSfxBuffer{nullptr};
+
+TArray<musHandle> TAudio::sHandleList;
 
 // -------------------------------------------------------------------------- //
 
@@ -33,6 +46,40 @@ void TAudio::init()
 
     // Register the PRENMI function.
     nuAuPreNMIFuncSet(nuAuPreNMIProc);
+
+    // allocate audio buffers (not heap)
+    sBankBuffer = new u8[NU_AU_SAMPLE_SIZE];
+    sMusicBuffer = new u8[NU_AU_SONG_SIZE];
+    sSfxBuffer = new u8[NU_AU_SE_SIZE];
+
+    // register sample bank
+    TUtil::toMemory(
+        reinterpret_cast<void *>(sBankBuffer),
+        reinterpret_cast<void *>(_miditableSegmentRomStart),
+        _miditableSegmentRomEnd-_miditableSegmentRomStart);
+
+    MusPtrBankInitialize(sBankBuffer, _midibankSegmentRomStart);
+
+    // register sound effects
+    TUtil::toMemory(
+        reinterpret_cast<void *>(sSfxBuffer),
+        reinterpret_cast<void *>(_sfxSegmentRomStart),
+        _sfxSegmentRomEnd-_sfxSegmentRomStart);
+
+	MusFxBankInitialize(sSfxBuffer);
+
+    // set heap for handles
+    sHandleList.setHeap(THeap::getCurrentHeap());
+    
+    // play bgm
+    //sHandleList.push(MusStartEffect(ESfxType::SFX_CAW));
+    //MusHandleSetReverb(sHandleList[0], 10000>>8);
+
 };
 
 // -------------------------------------------------------------------------- //
+
+void TAudio::playSound(ESfxType const sound)
+{
+    MusStartEffect(sound);
+}
