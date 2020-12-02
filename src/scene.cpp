@@ -207,22 +207,6 @@ void TTestScene::loadCollision(const s16 collision[], TCollFace * dest, int offs
     }
 }
 
-void TTestScene::init()
-{
-    // ...
-    gSPDisplayList(mDynList->pushDL(), rdpinit_spr_dl);
-    TSprite::init(mDynList);
-
-    TSprite timeSpr = TSprite(&logo_sprite, mLogoX, mLogoY);
-    timeSpr.mScale = {1.0f,1.0f};
-    timeSpr.mColor = {255,255,255,mAlpha};
-    timeSpr.mAttributes = SP_TRANSPARENT;
-    timeSpr.render();
-
-    gSPDisplayList(mDynList->pushDL(), rdpinit_dl);
-	gSPDisplayList(mDynList->pushDL(), rspinit_dl);
-}
-
 // -------------------------------------------------------------------------- //
 
 void TTestScene::init()
