@@ -6,7 +6,24 @@
 
 // -------------------------------------------------------------------------- //
 
+using TTestFn = bool (*)(TCollider const *, TCollider const *);
+
+struct TTestInfo {
+
+  TTestFn fn;
+  bool swap; // false: fn(a, b) true: fn(b, a)
+
+};
+
+// -------------------------------------------------------------------------- //
+
+TCollider ** TCollider::sBlkMap { nullptr };
+float TCollider::sBlkMapSz { 0.0F };
+u32 TCollider::sNumBlkMap { 0 };
+
 TDoubleLinkList<TCollider> TCollider::sColliderList;
+
+static TTestInfo sTestTable[NUM_COLLIDER_TYPES * NUM_COLLIDER_TYPES];
 
 // -------------------------------------------------------------------------- //
 
@@ -64,19 +81,73 @@ void TCollider::calcCollideMinMax(
 
 // -------------------------------------------------------------------------- //
 
-void TCollider::init() {
+bool TCollider::startup(
+  THeap * heap, u16 num_blk, float blk_sz
+) {
+  if (num_blk == 0 || blk_sz <= 0.0F) {
+    return false;
+  }
+
+  sBlkMap = new(heap) TCollider * [num_blk * num_blk];
+  sNumBlkMap = num_blk;
+  sBlkMapSz = blk_sz;
+
+  if (sBlkMap == nullptr) {
+    shutdown();
+    return false;
+  }
+
+  for (u32 i = 0; i < (num_blk * num_blk); ++i) {
+    sBlkMap[i] = nullptr;
+  }
+
   sColliderList.clear();
+
+  // box -> box
+  sTestTable[0] = {           &TCollideUtil::testBoxBox, false };
+
+  // box -> sphere
+  sTestTable[1] = {        &TCollideUtil::testBoxSphere, false };
+
+  // box -> cylinder
+  sTestTable[2] = {      &TCollideUtil::testBoxCylinder, false };
+
+  // sphere -> box
+  sTestTable[3] = {        &TCollideUtil::testBoxSphere,  true };
+
+  // sphere -> sphere
+  sTestTable[4] = {     &TCollideUtil::testSphereSphere, false };
+
+  // sphere -> cylinder
+  sTestTable[5] = {   &TCollideUtil::testSphereCylinder, false };
+
+  // cylinder -> box
+  sTestTable[6] = {      &TCollideUtil::testBoxCylinder,  true };
+
+  // cylinder -> sphere
+  sTestTable[7] = {   &TCollideUtil::testSphereCylinder,  true };
+
+  // cylinder -> cylinder
+  sTestTable[8] = { &TCollideUtil::testCylinderCylinder, false };
+
+  return true;
+}
+
+// -------------------------------------------------------------------------- //
+
+void TCollider::shutdown() {
+  delete[] sBlkMap;
+  sNumBlkMap = 0;
+  sBlkMapSz = 0.0F;
 }
 
 // -------------------------------------------------------------------------- //
 
 void TCollider::frameBegin() {
   auto node = sColliderList.begin();
-  TCollider * collider;
 
   while (node != sColliderList.end()) {
-    collider = node->data;
-    collider->mHitNum = 0;
+    node->data->mHitNum = 0;
     node = node->next;
   }
 }
@@ -84,46 +155,59 @@ void TCollider::frameBegin() {
 // -------------------------------------------------------------------------- //
 
 void TCollider::frameEnd() {
-  TDoubleLinkListNode<TCollider> * first;
-  TDoubleLinkListNode<TCollider> * second;
-  TCollider * lhs;
-  TCollider * rhs;
+  TDoubleLinkListNode<TCollider> * it;
+  u32 l, b, r, t;
 
-  first = sColliderList.begin();
-
-  while (first != sColliderList.end()) {
-    lhs = first->data;
-    second = first = first->next;
-
-    if (lhs == nullptr) {
+  for (
+    it = sColliderList.begin();
+    (it != sColliderList.end());
+    it = it->next
+  ) {
+    if (!it->data->isCollideActive()) {
       continue;
     }
 
-    while (second != sColliderList.end()) {
-      rhs = second->data;
-      second = second->next;
+    blkMapSpan(
+      it->data->mCenter,
+      it->data->mCullRadius,
+      &l, &b, &r, &t
+    );
 
-      if (rhs == nullptr) {
-        continue;
-      }
-
-      if (
-        ((lhs->mSendMask & rhs->mReceiveMask) == 0) &&
-        ((rhs->mSendMask & lhs->mReceiveMask) == 0)
-      ) {
-        continue;
-      }
-
-      if (lhs->onCheckCollide(rhs)) {
-        if ((lhs->mReceiveMask & rhs->mSendMask) != 0) {
-          lhs->pushCollision(rhs);
-        }
-
-        if ((rhs->mReceiveMask & lhs->mSendMask) != 0) {
-          rhs->pushCollision(lhs);
-        }
+    for (u32 y = b; y <= t; ++y) {
+      for (u32 x = l; x <= r; ++x) {
+        blkMapTest(&sBlkMap[y * sNumBlkMap + x], it->data);
       }
     }
+  }
+
+  for (
+    it = sColliderList.begin();
+    (it != sColliderList.end());
+    it = it->next
+  ) {
+    if (it->data->mHitNum == 0) {
+      continue;
+    }
+
+    it->data->notifyCollisions();
+  }
+}
+
+// -------------------------------------------------------------------------- //
+
+void TCollider::updateBlkMap() {
+  TCollider ** list = blkMapCell(mCenter);
+
+  if (list == mBlkMap) {
+    return;
+  }
+
+  if (mBlkMap != nullptr) {
+    blkMapUnlink(mBlkMap, this);
+  }
+
+  if (list != nullptr) {
+    blkMapLink(list, this);
   }
 }
 
@@ -132,14 +216,14 @@ void TCollider::frameEnd() {
 bool TCollider::pushCollision(
   TCollider * const other
 ) {
+  if (mHitNum >= mMaxHitNum) {
+    return false;
+  }
+
   for (u32 i = 0; i < mHitNum; ++i) {
     if (mHitArray[i] == other) {
       return false;
     }
-  }
-
-  if (mHitNum >= mMaxHitNum) {
-    return false;
   }
 
   mHitArray[mHitNum++] = other;
@@ -148,9 +232,169 @@ bool TCollider::pushCollision(
 
 // -------------------------------------------------------------------------- //
 
+void TCollider::notifyCollisions() {
+  for (u32 i = 0; i < mHitNum; ++i) {
+    onCollide(mHitArray[i]);
+  }
+}
+
+// -------------------------------------------------------------------------- //
+
+u32 TCollider::blkMapIdx(
+  float x, float half, float i_sz
+) {
+  auto max = (s32)(sNumBlkMap - 1);
+  auto idx = (s32)((half + x) * i_sz);
+  return (u32)TMath<s32>::clamp(idx, 0, max);
+}
+
+// -------------------------------------------------------------------------- //
+
+TCollider **
+TCollider::blkMapCell(
+  TVec3F const & pos
+) {
+  float half = ((float)sNumBlkMap * sBlkMapSz * 0.5F);
+  float i_sz = (1.0F / sBlkMapSz);
+  u32 x = blkMapIdx(pos.x(), half, i_sz);
+  u32 y = blkMapIdx(pos.z(), half, i_sz);
+  return &sBlkMap[y * sNumBlkMap + x];
+}
+
+// -------------------------------------------------------------------------- //
+
+void TCollider::blkMapSpan(
+  TVec3F const & pos, float rd,
+  u32 * l, u32 * b, u32 * r, u32 * t
+) {
+  float half = ((float)sNumBlkMap * sBlkMapSz * 0.5F);
+  float i_sz = (1.0F / sBlkMapSz);
+
+  if (l != nullptr) {
+    *l = blkMapIdx((pos.x() - rd), half, i_sz);
+  }
+
+  if (b != nullptr) {
+    *b = blkMapIdx((pos.z() - rd), half, i_sz);
+  }
+
+  if (r != nullptr) {
+    *r = blkMapIdx((pos.x() + rd), half, i_sz);
+  }
+
+  if (t != nullptr) {
+    *t = blkMapIdx((pos.z() + rd), half, i_sz);
+  }
+}
+
+// -------------------------------------------------------------------------- //
+
+void TCollider::blkMapLink(
+  TCollider ** list, TCollider * node
+) {
+  node->mBlkMap = list;
+  node->mNext = *list;
+  *list = node;
+}
+
+// -------------------------------------------------------------------------- //
+
+void TCollider::blkMapUnlink(
+  TCollider ** list, TCollider * node
+) {
+  TCollider * prev = *list;
+
+  if (prev == node) {
+    *list = nullptr;
+  } else {
+    while (prev != nullptr) {
+      if (prev->mNext == node) {
+        break;
+      }
+
+      prev = prev->mNext;
+    }
+
+    if (prev != nullptr) {
+      prev->mNext = node->mNext;
+    }
+  }
+
+  node->mBlkMap = nullptr;
+  node->mNext = nullptr;
+}
+
+// -------------------------------------------------------------------------- //
+
+void TCollider::blkMapTest(
+  TCollider ** list, TCollider * a
+) {
+  TCollider * node = *list;
+  TCollider * b;
+
+  while (node != nullptr) {
+    b = node;
+    node = node->mNext;
+
+    if (!b->isCollideActive()) {
+      continue;
+    }
+
+    if (b->mHitNum == b->mMaxHitNum) {
+      continue;
+    }
+
+    if (
+      ((a->mReceiveMask & b->mSendMask) == 0) &&
+      ((b->mReceiveMask & a->mSendMask) == 0)
+    ) {
+      continue;
+    }
+
+    u32 idx = (
+      (u32)a->getCollideType() * NUM_COLLIDER_TYPES +
+      (u32)b->getCollideType()
+    );
+
+    bool check;
+
+    if (sTestTable[idx].swap) {
+      check = sTestTable[idx].fn(b, a);
+    } else {
+      check = sTestTable[idx].fn(a, b);
+    }
+
+    if (!check) {
+      continue;
+    }
+
+    if ((a->mReceiveMask & b->mSendMask) != 0) {
+      a->pushCollision(b);
+    }
+
+    if ((b->mReceiveMask & a->mSendMask) != 0) {
+      b->pushCollision(a);
+    }
+  }
+}
+
+// -------------------------------------------------------------------------- //
+
 ECollideType
 TBoxCollider::getCollideType() const {
   return ECollideType::BOX;
+}
+
+// -------------------------------------------------------------------------- //
+
+void TBoxCollider::setCollideSize(
+  TVec3F const & sz
+) {
+  mSize = sz;
+
+  mCullRadius = (0.5F * TMath<float>::max(
+    TMath<float>::max(sz.x(), sz.y()), sz.z()
+  ));
 }
 
 // -------------------------------------------------------------------------- //
@@ -191,32 +435,15 @@ float TBoxCollider::getCollideMaxZ() const {
 
 // -------------------------------------------------------------------------- //
 
-bool TBoxCollider::onCheckCollide(
-  TCollider const * const other
-) const {
-  switch (other->getCollideType()) {
-    case ECollideType::BOX: {
-      auto box = static_cast<TBoxCollider const *>(other);
-      return TCollideUtil::testColliders(this, box);
-    }
-    case ECollideType::SPHERE: {
-      auto sphere = static_cast<TSphereCollider const *>(other);
-      return TCollideUtil::testColliders(this, sphere);
-    }
-    case ECollideType::CYLINDER: {
-      auto cylinder = static_cast<TCylinderCollider const *>(other);
-      return TCollideUtil::testColliders(this, cylinder);
-    }
-  }
-
-  return false;
+ECollideType
+TSphereCollider::getCollideType() const {
+  return ECollideType::SPHERE;
 }
 
 // -------------------------------------------------------------------------- //
 
-ECollideType
-TSphereCollider::getCollideType() const {
-  return ECollideType::SPHERE;
+void TSphereCollider::setCollideRadius(float rd) {
+  mCullRadius = mRadius = rd;
 }
 
 // -------------------------------------------------------------------------- //
@@ -257,32 +484,23 @@ float TSphereCollider::getCollideMaxZ() const {
 
 // -------------------------------------------------------------------------- //
 
-bool TSphereCollider::onCheckCollide(
-  TCollider const * const other
-) const {
-  switch (other->getCollideType()) {
-    case ECollideType::BOX: {
-      auto box = static_cast<TBoxCollider const *>(other);
-      return TCollideUtil::testColliders(box, this);
-    }
-    case ECollideType::SPHERE: {
-      auto sphere = static_cast<TSphereCollider const *>(other);
-      return TCollideUtil::testColliders(this, sphere);
-    }
-    case ECollideType::CYLINDER: {
-      auto cylinder = static_cast<TCylinderCollider const *>(other);
-      return TCollideUtil::testColliders(this, cylinder);
-    }
-  }
-
-  return false;
+ECollideType
+TCylinderCollider::getCollideType() const {
+  return ECollideType::CYLINDER;
 }
 
 // -------------------------------------------------------------------------- //
 
-ECollideType
-TCylinderCollider::getCollideType() const {
-  return ECollideType::CYLINDER;
+void TCylinderCollider::setCollideHeight(float ht) {
+  mHeight = ht;
+  mCullRadius = calcCullRadius();
+}
+
+// -------------------------------------------------------------------------- //
+
+void TCylinderCollider::setCollideRadius(float rd) {
+  mRadius = rd;
+  mCullRadius = calcCullRadius();
 }
 
 // -------------------------------------------------------------------------- //
@@ -323,25 +541,8 @@ float TCylinderCollider::getCollideMaxZ() const {
 
 // -------------------------------------------------------------------------- //
 
-bool TCylinderCollider::onCheckCollide(
-  TCollider const * const other
-) const {
-  switch (other->getCollideType()) {
-    case ECollideType::BOX: {
-      auto box = static_cast<TBoxCollider const *>(other);
-      return TCollideUtil::testColliders(box, this);
-    }
-    case ECollideType::SPHERE: {
-      auto sphere = static_cast<TSphereCollider const *>(other);
-      return TCollideUtil::testColliders(sphere, this);
-    }
-    case ECollideType::CYLINDER: {
-      auto cylinder = static_cast<TCylinderCollider const *>(other);
-      return TCollideUtil::testColliders(this, cylinder);
-    }
-  }
-
-  return false;
+float TCylinderCollider::calcCullRadius() const {
+  return TMath<float>::max((mHeight * 0.5F), mRadius);
 }
 
 // -------------------------------------------------------------------------- //
@@ -529,9 +730,8 @@ float TCollideUtil::calcLineSign2D(
 
 // -------------------------------------------------------------------------- //
 
-bool TCollideUtil::testColliders(
-  TBoxCollider const * const lhs,
-  TBoxCollider const * const rhs
+bool TCollideUtil::testBoxBox(
+  TCollider const * lhs, TCollider const * rhs
 ) {
   TVec3F min_a, max_a, min_b, max_b;
   lhs->calcCollideMinMax(&min_a, &max_a);
@@ -541,16 +741,18 @@ bool TCollideUtil::testColliders(
 
 // -------------------------------------------------------------------------- //
 
-bool TCollideUtil::testColliders(
-  TSphereCollider const * const lhs,
-  TSphereCollider const * const rhs
+bool TCollideUtil::testSphereSphere(
+  TCollider const * lhs, TCollider const * rhs
 ) {
+  auto a = static_cast<TSphereCollider const *>(lhs);
+  auto b = static_cast<TSphereCollider const *>(rhs);
+
   float const max = TCollideUtil::squared(
-    lhs->getCollideRadius() + rhs->getCollideRadius()
+    a->getCollideRadius() + b->getCollideRadius()
   );
 
   float const dist = TCollideUtil::calcSqrDist(
-    lhs->getCollideCenter(), rhs->getCollideCenter()
+    a->getCollideCenter(), b->getCollideCenter()
   );
 
   return (dist <= max);
@@ -558,13 +760,15 @@ bool TCollideUtil::testColliders(
 
 // -------------------------------------------------------------------------- //
 
-bool TCollideUtil::testColliders(
-  TCylinderCollider const * const lhs,
-  TCylinderCollider const * const rhs
+bool TCollideUtil::testCylinderCylinder(
+  TCollider const * lhs, TCollider const * rhs
 ) {
+  auto a = static_cast<TCylinderCollider const *>(lhs);
+  auto b = static_cast<TCylinderCollider const *>(rhs);
+
   if (!doRangesOverlap(
-    lhs->getCollideMinY(), lhs->getCollideMaxY(),
-    rhs->getCollideMinY(), rhs->getCollideMaxY()
+    a->getCollideMinY(), a->getCollideMaxY(),
+    rhs->getCollideMinY(), b->getCollideMaxY()
   )) {
     return false;
   }
@@ -572,13 +776,13 @@ bool TCollideUtil::testColliders(
   float max, dist;
 
   max = TCollideUtil::squared(
-    lhs->getCollideRadius() +
-    rhs->getCollideRadius()
+    a->getCollideRadius() +
+    b->getCollideRadius()
   );
 
   dist = TCollideUtil::calcSqrDist(
-    lhs->getCollideCenter(),
-    rhs->getCollideCenter()
+    a->getCollideCenter(),
+    b->getCollideCenter()
   );
 
   return (dist <= max);
@@ -586,47 +790,53 @@ bool TCollideUtil::testColliders(
 
 // -------------------------------------------------------------------------- //
 
-bool TCollideUtil::testColliders(
-  TBoxCollider const * box,
-  TSphereCollider const * sphere
+bool TCollideUtil::testBoxSphere(
+  TCollider const * lhs, TCollider const * rhs
 ) {
+  auto a = static_cast<TBoxCollider const *>(lhs);
+  auto b = static_cast<TSphereCollider const *>(rhs);
+
   TVec3F min, max;
-  box->calcCollideMinMax(&min, &max);
+  a->calcCollideMinMax(&min, &max);
 
   return testBoxSphere3D(min, max,
-    sphere->getCollideCenter(),
-    sphere->getCollideRadius()
+    b->getCollideCenter(),
+    b->getCollideRadius()
   );
 }
 
 // -------------------------------------------------------------------------- //
 
-bool TCollideUtil::testColliders(
-  TBoxCollider const * box,
-  TCylinderCollider const * cylinder
+bool TCollideUtil::testBoxCylinder(
+  TCollider const * lhs, TCollider const * rhs
 ) {
+  auto a = static_cast<TBoxCollider const *>(lhs);
+  auto b = static_cast<TCylinderCollider const *>(rhs);
+
   TVec3F min, max;
-  box->calcCollideMinMax(&min, &max);
+  a->calcCollideMinMax(&min, &max);
 
   if (!doRangesOverlap(min.y(), max.y(),
-    cylinder->getCollideMinY(),
-    cylinder->getCollideMaxY()
+    b->getCollideMinY(),
+    b->getCollideMaxY()
   )) {
     return false;
   }
 
   return testBoxSphere2D(min.xz(), max.xz(),
-    cylinder->getCollideCenter().xz(),
-    cylinder->getCollideRadius()
+    b->getCollideCenter().xz(),
+    b->getCollideRadius()
   );
 }
 
 // -------------------------------------------------------------------------- //
 
-bool TCollideUtil::testColliders(
-  TSphereCollider const * sphere,
-  TCylinderCollider const * cylinder
+bool TCollideUtil::testSphereCylinder(
+  TCollider const * lhs, TCollider const * rhs
 ) {
+  auto sphere = static_cast<TSphereCollider const *>(lhs);
+  auto cylinder = static_cast<TCylinderCollider const * >(rhs);
+
   float d, r, m, min_y, max_y;
   TVec2F a, b;
   TVec3F c;

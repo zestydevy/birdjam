@@ -10,6 +10,8 @@
 #include "player.hpp"
 #include "staticobj.hpp"
 
+class TNestObj;
+
 // -------------------------------------------------------------------------- //
 
 class TFlockObj :
@@ -24,6 +26,13 @@ class TFlockObj :
   void incFlock(u32 n, float strength);
   float getStrength() const { return mStrength; }
 
+  bool grabObject(TNestObj * obj);
+  bool dropAllObjects();
+
+  virtual void init() override;
+  virtual void update() override;
+  virtual void draw() override;
+
   static TFlockObj * getFlockObj();
 
   protected:
@@ -33,6 +42,9 @@ class TFlockObj :
 
   private:
 
+  int mHeldNum { 0 };
+  TNestObj * mHeldObjects[32];
+
   static TFlockObj * sFlockObj;
 
 };
@@ -40,8 +52,7 @@ class TFlockObj :
 // -------------------------------------------------------------------------- //
 
 class TNestObj :
-  public TObject,
-  public TSphereCollider
+  public TObject
 {
 
   public:
@@ -50,13 +61,21 @@ class TNestObj :
   virtual ~TNestObj() = default;
 
   float getObjWeight() const { return mObjWeight; }
+  float getObjScale() const { return (mScale.x() + mScale.y() + mScale.z()) / 3.0f; }
+
+  void drop();
+  TVec3F getMountPoint();
 
   virtual void updateMtx() override;
 
   virtual void init() override;
   virtual void update() override;
+  virtual void draw() override;
 
   protected:
+  virtual void setCollision(bool set);
+  virtual void updateCollider();
+  virtual float getHalfHeight();
 
   enum class EState {
 
@@ -68,15 +87,73 @@ class TNestObj :
   };
 
   float mObjWeight { 0.0F };
-  float mObjRadius { 0.0F };
   TPlayer * mPlayer { nullptr };
   EObjType mObjType { EObjType::INVALID };
   EState mState { EState::IDLE };
+  TObject * mDebugCube { nullptr };
+
+  TMtx44 mIRotMtx{};
+
+  s16 mMountTimer {0};
+  s16 mMountRotY {0};
+  float mMountDist {0.0f};
+
+
+  TVec3S mMountRot;
+  TMtx44 mMountRotMtx{};
+  Mtx mFMountRotMtx{};
 
   const TObjectData * mData{nullptr};
 
-  virtual void onCollide(TCollider *) override;
+  void onPickup(TCollider *);
+};
 
+// -------------------------------------------------------------------------- //
+
+class TNestObjSphere :
+  public TNestObj,
+  public TSphereCollider
+{
+
+  public:
+
+  TNestObjSphere(TDynList2 *, EObjType);
+  virtual ~TNestObjSphere() = default;
+
+  virtual void init() override;
+
+  protected:
+  virtual void setCollision(bool set) override;
+  virtual void updateCollider() override;
+  virtual float getHalfHeight() override;
+
+  float mObjRadius { 0.0F };
+
+  virtual void onCollide(TCollider *) override;
+};
+
+// -------------------------------------------------------------------------- //
+
+class TNestObjBox :
+  public TNestObj,
+  public TBoxCollider
+{
+
+  public:
+
+  TNestObjBox(TDynList2 *, EObjType);
+  virtual ~TNestObjBox() = default;
+
+  virtual void init() override;
+
+  protected:
+  virtual void setCollision(bool set) override;
+  virtual void updateCollider() override;
+  virtual float getHalfHeight() override;
+
+  TVec3F mSize;
+
+  virtual void onCollide(TCollider *) override;
 };
 
 // -------------------------------------------------------------------------- //

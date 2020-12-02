@@ -33,7 +33,6 @@ void mainproc(void)
 void bootApp()
 {
   THeap::init();
-  TCollider::init();
 
   CApp app = CApp();
 
