@@ -1,6 +1,6 @@
 #include <ultra64.h>
 
-Lights1 bills_bills_f3d_lights = gdSPDefLights1(
+Lights1 bills_money_f3d_lights = gdSPDefLights1(
 	0x7F, 0x7F, 0x7F,
 	0xFE, 0xFE, 0xFE, 0x28, 0x28, 0x28);
 
@@ -30,49 +30,53 @@ u8 bills_dollah_ci4_pal_rgba16[] = {
 	0x1B, 0x83, 0x44, 0x8F, 0x85, 0x59, 0x6C, 0x53, 
 };
 
-Vtx bills_Bills_mesh_vtx_0[20] = {
-	{{{269, 89, -137},0, {-17, 238},{0x49, 0x49, 0xB7, 0xFF}}},
-	{{{-269, 89, -137},0, {432, 238},{0xB7, 0x49, 0xB7, 0xFF}}},
-	{{{-269, 89, 137},0, {432, -14},{0xB7, 0x49, 0x49, 0xFF}}},
-	{{{269, 89, 137},0, {-17, -14},{0x49, 0x49, 0x49, 0xFF}}},
-	{{{269, -2, 137},0, {469, 14},{0x49, 0xB7, 0x49, 0xFF}}},
-	{{{269, 89, 137},0, {469, 491},{0x49, 0x49, 0x49, 0xFF}}},
-	{{{-269, 89, 137},0, {484, 491},{0xB7, 0x49, 0x49, 0xFF}}},
-	{{{-269, -2, 137},0, {484, 14},{0xB7, 0xB7, 0x49, 0xFF}}},
-	{{{-269, 89, -137},0, {493, 491},{0xB7, 0x49, 0xB7, 0xFF}}},
-	{{{-269, -2, -137},0, {493, 14},{0xB7, 0xB7, 0xB7, 0xFF}}},
-	{{{-269, -2, -137},0, {-15, 496},{0xB7, 0xB7, 0xB7, 0xFF}}},
-	{{{269, -2, -137},0, {428, 496},{0x49, 0xB7, 0xB7, 0xFF}}},
-	{{{269, -2, 137},0, {428, 275},{0x49, 0xB7, 0x49, 0xFF}}},
-	{{{-269, -2, 137},0, {-15, 275},{0xB7, 0xB7, 0x49, 0xFF}}},
-	{{{269, -2, -137},0, {485, 16},{0x49, 0xB7, 0xB7, 0xFF}}},
-	{{{269, 89, 137},0, {493, 493},{0x49, 0x49, 0x49, 0xFF}}},
-	{{{269, -2, 137},0, {493, 16},{0x49, 0xB7, 0x49, 0xFF}}},
-	{{{269, 89, -137},0, {485, 493},{0x49, 0x49, 0xB7, 0xFF}}},
-	{{{-269, -2, -137},0, {469, 16},{0xB7, 0xB7, 0xB7, 0xFF}}},
-	{{{-269, 89, -137},0, {469, 493},{0xB7, 0x49, 0xB7, 0xFF}}},
+Vtx bills_Bills_mesh_vtx_0[24] = {
+	{{{213, 213, -459},0, {428, 240},{0x49, 0x49, 0xB7, 0xFF}}},
+	{{{-213, 213, -459},0, {428, -15},{0xB7, 0x49, 0xB7, 0xFF}}},
+	{{{-213, 213, 459},0, {-15, -15},{0xB7, 0x49, 0x49, 0xFF}}},
+	{{{213, 213, 459},0, {-15, 240},{0x49, 0x49, 0x49, 0xFF}}},
+	{{{213, -213, 459},0, {494, 492},{0x49, 0xB7, 0x49, 0xFF}}},
+	{{{213, 213, 459},0, {494, -31},{0x49, 0x49, 0x49, 0xFF}}},
+	{{{-213, 213, 459},0, {467, -31},{0xB7, 0x49, 0x49, 0xFF}}},
+	{{{-213, -213, 459},0, {467, 492},{0xB7, 0xB7, 0x49, 0xFF}}},
+	{{{-213, -213, 459},0, {470, 491},{0xB7, 0xB7, 0x49, 0xFF}}},
+	{{{-213, 213, 459},0, {470, -31},{0xB7, 0x49, 0x49, 0xFF}}},
+	{{{-213, 213, -459},0, {476, -31},{0xB7, 0x49, 0xB7, 0xFF}}},
+	{{{-213, -213, -459},0, {476, 491},{0xB7, 0xB7, 0xB7, 0xFF}}},
+	{{{-213, -213, -459},0, {428, 496},{0xB7, 0xB7, 0xB7, 0xFF}}},
+	{{{213, -213, -459},0, {428, 273},{0x49, 0xB7, 0xB7, 0xFF}}},
+	{{{213, -213, 459},0, {-14, 273},{0x49, 0xB7, 0x49, 0xFF}}},
+	{{{-213, -213, 459},0, {-14, 496},{0xB7, 0xB7, 0x49, 0xFF}}},
+	{{{213, -213, -459},0, {494, 495},{0x49, 0xB7, 0xB7, 0xFF}}},
+	{{{213, 213, -459},0, {494, -30},{0x49, 0x49, 0xB7, 0xFF}}},
+	{{{213, 213, 459},0, {475, -30},{0x49, 0x49, 0x49, 0xFF}}},
+	{{{213, -213, 459},0, {475, 495},{0x49, 0xB7, 0x49, 0xFF}}},
+	{{{-213, -213, -459},0, {497, 492},{0xB7, 0xB7, 0xB7, 0xFF}}},
+	{{{-213, 213, -459},0, {497, -29},{0xB7, 0x49, 0xB7, 0xFF}}},
+	{{{213, 213, -459},0, {478, -29},{0x49, 0x49, 0xB7, 0xFF}}},
+	{{{213, -213, -459},0, {478, 492},{0x49, 0xB7, 0xB7, 0xFF}}},
 };
 
 Gfx bills_Bills_mesh_tri_0[] = {
-	gsSPVertex(bills_Bills_mesh_vtx_0 + 0, 14, 0),
+	gsSPVertex(bills_Bills_mesh_vtx_0 + 0, 16, 0),
 	gsSP1Triangle(0, 1, 2, 0),
 	gsSP1Triangle(0, 2, 3, 0),
 	gsSP1Triangle(4, 5, 6, 0),
 	gsSP1Triangle(4, 6, 7, 0),
-	gsSP1Triangle(7, 6, 8, 0),
-	gsSP1Triangle(7, 8, 9, 0),
-	gsSP1Triangle(10, 11, 12, 0),
-	gsSP1Triangle(10, 12, 13, 0),
-	gsSPVertex(bills_Bills_mesh_vtx_0 + 14, 6, 0),
+	gsSP1Triangle(8, 9, 10, 0),
+	gsSP1Triangle(8, 10, 11, 0),
+	gsSP1Triangle(12, 13, 14, 0),
+	gsSP1Triangle(12, 14, 15, 0),
+	gsSPVertex(bills_Bills_mesh_vtx_0 + 16, 8, 0),
 	gsSP1Triangle(0, 1, 2, 0),
-	gsSP1Triangle(0, 3, 1, 0),
-	gsSP1Triangle(4, 3, 0, 0),
-	gsSP1Triangle(4, 5, 3, 0),
+	gsSP1Triangle(0, 2, 3, 0),
+	gsSP1Triangle(4, 5, 6, 0),
+	gsSP1Triangle(4, 6, 7, 0),
 	gsSPEndDisplayList(),
 };
 
 
-Gfx mat_bills_bills_f3d[] = {
+Gfx mat_bills_money_f3d[] = {
 	gsDPPipeSync(),
 	gsDPSetCombineLERP(TEXEL0, 0, SHADE, 0, 0, 0, 0, ENVIRONMENT, TEXEL0, 0, SHADE, 0, 0, 0, 0, ENVIRONMENT),
 	gsSPTexture(65535, 65535, 0, 0, 1),
@@ -85,17 +89,17 @@ Gfx mat_bills_bills_f3d[] = {
 	gsDPPipeSync(),
 	gsDPTileSync(),
 	gsDPSetTextureImage(G_IM_FMT_CI, G_IM_SIZ_8b, 8, bills_dollah_ci4),
-	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_8b, 1, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0),
+	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_8b, 1, 0, 7, 0, G_TX_CLAMP | G_TX_NOMIRROR, 4, 0, G_TX_CLAMP | G_TX_NOMIRROR, 4, 0),
 	gsDPLoadSync(),
 	gsDPLoadTile(7, 0, 0, 30, 60),
 	gsDPPipeSync(),
-	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_4b, 1, 0, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0, G_TX_WRAP | G_TX_NOMIRROR, 4, 0),
+	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_4b, 1, 0, 0, 0, G_TX_CLAMP | G_TX_NOMIRROR, 4, 0, G_TX_CLAMP | G_TX_NOMIRROR, 4, 0),
 	gsDPSetTileSize(0, 0, 0, 60, 60),
-	gsSPSetLights1(bills_bills_f3d_lights),
+	gsSPSetLights1(bills_money_f3d_lights),
 	gsSPEndDisplayList(),
 };
 
-Gfx mat_revert_bills_bills_f3d[] = {
+Gfx mat_revert_bills_money_f3d[] = {
 	gsDPPipeSync(),
 	gsDPSetTextureLUT(G_TT_NONE),
 	gsSPEndDisplayList(),
@@ -103,9 +107,9 @@ Gfx mat_revert_bills_bills_f3d[] = {
 
 
 Gfx bills_Bills_mesh[] = {
-	gsSPDisplayList(mat_bills_bills_f3d),
+	gsSPDisplayList(mat_bills_money_f3d),
 	gsSPDisplayList(bills_Bills_mesh_tri_0),
-	gsSPDisplayList(mat_revert_bills_bills_f3d),
+	gsSPDisplayList(mat_revert_bills_money_f3d),
 	gsDPPipeSync(),
 	gsSPSetGeometryMode(G_LIGHTING),
 	gsSPClearGeometryMode(G_TEXTURE_GEN),

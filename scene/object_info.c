@@ -31,6 +31,7 @@
 #include "../models/static/objects/leaves/model_leaves.h"
 #include "../models/static/objects/branch/model_branch.h"
 #include "../models/static/objects/roots/model_roots.h"
+#include "../models/static/objects/mailbox/model_mailbox.h"
 
 /* Object info */
 /* Mesh, Name, Type, (Size), (Offset), Mass, Value */
@@ -67,5 +68,6 @@ const struct TObjectData gObjectDataList[] =
     {trunk_Trunk_mesh, "Tree Trunk", 0, 106.0f, 106.0f, 106.0f, 0.0f, 0.0f, 0.0f, 2.0f, 5},
     {leaves_Leaves_mesh, "Tree Leaves", 0, 106.0f, 106.0f, 106.0f, 0.0f, 0.0f, 0.0f, 1.0f, 5},
     {branch_Branch_mesh, "Tree Branch", 0, 106.0f, 106.0f, 106.0f, 0.0f, 0.0f, 0.0f, 1.1f, 5},
-    {roots_Roots_mesh, "Tree Roots", 0, 127.0f, 127.0f, 127.0f, 0.0f, 0.0f, 0.0f, 1.0f, 5}
+    {roots_Roots_mesh, "Tree Roots", 0, 127.0f, 127.0f, 127.0f, 0.0f, 0.0f, 0.0f, 1.0f, 5},
+    {mailbox_Mailbox_mesh, "Mailbox", 1, 170.0f, 298.0f, 170.0f, 0.0f, 0.0f, 0.0f, 1.0f, 5}
 };

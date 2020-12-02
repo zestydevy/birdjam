@@ -57,7 +57,8 @@ enum EObject
     OBJECT_TRUNK,
     OBJECT_LEAVES,
     OBJECT_BRANCH,
-    OBJECT_ROOTS
+    OBJECT_ROOTS,
+    OBJECT_MAILBOX
 };
 
 #endif
