@@ -1,4 +1,5 @@
 #include "animator.hpp"
+#include "util.hpp"
 
 TAnimator::TAnimator(int meshCount, Vtx* meshes[], int sizes[]){
     mMeshCount = meshCount;
@@ -43,7 +44,7 @@ void TAnimator::update(){
 }
 
 void TAnimator::setTimescale(float dt){
-    mTimescale = dt;
+    mTimescale = dt * (60.0F / kFrameRate);
 }
 
 bool TAnimator::isAnimationCompleted(){

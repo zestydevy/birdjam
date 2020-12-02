@@ -8,6 +8,7 @@
 #include "player.hpp"
 #include "score.hpp"
 #include "staticobj.hpp"
+#include "util.hpp"
 
 // -------------------------------------------------------------------------- //
 
@@ -136,7 +137,7 @@ bool TTimer::update() {
     return true;
   }
 
-  mTime -= (1.0F / 60.0F); // 60Hz
+  mTime -= kInterval; // 30 Hz
 
   if (mTime < 0.0F) {
     mTime = 0.0F;
