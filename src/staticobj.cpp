@@ -1,6 +1,7 @@
 #include <nusys.h>
 
 #include "staticobj.hpp"
+#include "camera.hpp"
 #include "math.hpp"
 
 
@@ -84,29 +85,33 @@ static Gfx * gObjMeshList[] =
 void TObject::setPosition(TVec3<f32> const & pos)
 {
     mPosition = pos;
-    updateMtx();
+    mMtxNeedsUpdate = true;
 }
 
 void TObject::setRotation(TVec3<f32> const & rot)
 {
     mRotation.set(rot.x(), rot.y(), rot.z());
-    updateMtx();
+    mMtxNeedsUpdate = true;
 }
 
 void TObject::setScale(TVec3<f32> const & scale)
 {
     mScale = scale;
-    updateMtx();
+    mMtxNeedsUpdate = true;
 }
 
 void TObject::init()
 {
+    mInCamera = true;
     updateMtx();
 }
 
 void TObject::updateMtx()
 {
-    TMtx44 temp1, temp2, temp3;
+    if (!mInCamera)
+        return;
+
+    TMtx44 temp1, temp2, temp3, mPosMtx, mScaleMtx;
     
     mPosMtx.translate(mPosition);
     temp1.rotateAxisX(mRotation.x());
@@ -119,13 +124,23 @@ void TObject::updateMtx()
     TMtx44::floatToFixed(mPosMtx, mFPosMtx);
     TMtx44::floatToFixed(mRotMtx, mFRotMtx);
     TMtx44::floatToFixed(mScaleMtx, mFScaleMtx);
+
+    mMtxNeedsUpdate = false;
 }
 
 void TObject::update() {
+    mInCamera = mAlwaysDraw || TCamera::checkVisible(mPosition);
+    //mInCamera = true;
 }
 
 void TObject::draw()
 {
+    if (!mInCamera)
+        return;
+
+    if (mMtxNeedsUpdate)
+        updateMtx();
+
     gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFPosMtx),
 	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
     gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFRotMtx),

@@ -40,7 +40,12 @@ class TCamera
     float mFov{44.0f};
     TDynList2 * mDynList{nullptr};
 
+    static bool checkVisible(const TVec3F & pos);
+
     private:
+
+    static TCamera * sCamera;
+    TVec3F mForward;
 
     TVec3<f32> mPosition{};
     TVec3<f32> mRotation{};

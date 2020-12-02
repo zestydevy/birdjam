@@ -77,15 +77,17 @@ class TObject
     static Gfx * getMeshGfx(EObjType type);
     static const TObjectData & getNestObjectInfo(EObjType type);
 
+    bool mAlwaysDraw{false};
+
     protected:
+    bool mInCamera{false};
+    bool mMtxNeedsUpdate{true};
 
     TVec3<f32> mPosition{};
     TVec3<s16> mRotation{};
     TVec3<f32> mScale{};
     
-    TMtx44 mPosMtx{};
     TMtx44 mRotMtx{};
-    TMtx44 mScaleMtx{};
 
     Mtx mFPosMtx{};
     Mtx mFRotMtx{};

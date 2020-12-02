@@ -529,8 +529,6 @@ void TPlayer::update()
 void TPlayer::hitObject(TVec3F point, EObjType type){
     if (type == EObjType::LEAVES)
         return;
-    if (mDirection.getSqrLength() <= 0.0f)
-        return;
 
     TVec3F nrm = mPosition - point;
     if (nrm.getSqrLength() <= 0.0f)
@@ -552,14 +550,14 @@ void TPlayer::hitObject(TVec3F point, EObjType type){
             mStutterTimer = 1.0f;
         }
     }
-    else{   //keep the player from going oob
+    else if (d >= 0.0f) {   //keep the player from going oob
         mPosition = point + nrm * BIRD_RADIUS;
     }
 }
 
 void TPlayer::updateMtx()
 {
-    TMtx44 temp1, temp2, temp3;
+    TMtx44 temp1, temp2, temp3, mPosMtx, mScaleMtx;
     
     mPosMtx.translate(mPosition);
     temp1.rotateAxis(TVec3<f32>(-TSine::scos(mRotation.y()), 0.0f, TSine::ssin(mRotation.y())), -mRotation.x());

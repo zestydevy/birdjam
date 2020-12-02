@@ -93,17 +93,12 @@ class TNestObj :
   TPlayer * mPlayer { nullptr };
   EObjType mObjType { EObjType::INVALID };
   EState mState { EState::IDLE };
-  TObject * mDebugCube { nullptr };
-
-  TMtx44 mIRotMtx{};
 
   s16 mMountTimer {0};
   s16 mMountRotY {0};
   float mMountDist {0.0f};
 
-
   TVec3S mMountRot;
-  TMtx44 mMountRotMtx{};
   Mtx mFMountRotMtx{};
 
   const TObjectData * mData{nullptr};

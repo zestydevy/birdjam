@@ -235,6 +235,7 @@ void TTestScene::init()
     mBird = new TPlayer(mDynList);
     mFlock = new TFlockObj(mDynList);
     mSky = new TObject(mDynList);
+    mSky->mAlwaysDraw = true;
     mObjList.setHeap(THeap::getCurrentHeap());
 
     mBird->init();
@@ -250,10 +251,10 @@ void TTestScene::init()
     mFlock->setPosition(mBird->getPosition());
     mFlock->init();
 
-    mSky->init();
     mSky->setPosition({0.0f,-2000.0f,0.0f});
     mSky->setScale(TVec3F(80.0f, 80.0f, 80.0f));
     mSky->setMesh(sky_Sphere_mesh);
+    mSky->init();
 
     loadObjects(scene_world);
 

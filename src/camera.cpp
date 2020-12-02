@@ -4,6 +4,11 @@
 #include "pad.hpp"
 #include "math.hpp"
 #include "util.hpp"
+
+// -------------------------------------------------------------------------- //
+
+TCamera * TCamera::sCamera { nullptr };
+
 // -------------------------------------------------------------------------- //
 
 TCamera::TCamera(TDynList2 * list)
@@ -21,6 +26,13 @@ TCamera::TCamera(TDynList2 * list)
     mDistance = 300.0f;
 
     mExternallyControlled = false;
+
+    sCamera = this;
+}
+
+bool TCamera::checkVisible(const TVec3F & pos){
+    TVec3F dif = pos - sCamera->mPosition;
+    return dif.dot(dif) > 0.0f;
 }
 
 void TCamera::render()
@@ -91,6 +103,8 @@ void TCamera::render()
 	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
     gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFRotMtx),
 	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
+
+    mForward = mViewMtx.mul(TVec3F(1.0f, 0.0f, 0.0f));
 }
 
 // -------------------------------------------------------------------------- //

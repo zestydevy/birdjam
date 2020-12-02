@@ -108,6 +108,7 @@ TNestObj::TNestObj(
 {
   mData = &TObject::getNestObjectInfo(type);
 
+  TMtx44 mMountRotMtx;
   mMountRotMtx.identity();
   TMtx44::floatToFixed(mMountRotMtx, mFMountRotMtx);
 }
@@ -156,8 +157,6 @@ void TNestObj::update() {
       //Set hanging angle
       setRotation(speedRot);
 
-      //mPosition = mPlayer->mHeldPos;
-      //updateMtx();
       break;
     }
     case EState::DROPPING: {
@@ -176,7 +175,7 @@ void TNestObj::update() {
         setCollision(true);
         mState = EState::IDLE;
       }
-      updateMtx();
+      mMtxNeedsUpdate = true;
       break;
     }
   }
@@ -193,6 +192,12 @@ void TNestObj::update() {
 // -------------------------------------------------------------------------- //
 
 void TNestObj::draw() {
+  if (!mInCamera)
+        return;
+
+  if (mMtxNeedsUpdate)
+      updateMtx();
+
   gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFPosMtx),
       G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
   gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFRotMtx),
@@ -232,10 +237,11 @@ void TNestObj::setCollision(bool set){}
 void TNestObj::updateMtx()
 {
     TObject::updateMtx();
-    TMtx44::transpose(mRotMtx, mIRotMtx);
+    //TMtx44::transpose(mRotMtx, mIRotMtx);
 
     if (mState == EState::CARRYING){
-      TMtx44 temp1, temp2, temp3;
+      TMtx44 temp1, temp2, temp3, mMountRotMtx;
+      mMountRotMtx.identity();
       temp1.rotateAxisX(mMountRot.x());
       temp2.rotateAxisY(mMountRot.y());
       temp3.rotateAxisZ(mMountRot.z());
@@ -255,6 +261,7 @@ void TNestObj::drop(TVec3F v)
     setCollision(true);
 
     //restore rotation to pre-pickup
+    TMtx44 mMountRotMtx;
     mMountRotMtx.identity();
     TMtx44::floatToFixed(mMountRotMtx, mFMountRotMtx);
     setRotation(mMountRot);
@@ -306,7 +313,7 @@ TNestObjSphere::TNestObjSphere(
 // -------------------------------------------------------------------------- //
 
 void TNestObjSphere::updateCollider(){
-  setCollideCenter(mPosition + mRotMtx.mul(mScaleMtx.mul(TVec3F(mData->offsetx, mData->offsety, mData->offsetz))));
+  setCollideCenter(mPosition);
 }
 
 // -------------------------------------------------------------------------- //
@@ -326,7 +333,7 @@ void TNestObjSphere::init() {
   mObjRadius = mData->sizex;
 
   initCollider(TAG_NESTOBJ, TAG_NESTOBJ, TAG_PLAYER, 1);
-  setCollideCenter(mPosition + mRotMtx.mul(mScaleMtx.mul(TVec3F(mData->offsetx, mData->offsety, mData->offsetz))));
+  setCollideCenter(mPosition);
   setCollideRadius(mObjRadius * getObjScale());
 
   updateBlkMap();
@@ -364,7 +371,7 @@ TNestObjBox::TNestObjBox(
 // -------------------------------------------------------------------------- //
 
 void TNestObjBox::updateCollider(){
-  setCollideCenter(mPosition + mRotMtx.mul(mScaleMtx.mul(TVec3F(mData->offsetx, mData->offsety, mData->offsetz))));
+  setCollideCenter(mPosition);
 }
 
 // -------------------------------------------------------------------------- //
@@ -384,7 +391,7 @@ void TNestObjBox::init() {
   mSize = TVec3F(mData->sizex, mData->sizey, mData->sizez);
 
   initCollider(TAG_NESTOBJ, TAG_NESTOBJ, TAG_PLAYER, 1);
-  setCollideCenter(mPosition + mRotMtx.mul(mScaleMtx.mul(TVec3F(mData->offsetx, mData->offsety, mData->offsetz))));
+  setCollideCenter(mPosition);
   setCollideSize(TVec3F(mSize.x() * mScale.x(), mSize.y() * mScale.y(), mSize.z() * mScale.z()) * 2.0f);
 
   updateBlkMap();
