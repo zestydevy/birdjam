@@ -72,12 +72,21 @@ class TTestScene final
     virtual void exit() override;
     virtual TPlayer * getPlayer() override;
 
+    void clearCollisions(int start, int end);
+
     private:
+    void loadCollision(const s16 collision[], TCollFace * dest, int offset = 0);
 
     TCamera * mCamera{nullptr};
     TPad * mPad{nullptr};
     TPlayer * mBird{nullptr};
     TFlockObj * mFlock{nullptr};
+
+    TCollFace * mCollisionFaces;
+    int mColL2Start;
+    int mColL2End;
+    int mColL3Start;
+    int mColL3End;
 
 //    TObject * mObjects[4];
     TObject * mSky{nullptr};
