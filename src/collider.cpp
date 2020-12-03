@@ -638,24 +638,31 @@ bool TCollideUtil::testLineLine2D(
   TVec2F * pt
 ) {
   TVec2F ab0, ab1;
-  float c0, c1, d;
+  float d, t, u;
 
   ab0.sub(b0, a0);
   ab1.sub(b1, a1);
-  c0 = ab0.dot(a0);
-  c1 = ab1.dot(a1);
-  d = (ab0.y() * ab0.x() - ab1.x() * ab1.y());
+  d = (-ab1.x() * ab0.y() + ab0.x() * ab1.y());
 
   if (TMath<float>::abs(d) < TMath<float>::epsilon()) {
     return false;
   }
 
-  if (pt != nullptr) {
-    d = (1.0F / d);
+  t = ((-ab0.y() * (a0.x() - a1.x()) + ab0.x() * (a0.y() - a1.y())) / d);
+  u = (( ab1.x() * (a0.y() - a1.y()) - ab1.y() * (a0.x() - a1.x())) / d);
 
+  if (t < 0.0F || t > 1.0F) {
+    return false;
+  }
+
+  if (u < 0.0F || u > 1.0F) {
+    return false;
+  }
+
+  if (pt != nullptr) {
     pt->set(
-      ((ab0.x() * c0 - ab1.y() * c1) * d),
-      ((ab0.y() * c1 - ab1.x() * c0) * d)
+      (a0.x() + (u * ab0.x())),
+      (a0.y() + (u * ab0.y()))
     );
   }
 
@@ -681,12 +688,16 @@ float TCollideUtil::distPtLine(
   TVec3F const & a, TVec3F const & b,
   TVec3F const & src, TVec3F * dst
 ) {
-  TVec3F ab, bc;
-  float t, d;
+  TVec3F ab, ac;
+  float d, l, t = 0.0F;
 
   ab.sub(b, a);
-  bc.sub(src, ab);
-  t = (ab.dot(bc) / ab.getSqrLength());
+  ac.sub(src, a);
+  l = ab.getSqrLength();
+
+  if (TMath<float>::abs(l) > TMath<float>::epsilon()) {
+    t = (ab.dot(ac) / l);
+  }
 
   if (t <= 0.0F) {
     d = TVec3F::dist(src, a);

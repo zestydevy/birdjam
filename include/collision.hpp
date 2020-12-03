@@ -67,6 +67,7 @@ class TCollision {
   static void shutdown();
 
   static bool calc();
+  static bool calc(u32 start, u32 count);
 
   static u32 checkRadius(
     TVec3F const & pt, float r,
@@ -84,6 +85,16 @@ class TCollision {
     TVec3F const & pt, float b = 0.0F, float d = 0.0F
   );
 
+  static void getBlkBox(u32 x, u32 y,
+    float * min_x, float * min_z,
+    float * max_x, float * max_z
+  );
+
+  static void getSphereBlk(
+    TVec3F const & pt, float rd,
+    u32 * l, u32 * b, u32 * r, u32 * t
+  );
+
   private:
 
   static TFace * sCollFaceAry;
@@ -97,17 +108,14 @@ class TCollision {
   static float sBlkMapSz;
   static u32 sNumBlkMap;
 
-  static TPacket * fetchPkt();
+  static TPacket * fetchPktFast(TFace const *);
+  static TPacket * fetchPktSlow(TFace const *);
 
-  static void getBlkBox(u32 x, u32 y,
-    float * min_x, float * min_z,
-    float * max_x, float * max_z
-  );
+  static void blkMapLink(TPacket **, TPacket *);
+  static void blkMapUnlink(TPacket **, TPacket *);
 
-  static void getSphereBlk(
-    TVec3F const & pt, float rd,
-    u32 * l, u32 * b, u32 * r, u32 * t
-  );
+  static bool blkMapAdd(TFace *, TPacket * (*)(TFace const *));
+  static bool blkMapRemove(TPacket **, TFace const &);
 
   static bool isSphereInBlk(
     TVec3F const & pt, float rd, u32 x, u32 y

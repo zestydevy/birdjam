@@ -210,7 +210,7 @@ void TCollFace::calcClosestPt(
 
   for (u32 i = 0; i < 3; ++i) {
     d = TCollideUtil::distPtLine(
-      vtx[i], vtx[(i + 1) % 3], src, &p
+      vtx[i], vtx[(i + 1) % 3], pt, &p
     );
 
     if (i == 0 || d < record) {
@@ -248,6 +248,11 @@ bool TCollision::startup(
   if (sCollPktAry == nullptr) {
     shutdown();
     return false;
+  }
+
+  for (u32 i = 0; i < sMaxNumCollPkt; ++i) {
+    sCollPktAry[i].next = nullptr;
+    sCollPktAry[i].face = nullptr;
   }
 
   sBlkMap = new(heap) TPacket * [num_blk * num_blk];
@@ -293,29 +298,41 @@ bool TCollision::calc() {
     sBlkMap[i] = nullptr;
   }
 
-  u32 l, b, r, t;
-  TPacket * pkt;
-
   for (u32 i = 0; i < sNumCollFace; ++i) {
-    sCollFaceAry[i].calc();
-    getFaceBlk(&sCollFaceAry[i], &l, &b, &r, &t);
+    if (!blkMapAdd(&sCollFaceAry[i], &fetchPktFast)) {
+      return false;
+    }
+  }
 
-    for (u32 y = b; y <= t; ++y) {
-      for (u32 x = l; x <= r; ++x) {
-        if (!isFaceInBlk(&sCollFaceAry[i], x, y)) {
-          continue;
-        }
+  return true;
+}
 
-        pkt = fetchPkt();
+// -------------------------------------------------------------------------- //
 
-        if (pkt == nullptr) {
-          return false;
-        }
+bool TCollision::calc(
+  u32 start, u32 count
+) {
+  if (start == 0 && count >= sNumCollFace) {
+    return calc();
+  }
 
-        pkt->face = &sCollFaceAry[i];
-        pkt->next = sBlkMap[y * sNumBlkMap + x];
-        sBlkMap[y * sNumBlkMap + x] = pkt;
-      }
+  // count is guaranteed to be < sNumCollFace,
+  // thus preventing any arithmetic overflow
+  if ((sNumCollFace - count) > start) {
+    return false; // bad range
+  }
+
+  // we don't have the old vertex data, so we
+  // have to brute-force the blockmap cleanup
+  for (u32 i = 0; i < sNumBlkMap * sNumBlkMap; ++i) {
+    for (u32 j = 0; j < count; ++j) {
+      blkMapRemove(&sBlkMap[i], sCollFaceAry[start + j]);
+    }
+  }
+
+  for (u32 i = 0; i < count; ++i) {
+    if (!blkMapAdd(&sCollFaceAry[start + i], &fetchPktSlow)) {
+      return false;
     }
   }
 
@@ -494,12 +511,125 @@ TCollision::findGroundBelow(
 // -------------------------------------------------------------------------- //
 
 TCollPacket *
-TCollision::fetchPkt() {
+TCollision::fetchPktFast(
+  TFace const * face
+) {
   if (sNumCollPkt == sMaxNumCollPkt) {
     return nullptr;
   }
 
+  sCollPktAry[sNumCollPkt].face = face;
   return &sCollPktAry[sNumCollPkt++];
+}
+
+// -------------------------------------------------------------------------- //
+
+TCollPacket *
+TCollision::fetchPktSlow(
+  TFace const * face
+) {
+  for (u32 i = 0; i < sNumCollPkt; ++i) {
+    if (sCollPktAry[i].face != nullptr) {
+      continue;
+    }
+
+    sCollPktAry[i].face = face;
+    return &sCollPktAry[i];
+  }
+
+  return fetchPktFast(face);
+}
+
+// -------------------------------------------------------------------------- //
+
+void TCollision::blkMapLink(
+  TPacket ** list, TPacket * pkt
+) {
+  pkt->next = *list;
+  *list = pkt;
+}
+
+// -------------------------------------------------------------------------- //
+
+void TCollision::blkMapUnlink(
+  TPacket ** list, TPacket * pkt
+) {
+  TPacket * prev = *list;
+
+  if (prev == pkt) {
+    *list = nullptr;
+  } else {
+    while (prev != nullptr) {
+      if (prev->next == pkt) {
+        break;
+      }
+
+      prev = prev->next;
+    }
+
+    if (prev != nullptr) {
+      prev->next = pkt->next;
+    }
+  }
+
+  pkt->next = nullptr;
+  pkt->face = nullptr;
+}
+
+// -------------------------------------------------------------------------- //
+
+bool TCollision::blkMapAdd(
+  TFace * face, TPacket * (* fetch)(TFace const *)
+) {
+  u32 l, b, r, t;
+  TPacket * pkt;
+
+  for (u32 i = 0; i < 3; ++i) {
+    if (face->vtx[i] == face->vtx[(i + 1) % 3]) {
+      return true; // skip this face
+    }
+  }
+
+  face->calc();
+  getFaceBlk(face, &l, &b, &r, &t);
+
+  for (u32 y = b; y <= t; ++y) {
+    for (u32 x = l; x <= r; ++x) {
+      if (!isFaceInBlk(face, x, y)) {
+        continue;
+      }
+
+      pkt = fetch(face);
+
+      if (pkt == nullptr) {
+        return false;
+      }
+
+      pkt->face = face;
+      blkMapLink(&sBlkMap[y * sNumBlkMap + x], pkt);
+    }
+  }
+
+  return true;
+}
+
+// -------------------------------------------------------------------------- //
+
+bool TCollision::blkMapRemove(
+  TPacket ** list, TFace const & face
+) {
+  TPacket * pkt = *list;
+
+  while (pkt != nullptr) {
+    if (pkt->face == &face) {
+      blkMapUnlink(list, pkt);
+      return true;
+    }
+
+    pkt = pkt->next;
+  }
+
+  return false;
 }
 
 // -------------------------------------------------------------------------- //
@@ -509,20 +639,22 @@ void TCollision::getBlkBox(
   float * min_x, float * min_z,
   float * max_x, float * max_z
 ) {
+  float half = ((float)sNumBlkMap * sBlkMapSz * 0.5F);
+
   if (min_x != nullptr) {
-    *min_x = (sBlkMapSz * (float)x);
+    *min_x = (sBlkMapSz * (float)x - half);
   }
 
   if (max_x != nullptr) {
-    *max_x = (sBlkMapSz * (float)(x + 1));
+    *max_x = (sBlkMapSz * (float)(x + 1) - half);
   }
 
   if (min_z != nullptr) {
-    *min_z = (sBlkMapSz * (float)y);
+    *min_z = (sBlkMapSz * (float)y - half);
   }
 
   if (max_z != nullptr) {
-    *max_z = (sBlkMapSz * (float)(y + 1));
+    *max_z = (sBlkMapSz * (float)(y + 1) - half);
   }
 }
 
@@ -618,11 +750,13 @@ bool TCollision::isFaceInBlk(
   tl.set(min.x(), max.y());
   tr.set(max.x(), max.y());
 
-  if (
-    face->isXZInside(bl) || face->isXZInside(br) ||
-    face->isXZInside(tl) || face->isXZInside(tr)
-  ) {
-    return true;
+  if (face->nrm.y() != 0.0F) {
+    if (
+      face->isXZInside(bl) || face->isXZInside(br) ||
+      face->isXZInside(tl) || face->isXZInside(tr)
+    ) {
+      return true;
+    }
   }
 
   // test C: any of the lines intersect
@@ -658,7 +792,7 @@ u32 TCollision::calcBlkIdx(
   float x, float half, float i_sz
 ) {
   auto max = (s32)(sNumBlkMap - 1);
-  auto idx = (s32)((half + x) * i_sz);
+  auto idx = (s32)((x + half) * i_sz);
   return (u32)TMath<s32>::clamp(idx, 0, max);
 }
 
