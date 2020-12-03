@@ -50,6 +50,7 @@ enum EObjType : s16
     DEADTREE,
     BALDHOOKTREE,
     BALDTREE,
+    TIRE,
     INVALID
 };
 

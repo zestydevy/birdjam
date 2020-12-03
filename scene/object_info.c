@@ -36,6 +36,7 @@
 #include "../models/static/objects/baldtree/model_baldtree.h"
 #include "../models/static/objects/baldhooktree/model_baldhooktree.h"
 #include "../models/static/objects/deadtree/model_deadtree.h"
+#include "../models/static/objects/tire/model_tire.h"
 
 /* Object info */
 /* Mesh, Name, Type, MeshCol, (Size), (Offset), Mass, Value */
@@ -78,4 +79,5 @@ const struct TObjectData gObjectDataList[] =
     {treedead_Tree_Dead_mesh, "Dead Tree", 0, true, 106.0f, 106.0f, 106.0f, SIZE_LAYER2, 5},
     {tree2_bald_Tree_Bald_mesh, "Tree", 0, true, 106.0f, 106.0f, 106.0f, SIZE_LAYER2, 5},
     {tree1_bald_TreeBald_mesh, "Tree", 0, true, 106.0f, 106.0f, 106.0f, SIZE_LAYER2, 5},
+    {tire_Tire_mesh, "Car Tire", 0,  true, 213.0f, 213.0f, 213.0f, SIZE_LAYER1, 15},
 };

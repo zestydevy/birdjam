@@ -41,6 +41,7 @@
 #include "../models/static/objects/baldtree/model_baldtree.h"
 #include "../models/static/objects/baldhooktree/model_baldhooktree.h"
 #include "../models/static/objects/deadtree/model_deadtree.h"
+#include "../models/static/objects/tire/model_tire.h"
 
 // -------------------------------------------------------------------------- //
 
@@ -83,6 +84,7 @@ static Gfx * gObjMeshList[] =
     treedead_Tree_Dead_mesh,
     tree2_bald_Tree_Bald_mesh,
     tree1_bald_TreeBald_mesh,
+    tire_Tire_mesh,
     nullptr
 };
 

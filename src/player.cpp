@@ -525,7 +525,7 @@ void TPlayer::update()
         TVec3F pt = getPosition();
         pt.y() = getGroundFace()->calcYAt(pt.xz()) + 1.0f;
         mShadow->setPosition(pt);
-        mShadow->setRotation(TVec3<s16>((s16)TSine::asin(mGroundFace->nrm.z()), (s16)TSine::ssin(mGroundFace->nrm.x()), (s16)TSine::scos(mGroundFace->nrm.z())));
+        mShadow->setRotation(TVec3<s16>((s16)TSine::atan2(mGroundFace->nrm.z(), mGroundFace->nrm.y()), (s16)0, (s16)-TSine::atan2(mGroundFace->nrm.x(), mGroundFace->nrm.y())));
     }
 
     updateBlkMap();

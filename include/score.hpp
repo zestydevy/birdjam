@@ -101,10 +101,10 @@ class TNestObj :
   s16 mMountRotY {0};
   float mMountDist {0.0f};
 
-  TVec3F mVelocity;
-  TVec3F mRotVel;
+  TVec3F mVelocity{0.0f, 0.0f, 0.0f};
+  TVec3F mRotVel{0.0f, 0.0f, 0.0f};
 
-  TVec3S mMountRot;
+  TVec3S mMountRot{0, 0, 0};
   Mtx mFMountRotMtx{};
 
   const TObjectData * mData{nullptr};
@@ -126,7 +126,7 @@ class TNestArea :
   void updateSize(float size);
 
   protected:
-  TNest * mNest;
+  TNest * mNest{nullptr};
   
   virtual void onCollide(TCollider *) override;
 };
@@ -159,7 +159,7 @@ class TNest :
 
   protected:
   float mSize { 0.0F };
-  TNestArea * mNestArea;
+  TNestArea * mNestArea{nullptr};
 
   static TNest * sNest;
 
@@ -209,7 +209,7 @@ class TNestObjBox :
   virtual void updateCollider() override;
   virtual float getHalfHeight() override;
 
-  TVec3F mSize;
+  TVec3F mSize{0.0f, 0.0f, 0.0f};
 
   virtual void onCollide(TCollider *) override;
 };
