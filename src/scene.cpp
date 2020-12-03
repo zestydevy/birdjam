@@ -12,6 +12,8 @@
 #include "scenedata.h"
 #include "segment.h"
 
+#include "../scene/object_info.h"
+
 #include "../scene/scene_world.h"
 #include "../models/ovl/world/model_world_col.h"
 #include "../models/ovl/world/model_world.h"
@@ -75,7 +77,7 @@ void TScene::loadObjects(TSceneEntry const list[])
                         obj = new TNestObjSphere(mDynList, type);
                         break;
                     case 1:
-                    obj = new TNestObjBox(mDynList, type);
+                        obj = new TNestObjBox(mDynList, type);
                         break;
                 }
                 break;
@@ -305,6 +307,8 @@ void TTestScene::init()
         mCollisionFaces, faceSize, nullptr,
         (faceSize * 2), 10, 512.0F
     );
+
+    mCurrentLayer = 0;
 }
 
 void TTestScene::clearCollisions(int start, int end){
@@ -318,6 +322,15 @@ void TTestScene::clearCollisions(int start, int end){
 
 void TTestScene::update()
 {
+    if (mCurrentLayer == 0 && TFlockObj::getFlockObj()->getStrength() > SIZE_LAYER1){
+        clearCollisions(mColL2Start, mColL2End);
+        mCurrentLayer++;
+    }
+    else if (mCurrentLayer == 1 && TFlockObj::getFlockObj()->getStrength() > SIZE_LAYER2){
+        clearCollisions(mColL3Start, mColL3End);
+        mCurrentLayer++;
+    }
+
     TCollider::frameBegin();
 
     // ...

@@ -5,6 +5,8 @@
 #include "animator.hpp"
 #include "util.hpp"
 
+#include "score.hpp"
+
 #include "../models//ovl/world/shadow.h"
 
 const float BIRD_FLYGRAVITY = 1.2f * kInterval;
@@ -101,6 +103,8 @@ void TPlayer::update()
 
     mHeldPos = mPosition + (TVec3F(0.0f, -1.0f, 0.0f) * BIRD_RADIUS);
 
+    float camDist = TMath<float>::clamp(TFlockObj::getFlockObj()->getSize() / 2.0f, 1.0f, 10.0f);
+
     switch (mState){
         
         // -------------------------------------------------------------------- //
@@ -194,7 +198,7 @@ void TPlayer::update()
                 mState = PLAYERSTATE_FLAPPING;
                 mAnim->setAnimation(bird_Bird_FlyFlap_Length, mAnim_Flap, true, 0.25f);
                 mRotation = TVec3<s16>((s16)0, mRotation.y(), (s16)0);
-                mPosition += up * BIRD_RADIUS / 4.0f;
+                mPosition += up * BIRD_RADIUS * 4.0f;
 
                 mCamera->setMode(false);
 
@@ -386,11 +390,10 @@ void TPlayer::update()
             }
             else
             {
-                if (mPitchModifier > 0.0f){             //Restore pitch to normal
+                if (mPitchModifier > 0.0f)              //Restore pitch to normal
                     mPitchModifier -= 75.0f * kInterval;
-                    if (mPitchModifier < 0.0f)
+                if (mPitchModifier < 0.0f)
                         mPitchModifier = 0.0f;
-                }
             }
 
             // Move along movement vector
@@ -435,7 +438,7 @@ void TPlayer::update()
             mRotation.x() += TSine::fromDeg(-mPitchModifier);
 
             // Configure the camera
-            mCamera->setPosition(mPosition + (fback * 150.0f));
+            mCamera->setPosition(mPosition + (fback * 150.0f * camDist));
             mCameraTarget.lerpTime(mPosition + (up * 80.00f) + (mDirection * mSpeed * 20.0f), 0.1f, kInterval);  //Target slightly above player and slightly in front of player
 
             //Flight camera controls
@@ -477,7 +480,7 @@ void TPlayer::update()
             mPosition += mDirection * mSpeed;
 
             // Configure the camera
-            mCamera->setPosition(mPosition + (fback * 150.0f));
+            mCamera->setPosition(mPosition + (fback * 150.0f * camDist));
             mCameraTarget = mPosition + (up * 80.00f) + (mLastDirection * mSpeed * 20.0f);  //Target slightly above player and slightly in front of player
             break;
     }
@@ -499,6 +502,8 @@ void TPlayer::update()
                     mSpeed *= 1.0f - d;
                     mStutterTimer = 1.0f;
                 }
+
+                TFlockObj::getFlockObj()->dropTopObject();
             }
             else if (d >= 0.0f){   //keep the player from going oob
                 TVec3F p;
@@ -514,7 +519,6 @@ void TPlayer::update()
     float fov = ((mSpeed - BIRD_SLOWSPEED) / (BIRD_FASTSPEED - BIRD_SLOWSPEED)) * (75.0f - 45.0f) + 45.0f;
     fov = TMath<float>::clamp(fov, 45.0f, 75.0f);
     mCamera->setFOV(mCamera->getFOV() * 0.25f + (fov * 0.75f));
-    
 
     // set shadow position and rotation to floor
     if (getGroundFace() != nullptr) {

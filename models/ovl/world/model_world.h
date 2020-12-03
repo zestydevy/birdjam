@@ -6,9 +6,9 @@ extern Vtx world_World_mesh_vtx_2[48];
 extern Gfx world_World_mesh_tri_2[];
 extern Vtx world_World_mesh_vtx_3[80];
 extern Gfx world_World_mesh_tri_3[];
-extern Vtx world_World_mesh_vtx_4[155];
+extern Vtx world_World_mesh_vtx_4[120];
 extern Gfx world_World_mesh_tri_4[];
-extern Vtx world_World_mesh_vtx_5[36];
+extern Vtx world_World_mesh_vtx_5[52];
 extern Gfx world_World_mesh_tri_5[];
 extern Vtx world_World_mesh_vtx_6[8];
 extern Gfx world_World_mesh_tri_6[];
@@ -26,6 +26,8 @@ extern Vtx world_World_mesh_vtx_12[345];
 extern Gfx world_World_mesh_tri_12[];
 extern Vtx world_World_mesh_vtx_13[41];
 extern Gfx world_World_mesh_tri_13[];
+extern Vtx world_World_mesh_vtx_14[48];
+extern Gfx world_World_mesh_tri_14[];
 
 extern Gfx world_World_mesh[];
 

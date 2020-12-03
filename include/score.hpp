@@ -25,9 +25,11 @@ class TFlockObj :
 
   void incFlock(u32 n, float strength);
   float getStrength() const { return mStrength; }
+  float getSize() const { return mCarrySize; }
 
   bool grabObject(TNestObj * obj);
-  bool dropAllObjects(TVec3F target);
+  bool dropTopObject();
+  bool dropAllObjects();
 
   virtual void init() override;
   virtual void update() override;
@@ -85,6 +87,7 @@ class TNestObj :
     IDLE,
     CARRYING,
     DROPPING,
+    STASHING,
     NESTING,
 
   };
@@ -97,6 +100,9 @@ class TNestObj :
   s16 mMountTimer {0};
   s16 mMountRotY {0};
   float mMountDist {0.0f};
+
+  TVec3F mVelocity;
+  TVec3F mRotVel;
 
   TVec3S mMountRot;
   Mtx mFMountRotMtx{};
@@ -114,8 +120,10 @@ class TNestArea :
 {
   public:
 
-  TNestArea(TDynList2 *, TNest * nest, TVec3F center, float radius, float height);
+  TNestArea(TDynList2 *, TNest * nest);
   virtual ~TNestArea() = default;
+
+  void updateSize(float size);
 
   protected:
   TNest * mNest;
@@ -137,11 +145,15 @@ class TNest :
   float getSize() const { return mSize; }
   static TNest * getNestObject();
 
+  static float getTopY();
+  static TVec3F getRandomPointInside();
+
   virtual void init() override;
   virtual void update() override;
   virtual void draw() override;
 
   void areaCollide(TCollider *);
+
 
   void assimilateObject(TNestObj * obj);
 

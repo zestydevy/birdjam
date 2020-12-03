@@ -38,6 +38,9 @@
 #include "../models/static/objects/roots/model_roots.h"
 #include "../models/static/objects/mailbox/model_mailbox.h"
 #include "../models/static/nest/model_nest.h"
+#include "../models/static/objects/baldtree/model_baldtree.h"
+#include "../models/static/objects/baldhooktree/model_baldhooktree.h"
+#include "../models/static/objects/deadtree/model_deadtree.h"
 
 // -------------------------------------------------------------------------- //
 
@@ -77,6 +80,9 @@ static Gfx * gObjMeshList[] =
     roots_Roots_mesh,
     mailbox_Mailbox_mesh,
     nest_Nest_mesh,
+    treedead_Tree_Dead_mesh,
+    tree2_bald_Tree_Bald_mesh,
+    tree1_bald_TreeBald_mesh,
     nullptr
 };
 

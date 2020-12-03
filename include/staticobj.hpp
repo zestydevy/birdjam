@@ -47,6 +47,9 @@ enum EObjType : s16
     ROOTS,
     MAILBOX,
     NEST,
+    DEADTREE,
+    BALDHOOKTREE,
+    BALDTREE,
     INVALID
 };
 
