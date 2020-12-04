@@ -5,21 +5,24 @@
 #include "animator.hpp"
 #include "util.hpp"
 
+#include "score.hpp"
+
 #include "../models//ovl/world/shadow.h"
 
-const float BIRD_FLYGRAVITY = 0.02f;
-const float BIRD_MAXSPEED = 10.0f;
-const float BIRD_INITSPEED = 7.0f;
-const float BIRD_FASTSPEED = 7.5f; //When you start fast animation
-const float BIRD_SLOWSPEED = 5.0f; //When you start slow animation and speed up
-const float BIRD_ACCEL = 0.01f;    //Acceleration when below slowspeed
-const float BIRD_MINSPEED = 4.0f;
-const float BIRD_FLAPSPEED = 4.0f;
-const float BIRD_FLAPASCENDSPEED = 4.0f;
-const float BIRD_FLAPDESCENDSPEED = 4.0f;
+const float BIRD_FLYGRAVITY = 1.2f * kInterval;
+const float BIRD_MAXSPEED = 600.0f * kInterval;
+const float BIRD_INITSPEED = 420.0f * kInterval;
+const float BIRD_FASTSPEED = 450.0f * kInterval; //When you start fast animation
+const float BIRD_SLOWSPEED = 300.0f * kInterval; //When you start slow animation and speed up
+const float BIRD_ACCEL = 0.6f * kInterval;    //Acceleration when below slowspeed
+const float BIRD_SLOWACCEL = 1.2f * kInterval; //Acceleration when slowing down
+const float BIRD_MINSPEED = 240.0f * kInterval;
+const float BIRD_FLAPSPEED = 240.0f * kInterval;
+const float BIRD_FLAPASCENDSPEED = 240.0f * kInterval;
+const float BIRD_FLAPDESCENDSPEED = 240.0f * kInterval;
 const float BIRD_BANKDEGREES = 45.0f;
-const float BIRD_WINDRES = 0.007f;
-const float BIRD_GRAVITY = 2.5f;
+const float BIRD_WINDRES = 0.42f * kInterval;
+const float BIRD_GRAVITY = 150.0f * kInterval;
 
 const float BIRD_STUTTERDEG = 10.0f;
 
@@ -57,6 +60,8 @@ void TPlayer::init()
     initCollider(TAG_PLAYER, TAG_PLAYER, 0, 1);
     setCollideRadius(BIRD_RADIUS);
     setCollideCenter(mPosition);
+
+    mCameraTarget = mPosition;
 }
 
 void TPlayer::update()
@@ -97,6 +102,8 @@ void TPlayer::update()
     mClosestFace = TCollision::findClosest(mPosition, BIRD_RADIUS);
 
     mHeldPos = mPosition + (TVec3F(0.0f, -1.0f, 0.0f) * BIRD_RADIUS);
+
+    float camDist = TMath<float>::clamp(TFlockObj::getFlockObj()->getSize() / 2.0f, 1.0f, 10.0f);
 
     switch (mState){
         
@@ -139,7 +146,7 @@ void TPlayer::update()
             //Switch to flapping state
             if (mPad->isPressed(A)){    //Return back to flapping
                 mState = PLAYERSTATE_FLAPPING;
-                mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, true, 0.0f);
+                mAnim->setAnimation(bird_Bird_FlyFlap_Length, mAnim_Flap, true, 0.25f);
                 mRotation = TVec3<s16>((s16)0, mRotation.y(), (s16)0);
 
                 mCamera->setMode(false);
@@ -188,9 +195,10 @@ void TPlayer::update()
                     mCamera->setMode(true);
             }
             if (mPad->isPressed(A)){    //Return back to flapping
-                mState = PLAYERSTATE_FALLING;
-                mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, true, 0.0f);
+                mState = PLAYERSTATE_FLAPPING;
+                mAnim->setAnimation(bird_Bird_FlyFlap_Length, mAnim_Flap, true, 0.25f);
                 mRotation = TVec3<s16>((s16)0, mRotation.y(), (s16)0);
+                mPosition += up * BIRD_RADIUS * 4.0f;
 
                 mCamera->setMode(false);
 
@@ -249,8 +257,8 @@ void TPlayer::update()
             }
             //Switch to flapping state
             if (mPad->isPressed(A)){    //Return back to flapping
-                mState = PLAYERSTATE_FALLING;
-                mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, true, 0.0f);
+                mState = PLAYERSTATE_FLAPPING;
+                mAnim->setAnimation(bird_Bird_FlyFlap_Length, mAnim_Flap, true, 0.25f);
                 mRotation = TVec3<s16>((s16)0, mRotation.y(), (s16)0);
 
                 mCamera->setMode(false);
@@ -273,7 +281,7 @@ void TPlayer::update()
             }
 
             // Smooth acceleration
-            mDirection.lerp(move, 0.1f);
+            mDirection.moveTowards(move, 0.5f);
             mRotation = TVec3<s16>((s16)0, (s16)TSine::atan2(mDirection.x(), mDirection.z()), (s16)0);
             mPosition += mDirection;
             
@@ -301,6 +309,14 @@ void TPlayer::update()
 
             // Configure the camera (position is handled by the camera itself)
             mCameraTarget = mPosition + (up * 35.00f) + (mDirection * mSpeed * 10.0f);  //Target slightly above player and slightly in front of player
+
+            if (mClosestFace != nullptr) {
+                // we touched the ground, idle
+                mState = playerstate_t::PLAYERSTATE_IDLE;
+                mVelocity = 0.0f;
+                mAnim->setAnimation(bird_Bird_Idle_Length, mAnim_Idle);
+                mIdleTimer = 0;
+            }
             break;
 
         // -------------------------------------------------------------------- //
@@ -341,7 +357,9 @@ void TPlayer::update()
             if (mSpeed > BIRD_MAXSPEED)
                 mSpeed = BIRD_MAXSPEED; // Max Speed
 
-            if ((mPad->isHeld(A) || mSpeed < BIRD_SLOWSPEED) && mSpeed < BIRD_FASTSPEED){ // Flapping speed - when you hold A, or when going too slow. Can't do this when going too fast.
+            animRate = (mSpeed - BIRD_MINSPEED) / (BIRD_FASTSPEED - BIRD_MINSPEED) * 0.075f;
+
+            if ((mPad->isHeld(A) || mSpeed < BIRD_SLOWSPEED) && !mSlowingDown && mSpeed < BIRD_FASTSPEED){ // Flapping speed - when you hold A, or when going too slow. Can't do this when going too fast.
                 mGoingFast = false;
                 if (mFlapTimer < 0 && mFlappingWings == false){
                     mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, false, 0.25f);
@@ -349,27 +367,53 @@ void TPlayer::update()
                 }
                 mSpeed += BIRD_ACCEL;
             }
+            if (mPad->isHeld(B)){
+                animRate = 0.25f;
+                if (!mSlowingDown){
+                    mAnim->setAnimation(bird_Bird_FlyFlap_Length, mAnim_Flap, true, 0.25f);
+                    mPitchModifier = -30.0f;
+                }
+                if (mPitchModifier < 15.0f){            //Move bird's pitch to make it look like its fighting against wind.
+                    mPitchModifier += 75.0f * kInterval;
+                    if (mPitchModifier > 15.0f)
+                        mPitchModifier = 15.0f;
+                }
+                mSpeed -= BIRD_SLOWACCEL;
+                mSlowingDown = true;
+            }
+            else if (mSlowingDown)
+            {
+                mGoingFast = false;
+                mSlowingDown = false;
+                mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, false, 0.25f);
+                mFlappingWings = true;
+            }
+            else
+            {
+                if (mPitchModifier > 0.0f)              //Restore pitch to normal
+                    mPitchModifier -= 75.0f * kInterval;
+                if (mPitchModifier < 0.0f)
+                        mPitchModifier = 0.0f;
+            }
 
             // Move along movement vector
             mPosition += mDirection * mSpeed;
-
-            animRate = (mSpeed - BIRD_MINSPEED) / (BIRD_FASTSPEED - BIRD_MINSPEED) * 0.075f;
-
+            
             // Fast movement animation
-            if (mSpeed > BIRD_FASTSPEED && !mFlappingWings){
+            if (mSpeed > BIRD_FASTSPEED && !mFlappingWings && !mSlowingDown){
                 if (!mGoingFast){
                     mAnim->setAnimation(bird_Bird_GlideFast_Length, mAnim_GlideFast, true, 0.0f);
                     mGoingFast = true;
                 }
                 mAnim->setFrame((mSpeed - BIRD_FASTSPEED) / (BIRD_MAXSPEED - BIRD_FASTSPEED));
             }
-            else if (mGoingFast) {
+            else if (mGoingFast && !mSlowingDown) {
                 mAnim->setAnimation(bird_Bird_Glide_Length, mAnim_Glide, true, animRate);
                 mGoingFast = false;
             }
 
             // Stop flapping wings
-            if (mFlappingWings && mAnim->isAnimationCompleted()){
+            if (mFlappingWings && mAnim->isAnimationCompleted() && !mSlowingDown){
                 mFlappingWings = false;
                 mAnim->setAnimation(bird_Bird_Glide_Length, mAnim_Glide, true, animRate);
                 mFlapTimer = 8;
@@ -390,9 +434,12 @@ void TPlayer::update()
                 mSpeed = 1.0f;
             }
 
+            //Add in pitch animation
+            mRotation.x() += TSine::fromDeg(-mPitchModifier);
+
             // Configure the camera
-            mCamera->setPosition(mPosition + (fback * 150.0f));
-            mCameraTarget.lerp(mPosition + (up * 80.00f) + (mDirection * mSpeed * 20.0f), 0.1f);  //Target slightly above player and slightly in front of player
+            mCamera->setPosition(mPosition + (fback * 150.0f * camDist));
+            mCameraTarget.lerpTime(mPosition + (up * 80.00f) + (mDirection * mSpeed * 20.0f), 0.1f, kInterval);  //Target slightly above player and slightly in front of player
 
             //Flight camera controls
             if (mPad->isHeld(C_DOWN))
@@ -406,7 +453,7 @@ void TPlayer::update()
 
             if (mPad->isHeld(R)){
                 mCamera->setPosition(mPosition + TVec3F(0.0f, -15.00f, 0.0f));
-                mCameraTarget.lerp(mPosition + TVec3F(0.0f, -2000.00f, 0.0f), 0.1f);
+                mCameraTarget.lerpTime(mPosition + TVec3F(0.0f, -2000.00f, 0.0f), 0.1f, kInterval);
             }
             break;
 
@@ -433,55 +480,90 @@ void TPlayer::update()
             mPosition += mDirection * mSpeed;
 
             // Configure the camera
-            mCamera->setPosition(mPosition + (fback * 150.0f));
+            mCamera->setPosition(mPosition + (fback * 150.0f * camDist));
             mCameraTarget = mPosition + (up * 80.00f) + (mLastDirection * mSpeed * 20.0f);  //Target slightly above player and slightly in front of player
             break;
     }
 
+    //Mesh collision
     if (mClosestFace != nullptr){  //collision!
         float d = -mDirection.dot(mClosestFace->nrm);
 
-        if (mState == playerstate_t::PLAYERSTATE_FLYING && d > 0.1f){
-            if (d > 0.9f){  //Head on crash
-                mLastDirection = mDirection;
-                mDirection += d * mClosestFace->nrm * 2.0f;
-                mState = PLAYERSTATE_STUNNED;
-                mAnim->setAnimation(bird_Bird_GlideCrash_Length, mAnim_GlideCrash, false, 0.4f);
+        if (mState == playerstate_t::PLAYERSTATE_FLYING){
+            if (d > 0.1f){
+                if (d > 0.9f){  //Head on crash
+                    mLastDirection = mDirection;
+                    mDirection += d * mClosestFace->nrm * 2.0f;
+                    mState = PLAYERSTATE_STUNNED;
+                    mAnim->setAnimation(bird_Bird_GlideCrash_Length, mAnim_GlideCrash, false, 0.4f);
+                }
+                else{   //Bounce
+                    mDirection += d * mClosestFace->nrm * 2.0f;
+                    mSpeed *= 1.0f - d;
+                    mStutterTimer = 1.0f;
+                }
+
+                TFlockObj::getFlockObj()->dropTopObject();
             }
-            else{   //Bounce
-                mDirection += d * mClosestFace->nrm * 2.0f;
-                mSpeed *= 1.0f - d;
-                mStutterTimer = 1.0f;
+            else if (d >= 0.0f){   //keep the player from going oob
+                TVec3F p;
+                mClosestFace->project(mPosition, &p);
+                mPosition = p + mClosestFace->nrm * BIRD_RADIUS;
             }
-        }
-        else{   //keep the player from going oob
-            TVec3F p;
-            mClosestFace->project(mPosition, &p);
-            //mPosition = p + mClosestFace->nrm * BIRD_RADIUS;
         }
     }
+
+    //Object collision
 
     //Adjust FOV based on speed
     float fov = ((mSpeed - BIRD_SLOWSPEED) / (BIRD_FASTSPEED - BIRD_SLOWSPEED)) * (75.0f - 45.0f) + 45.0f;
     fov = TMath<float>::clamp(fov, 45.0f, 75.0f);
     mCamera->setFOV(mCamera->getFOV() * 0.25f + (fov * 0.75f));
-    
 
     // set shadow position and rotation to floor
     if (getGroundFace() != nullptr) {
         TVec3F pt = getPosition();
         pt.y() = getGroundFace()->calcYAt(pt.xz()) + 1.0f;
         mShadow->setPosition(pt);
-        mShadow->setRotation(TVec3<s16>((s16)TSine::asin(mGroundFace->nrm.z()), (s16)TSine::ssin(mGroundFace->nrm.x()), (s16)TSine::scos(mGroundFace->nrm.z())));
+        mShadow->setRotation(TVec3<s16>((s16)TSine::atan2(mGroundFace->nrm.z(), mGroundFace->nrm.y()), (s16)0, (s16)-TSine::atan2(mGroundFace->nrm.x(), mGroundFace->nrm.y())));
     }
 
     updateBlkMap();
     mAnim->update();
 }
 
+void TPlayer::hitObject(TVec3F point, EObjType type){
+    if (type == EObjType::LEAVES)
+        return;
+
+    TVec3F nrm = mPosition - point;
+    if (nrm.getSqrLength() <= 0.0f)
+        nrm = TVec3F(0.0f, 1.0f, 0.0f);
+    nrm.normalize();
+
+    float d = -mDirection.dot(nrm);
+
+    if (mState == playerstate_t::PLAYERSTATE_FLYING && d > 0.1f){
+        if (d > 0.9f){  //Head on crash
+            mLastDirection = mDirection;
+            mDirection += d * nrm * 2.0f;
+            mState = PLAYERSTATE_STUNNED;
+            mAnim->setAnimation(bird_Bird_GlideCrash_Length, mAnim_GlideCrash, false, 0.4f);
+        }
+        else{   //Bounce
+            mDirection += d * nrm * 2.0f;
+            mSpeed *= 1.0f - d;
+            mStutterTimer = 1.0f;
+        }
+    }
+    else if (d >= 0.0f) {   //keep the player from going oob
+        mPosition = point + nrm * BIRD_RADIUS;
+    }
+}
+
 void TPlayer::updateMtx()
 {
-    TMtx44 temp1, temp2, temp3;
+    TMtx44 temp1, temp2, temp3, mPosMtx, mScaleMtx;
     
     mPosMtx.translate(mPosition);
     temp1.rotateAxis(TVec3<f32>(-TSine::scos(mRotation.y()), 0.0f, TSine::ssin(mRotation.y())), -mRotation.x());
@@ -555,7 +637,7 @@ void TPlayer::moveCameraRelative(TVec3F & move, TVec3F & forward, TVec3F & right
     }
 
     // Smooth acceleration
-    mDirection.lerp(move, 0.1f);
+    mDirection.lerpTime(move, 0.1f, kInterval);
     mRotation = TVec3<s16>((s16)0, (s16)TSine::atan2(mDirection.x(), mDirection.z()), (s16)0);
     mPosition += mDirection;
 }

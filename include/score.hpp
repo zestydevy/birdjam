@@ -25,8 +25,10 @@ class TFlockObj :
 
   void incFlock(u32 n, float strength);
   float getStrength() const { return mStrength; }
+  float getSize() const { return mCarrySize; }
 
   bool grabObject(TNestObj * obj);
+  bool dropTopObject();
   bool dropAllObjects();
 
   virtual void init() override;
@@ -38,7 +40,8 @@ class TFlockObj :
   protected:
 
   u32 mFlockSize { 0 };
-  float mStrength { 1.0F };
+  float mStrength { 0.25F };
+  float mCarrySize { 0.0F };
 
   private:
 
@@ -63,7 +66,7 @@ class TNestObj :
   float getObjWeight() const { return mObjWeight; }
   float getObjScale() const { return (mScale.x() + mScale.y() + mScale.z()) / 3.0f; }
 
-  void drop();
+  void drop(TVec3F v);
   TVec3F getMountPoint();
 
   virtual void updateMtx() override;
@@ -71,6 +74,8 @@ class TNestObj :
   virtual void init() override;
   virtual void update() override;
   virtual void draw() override;
+
+  void startNesting();
 
   protected:
   virtual void setCollision(bool set);
@@ -82,6 +87,7 @@ class TNestObj :
     IDLE,
     CARRYING,
     DROPPING,
+    STASHING,
     NESTING,
 
   };
@@ -90,22 +96,74 @@ class TNestObj :
   TPlayer * mPlayer { nullptr };
   EObjType mObjType { EObjType::INVALID };
   EState mState { EState::IDLE };
-  TObject * mDebugCube { nullptr };
-
-  TMtx44 mIRotMtx{};
 
   s16 mMountTimer {0};
   s16 mMountRotY {0};
   float mMountDist {0.0f};
 
+  TVec3F mVelocity{0.0f, 0.0f, 0.0f};
+  TVec3F mRotVel{0.0f, 0.0f, 0.0f};
 
-  TVec3S mMountRot;
-  TMtx44 mMountRotMtx{};
+  TVec3S mMountRot{0, 0, 0};
   Mtx mFMountRotMtx{};
 
   const TObjectData * mData{nullptr};
 
-  void onPickup(TCollider *);
+  bool onPickup(TCollider *);
+};
+
+// -------------------------------------------------------------------------- //
+
+class TNest;
+class TNestArea :
+  public TCylinderCollider
+{
+  public:
+
+  TNestArea(TDynList2 *, TNest * nest);
+  virtual ~TNestArea() = default;
+
+  void updateSize(float size);
+
+  protected:
+  TNest * mNest{nullptr};
+  
+  virtual void onCollide(TCollider *) override;
+};
+
+// -------------------------------------------------------------------------- //
+
+class TNest :
+  public TObject,
+  public TCylinderCollider
+{
+  public:
+
+  TNest(TDynList2 *);
+  virtual ~TNest();
+
+  float getSize() const { return mSize; }
+  static TNest * getNestObject();
+
+  static float getTopY();
+  static TVec3F getRandomPointInside();
+
+  virtual void init() override;
+  virtual void update() override;
+  virtual void draw() override;
+
+  void areaCollide(TCollider *);
+
+
+  void assimilateObject(TNestObj * obj);
+
+  protected:
+  float mSize { 0.0F };
+  TNestArea * mNestArea{nullptr};
+
+  static TNest * sNest;
+
+  virtual void onCollide(TCollider *) override;
 };
 
 // -------------------------------------------------------------------------- //
@@ -151,7 +209,7 @@ class TNestObjBox :
   virtual void updateCollider() override;
   virtual float getHalfHeight() override;
 
-  TVec3F mSize;
+  TVec3F mSize{0.0f, 0.0f, 0.0f};
 
   virtual void onCollide(TCollider *) override;
 };

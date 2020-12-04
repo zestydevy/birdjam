@@ -4,6 +4,11 @@
 #include "pad.hpp"
 #include "math.hpp"
 #include "util.hpp"
+
+// -------------------------------------------------------------------------- //
+
+TCamera * TCamera::sCamera { nullptr };
+
 // -------------------------------------------------------------------------- //
 
 TCamera::TCamera(TDynList2 * list)
@@ -21,6 +26,37 @@ TCamera::TCamera(TDynList2 * list)
     mDistance = 300.0f;
 
     mExternallyControlled = false;
+
+    sCamera = this;
+}
+
+bool TCamera::checkVisible(const TVec3F & pos){
+    TVec3F dif = pos - sCamera->mPosition;
+    return dif.dot(dif) > 0.0f;
+}
+
+void TCamera::jumpToTarget(){
+    TVec3F dif = (*mTarget - mPosition);
+    float pdist = dif.getLength();
+
+    float x = mPosition.x();
+    float y = mPosition.y();
+    float z = mPosition.z();
+    if (!mExternallyControlled){
+        if (pdist > mDistance)      // Clamp camera distance between max and half max;
+            pdist = mDistance;
+        if (pdist < mDistance * 0.75f)
+            pdist = mDistance * 0.75f;
+
+        x = mTarget->x() - TSine::ssin(mAngle) * pdist;
+        y = mTarget->y() + 20.00f;
+        z = mTarget->z() - TSine::scos(mAngle) * pdist;
+        mPosition.set(x, y, z);
+    }
+    else
+        mPosition = *mTarget;
+
+    mOldPos = mPosition;
 }
 
 void TCamera::render()
@@ -75,8 +111,7 @@ void TCamera::render()
         mPosition.set(x, y, z);
     }
 
-    //mPosition.set(x, 0.0f, z);
-    mOldPos.lerp({x, y, z}, 4.0f * kInterval);
+    mOldPos.lerpTime({x, y, z}, 0.0667f, kInterval);
     mViewMtx.lookAt(mOldPos * 0.1f, mTarget->xyz() * 0.1f, {0.0f,1.0f,0.0f});
     mRotMtx.rotateAxis(mRotation, 0);
     mScaleMtx.scale(mScale * 0.1f);
@@ -92,6 +127,8 @@ void TCamera::render()
 	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
     gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFRotMtx),
 	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
+
+    mForward = mViewMtx.mul(TVec3F(1.0f, 0.0f, 0.0f));
 }
 
 // -------------------------------------------------------------------------- //

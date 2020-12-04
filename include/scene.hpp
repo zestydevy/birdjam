@@ -114,6 +114,8 @@ class TTestScene final
     TPlayer * mBird{nullptr};
     TFlockObj * mFlock{nullptr};
 
+    int mCurrentLayer {0};
+
     TCollFace * mCollisionFaces;
     int mColL2Start;
     int mColL2End;

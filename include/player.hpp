@@ -68,6 +68,8 @@ class TPlayer :
     virtual void update() override;
     virtual void draw() override;
 
+    void hitObject(TVec3F point, EObjType type);
+
     //For debug only
     const TCollFace * mClosestFace;
 
@@ -107,10 +109,12 @@ class TPlayer :
     Vtx** mAnim_Flap[4] = {bird_Bird_FlyFlap_0, bird_Bird_FlyFlap_1, bird_Bird_FlyFlap_2, bird_Bird_FlyFlap_3};                     //Flapping wings while stationary
 
     bool mFlappingWings{false};
+    bool mSlowingDown{false};
     bool mGoingFast{false};
     int mFlapTimer{0};
     float mStutterTimer{0.0f};
     float mIdleTimer{0.0f};
+    float mPitchModifier {0.0f};
 
     s16 mBankAngle;
 

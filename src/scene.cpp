@@ -12,6 +12,8 @@
 #include "scenedata.h"
 #include "segment.h"
 
+#include "../scene/object_info.h"
+
 #include "../scene/scene_world.h"
 #include "../models/ovl/world/model_world_col.h"
 #include "../models/ovl/world/model_world.h"
@@ -59,8 +61,15 @@ void TScene::loadObjects(TSceneEntry const list[])
         auto type = (EObjType)list[i].id;
 
         switch(list[i].id) {
+            case EObjType::PLAYERSTART:
+                gPlayer->setPosition({list[i].positionX, list[i].positionY, list[i].positionZ});
+                break;
             case EObjType::DEBUG_CUBE:
                 obj = new TObject(mDynList);
+                obj->setMesh(TObject::getMeshGfx(type));
+                break;
+            case EObjType::NEST:
+                obj = new TNest(mDynList);
                 obj->setMesh(TObject::getMeshGfx(type));
                 break;
             default: 
@@ -69,7 +78,7 @@ void TScene::loadObjects(TSceneEntry const list[])
                         obj = new TNestObjSphere(mDynList, type);
                         break;
                     case 1:
-                    obj = new TNestObjBox(mDynList, type);
+                        obj = new TNestObjBox(mDynList, type);
                         break;
                 }
                 break;
@@ -236,9 +245,9 @@ void TTestScene::init()
     mBird = new TPlayer(mDynList);
     mFlock = new TFlockObj(mDynList);
     mSky = new TObject(mDynList);
+    mSky->mAlwaysDraw = true;
     mObjList.setHeap(THeap::getCurrentHeap());
 
-    mBird->init();
     mBird->setPad(mPad);
     mCamera->setPad(mPad);
 
@@ -251,12 +260,16 @@ void TTestScene::init()
     mFlock->setPosition(mBird->getPosition());
     mFlock->init();
 
-    mSky->init();
     mSky->setPosition({0.0f,-2000.0f,0.0f});
     mSky->setScale(TVec3F(80.0f, 80.0f, 80.0f));
     mSky->setMesh(sky_Sphere_mesh);
+    mSky->init();
 
     loadObjects(scene_world);
+
+    mBird->init();
+
+    mCamera->jumpToTarget();
 
 //    for (int i = 0; i < 4; i++){
 //        mObjects[i] = new TObject(mDynList);
@@ -279,11 +292,16 @@ void TTestScene::init()
     faceStart = vertSize * 3 + 4;
     u16 faceSizeL3 = worldcol_layer3[faceStart - 1];        //layer 3 face count
 
-    u16 faceSize = faceSizeMain + faceSizeL2 + faceSizeL3;
+    vertSize = worldcol_layernest[1];
+    faceStart = vertSize * 3 + 4;
+    u16 faceSizeNest = worldcol_layernest[faceStart - 1];        //save nest layer for last
+
+    u16 faceSize = faceSizeMain + faceSizeL2 + faceSizeL3 + faceSizeNest;
     mCollisionFaces = new TCollFace[faceSize];
     loadCollision(worldcol_collision, mCollisionFaces);
     loadCollision(worldcol_layer2, mCollisionFaces, faceSizeMain);
     loadCollision(worldcol_layer3, mCollisionFaces, faceSizeMain + faceSizeL2);
+    loadCollision(worldcol_layernest, mCollisionFaces, faceSizeMain + faceSizeL2 + faceSizeL3);
 
     mColL2Start = faceSizeMain;
     mColL2End = mColL2Start + faceSizeL2;
@@ -292,8 +310,10 @@ void TTestScene::init()
 
     TCollision::startup(
         mCollisionFaces, faceSize, nullptr,
-        (faceSize * 2), 10, 512.0F
+        (faceSize * 1.5f), 10, 512.0F
     );
+
+    mCurrentLayer = 0;
 }
 
 void TTestScene::clearCollisions(int start, int end){
@@ -307,6 +327,15 @@ void TTestScene::clearCollisions(int start, int end){
 
 void TTestScene::update()
 {
+    if (mCurrentLayer == 0 && TFlockObj::getFlockObj()->getStrength() > SIZE_LAYER1){
+        clearCollisions(mColL2Start, mColL2End);
+        mCurrentLayer++;
+    }
+    else if (mCurrentLayer == 1 && TFlockObj::getFlockObj()->getStrength() > SIZE_LAYER2){
+        clearCollisions(mColL3Start, mColL3End);
+        mCurrentLayer++;
+    }
+
     TCollider::frameBegin();
 
     // ...

@@ -1,6 +1,7 @@
 #include <nusys.h>
 
 #include "staticobj.hpp"
+#include "camera.hpp"
 #include "math.hpp"
 
 
@@ -35,6 +36,18 @@
 #include "../models/static/objects/leaves/model_leaves.h"
 #include "../models/static/objects/branch/model_branch.h"
 #include "../models/static/objects/roots/model_roots.h"
+#include "../models/static/objects/mailbox/model_mailbox.h"
+#include "../models/static/nest/model_nest.h"
+#include "../models/static/objects/baldtree/model_baldtree.h"
+#include "../models/static/objects/baldhooktree/model_baldhooktree.h"
+#include "../models/static/objects/deadtree/model_deadtree.h"
+#include "../models/static/objects/tire/model_tire.h"
+#include "../models/static/objects/toaster/model_toaster.h"
+#include "../models/static/objects/plank/model_plank.h"
+#include "../models/static/objects/trashcan/model_trashcan.h"
+#include "../models/static/objects/pot/model_pot.h"
+#include "../models/static/objects/bush/model_bush.h"
+#include "../models/static/objects/lamp/model_lamp.h"
 
 // -------------------------------------------------------------------------- //
 
@@ -72,6 +85,18 @@ static Gfx * gObjMeshList[] =
     leaves_Leaves_mesh,
     branch_Branch_mesh,
     roots_Roots_mesh,
+    mailbox_Mailbox_mesh,
+    nest_Nest_mesh,
+    treedead_Tree_Dead_mesh,
+    tree2_bald_Tree_Bald_mesh,
+    tree1_bald_TreeBald_mesh,
+    tire_Tire_mesh,
+    toaster_Toaster_mesh,
+    plank_Plank_mesh,
+    trashcan_TrashCan_mesh,
+    pot_Pot_mesh,
+    bush_Bush_mesh,
+    lamp_Lamp_mesh,
     nullptr
 };
 
@@ -80,29 +105,33 @@ static Gfx * gObjMeshList[] =
 void TObject::setPosition(TVec3<f32> const & pos)
 {
     mPosition = pos;
-    updateMtx();
+    mMtxNeedsUpdate = true;
 }
 
 void TObject::setRotation(TVec3<f32> const & rot)
 {
     mRotation.set(rot.x(), rot.y(), rot.z());
-    updateMtx();
+    mMtxNeedsUpdate = true;
 }
 
 void TObject::setScale(TVec3<f32> const & scale)
 {
     mScale = scale;
-    updateMtx();
+    mMtxNeedsUpdate = true;
 }
 
 void TObject::init()
 {
+    mInCamera = true;
     updateMtx();
 }
 
 void TObject::updateMtx()
 {
-    TMtx44 temp1, temp2, temp3;
+    if (!mInCamera)
+        return;
+
+    TMtx44 temp1, temp2, temp3, mPosMtx, mScaleMtx;
     
     mPosMtx.translate(mPosition);
     temp1.rotateAxisX(mRotation.x());
@@ -115,13 +144,23 @@ void TObject::updateMtx()
     TMtx44::floatToFixed(mPosMtx, mFPosMtx);
     TMtx44::floatToFixed(mRotMtx, mFRotMtx);
     TMtx44::floatToFixed(mScaleMtx, mFScaleMtx);
+
+    mMtxNeedsUpdate = false;
 }
 
 void TObject::update() {
+    mInCamera = mAlwaysDraw || TCamera::checkVisible(mPosition);
+    //mInCamera = true;
 }
 
 void TObject::draw()
 {
+    if (!mInCamera)
+        return;
+
+    if (mMtxNeedsUpdate)
+        updateMtx();
+
     gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFPosMtx),
 	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
     gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFRotMtx),
