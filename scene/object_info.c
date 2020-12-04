@@ -91,5 +91,5 @@ const struct TObjectData gObjectDataList[] =
     {trashcan_TrashCan_mesh, "Trash Can", 0,  true, 319.5f, 319.5f, 319.5f, SIZE_LAYER1, 10},
     {pot_Pot_mesh, "Ceramic Pot", 0,  false, 170.5f, 170.5f, 170.5f, 2.0, 5},
     {bush_Bush_mesh, "Bush", 0,  true, 404.5f, 404.5f, 404.5f, SIZE_LAYER2, 20},
-    {lamp_Lamp_mesh, "Lamp", 0,  false, 127.8f, 681.6f, 127.8f, 15.0f, 30},
+    {lamp_Lamp_mesh, "Lamp", 1,  false, 127.8f, 681.6f, 127.8f, 15.0f, 30},
 };
