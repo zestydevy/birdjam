@@ -43,6 +43,7 @@ class TGame
     
     TArray<TScene *> mSceneList{};
     TDynList2 * mDynList{nullptr};
+    TDynList2 * mClearDL{nullptr};
     TCamera * mCamera{nullptr};
 
     protected:
