@@ -60,6 +60,8 @@ beginseg
 	include "build/obj/model_sky.o"
 	include "build/obj/model_distant.o"
 	include "build/obj/col_worldstress.o"
+
+	include "build/obj/sprite_numfont.o"
 endseg
 
 beginseg
