@@ -65,6 +65,7 @@ beginseg
 	include "build/obj/col_worldstress.o"
 
 	include "build/obj/sprite_numfont.o"
+	include "build/obj/sp_hud.o"
 endseg
 
 beginseg
