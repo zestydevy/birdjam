@@ -21,10 +21,11 @@
 #include "../models/ovl/world/model_sky.h"
 #include "../models/ovl/world/shadow.h"
 
-#include "../models/static/sprites/sprite_time.h"
+//#include "../models/static/sprites/sprite_time.h"
 #include "../models/static/sprites/sprite_items.h"
 #include "../models/ovl/sprites/sprite_logo.h"
 #include "../models/ovl/sprites/sprite_numfont.h"
+#include "../models/ovl/sprites/sp_hud.h"
 
 // -------------------------------------------------------------------------- //
 
@@ -310,7 +311,7 @@ void TTestScene::init()
 
     TCollision::startup(
         mCollisionFaces, faceSize, nullptr,
-        (faceSize * 1.5f), 24, 256.0F
+        (faceSize * 1.5f), 10, 512.0F
     );
 
     mCurrentLayer = 0;
@@ -395,17 +396,23 @@ void TTestScene::draw()
 }
 
 void TTestScene::draw2D()
-{   
-    TSprite dig1Spr = TSprite(&num_0_sprite, 24, 35);
+{
+    TSprite timeSpr = TSprite(&hud_time_sprite, 20, 15);
+    timeSpr.setScale(TVec3F(1.0f,1.0f,1.0f));
+    timeSpr.setColor({255,255,255,255});
+    timeSpr.setAttribute(SP_FASTCOPY);
+    
+    TSprite dig1Spr = TSprite(&hud_digit0_sprite, 40, 45);
     dig1Spr.setScale(TVec3F(1.0f,1.0f,1.0f));
     dig1Spr.setColor({255,255,255,255});
-    dig1Spr.setAttribute(SP_TRANSPARENT);
+    dig1Spr.setAttribute(SP_FASTCOPY);
 
-    TSprite dig2Spr = TSprite(&num_0_sprite, 42, 35);
+    TSprite dig2Spr = TSprite(&hud_digit0_sprite, 58, 45);
     dig2Spr.setScale(TVec3F(1.0f,1.0f,1.0f));
     dig2Spr.setColor({255,255,255,255});
-    dig2Spr.setAttribute(SP_TRANSPARENT);
+    dig2Spr.setAttribute(SP_FASTCOPY);
     
+    timeSpr.render();
     dig1Spr.render();
     dig2Spr.render();
 }
