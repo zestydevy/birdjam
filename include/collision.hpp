@@ -21,6 +21,9 @@ class TCollision {
 
     void calc();
 
+    bool isPassThru() const;
+    void setPassThru(bool);
+
     bool isGround() const;
 
     float minX() const;

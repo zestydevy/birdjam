@@ -33,6 +33,23 @@ void TCollFace::calc() {
 
 // -------------------------------------------------------------------------- //
 
+bool TCollFace::isPassThru() const {
+  return (nrm.x() == 0.0F && nrm.y() == 0.0F && nrm.z() == 0.0F);
+}
+
+// -------------------------------------------------------------------------- //
+
+void TCollFace::setPassThru(bool pass_thru) {
+  if (pass_thru) {
+    nrm.set(0.0F, 0.0F, 0.0F);
+    d = 0.0F;
+  } else {
+    calc();
+  }
+}
+
+// -------------------------------------------------------------------------- //
+
 bool TCollFace::isGround() const {
   return (nrm.y() >= 0.1F);
 }
@@ -429,6 +446,10 @@ TCollision::findClosest(
         face = pkt->face;
         pkt = pkt->next;
 
+        if (face->isPassThru()) {
+          continue;
+        }
+
         d = face->calcDist(pt);
 
         if (d < 0.0F) {
@@ -478,6 +499,10 @@ TCollision::findGroundBelow(
         pkt = pkt->next;
 
         if (!face->isGround()) {
+          continue;
+        }
+
+        if (face->isPassThru()) {
           continue;
         }
 
