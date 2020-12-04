@@ -243,9 +243,18 @@ void TPlayer::update()
     /* Collision check */
     mClosestFace = TCollision::findClosest(mPosition, BIRD_RADIUS);
 
-    mHeldPos = mPosition + (TVec3F(0.0f, -1.0f, 0.0f) * BIRD_RADIUS);
+    mHeldPos[0] = mPosition + (TVec3F(0.0f, -1.0f, 0.0f) * BIRD_RADIUS);
+    for (int i = 1; i < TFlockObj::getFlockObj()->getNumObjects(); i++){
+        float r = TFlockObj::getFlockObj()->getObjRadius(i);
+        TVec3F dif = mHeldPos[i] - mHeldPos[i-1];
+        if (dif.getLength() > r){
+            dif.normalize();
+            dif *= r;
+            mHeldPos[i] = mHeldPos[i-1] + dif;
+        }
+    }
 
-    float camDist = TMath<float>::clamp(TFlockObj::getFlockObj()->getSize() / 2.0f, 1.0f, 10.0f);
+    float camDist = TMath<float>::clamp(TFlockObj::getFlockObj()->getSize() / 2.0f, 1.0f, 5.0f);
 
     switch (mState){
         
@@ -380,7 +389,7 @@ void TPlayer::update()
             temp1.rotateAxis(fright, TSine::fromDeg(90.0f));
             up = temp1.mul(mDirection);  //Flight back
 
-            mHeldPos = mPosition - (up * BIRD_RADIUS);
+            //mHeldPos = mPosition - (up * BIRD_RADIUS);
 
             // Flight controls
             temp1.rotateAxis(fright, TSine::fromDeg(1.0f * -mPad->getAnalogY() / 80.0f));

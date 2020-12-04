@@ -27,7 +27,9 @@ class TFlockObj :
   float getStrength() const { return mStrength; }
   float getSize() const { return mCarrySize; }
 
+  int getNumObjects() const { return mHeldNum; }
   float getRadius(float min = 0.0f);
+  float getObjRadius(int idx);
 
   bool grabObject(TNestObj * obj);
   bool dropTopObject();

@@ -82,7 +82,7 @@ const struct TObjectData gObjectDataList[] =
     {roots_Roots_mesh, "Tree Roots", 0, true, 127.0f, 127.0f, 127.0f, SIZE_LAYER2, 5},
     {mailbox_Mailbox_mesh, "Mailbox", 1, true, 170.0f, 298.0f, 170.0f, SIZE_LAYER1, 5},
     {nest_Nest_mesh, "Nest", 2, 213.0f, false, 127.0f, 213.0f, 1000.0f, 0},
-    {treedead_Tree_Dead_mesh, "Dead Tree", 0, true, 106.0f, 106.0f, 106.0f, SIZE_LAYER2, 5},
+    {treedead_Tree_Dead_mesh, "Dead Tree", 0, true, 106.0f, 256.0f, 106.0f, SIZE_LAYER2, 5},
     {tree2_bald_Tree_Bald_mesh, "Tree", 0, true, 106.0f, 106.0f, 106.0f, SIZE_LAYER2, 5},
     {tree1_bald_TreeBald_mesh, "Tree", 0, true, 106.0f, 106.0f, 106.0f, SIZE_LAYER2, 5},
     {tire_Tire_mesh, "Car Tire", 0,  true, 213.0f, 213.0f, 213.0f, SIZE_LAYER1, 15},

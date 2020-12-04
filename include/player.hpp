@@ -76,7 +76,8 @@ class TPlayer :
     const TCollFace * mClosestFace;
     const TCollFace * mClosestFaceCarry;
 
-    TVec3<f32> mHeldPos;
+    const TVec3<f32> & getHeldPosition(int idx = 0) { return mHeldPos[idx]; }
+    TVec3<f32> mHeldPos[32];
 
     protected:
     void startFlying();

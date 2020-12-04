@@ -61,7 +61,7 @@ void TFlockObj::init() {
 void TFlockObj::update() {
   TObject::update();
   for (int i = 0; i < mHeldNum; i++)
-    mHeldObjects[i]->setPosition(gPlayer->mHeldPos + mHeldObjects[i]->getMountPoint());
+    mHeldObjects[i]->setPosition(gPlayer->getHeldPosition(i) + mHeldObjects[i]->getMountPoint());
 }
 
 // -------------------------------------------------------------------------- //
@@ -81,6 +81,12 @@ float TFlockObj::getRadius(float min){
       r = objrad;
   }
   return r;
+}
+
+// -------------------------------------------------------------------------- //
+
+float TFlockObj::getObjRadius(int idx){
+  return mHeldObjects[idx]->getHalfHeight();
 }
 
 // -------------------------------------------------------------------------- //
@@ -130,7 +136,7 @@ bool TFlockObj::dropAllObjects() {
     float a = -98.0f;
 
     if (y0 < yf)
-      vy = TMath<float>::sqrt(4 * a * c) + 0.1f;
+      vy = TMath<float>::sqrt(4 * a * c) + 100.0f + (50.0f * i); //Throw a lot higher because it looks cooler
 
     TVec3F target = TNest::getRandomPointInside();
     TVec2F dif = target.xz() - mHeldObjects[i]->getPosition().xz();
