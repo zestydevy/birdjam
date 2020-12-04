@@ -79,4 +79,10 @@ extern Vtx* bird_Bird_IdleFall_1[];
 extern Vtx* bird_Bird_IdleFall_2[];
 extern Vtx* bird_Bird_IdleFall_3[];
 
+extern int bird_Bird_GlideUTurn_Length;
+extern Vtx* bird_Bird_GlideUTurn_0[];
+extern Vtx* bird_Bird_GlideUTurn_1[];
+extern Vtx* bird_Bird_GlideUTurn_2[];
+extern Vtx* bird_Bird_GlideUTurn_3[];
+
 extern Gfx bird_Bird_mesh[];

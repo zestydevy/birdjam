@@ -51,6 +51,7 @@ beginseg
 	include "build/obj/Bird_FlyStart.o"
 	include "build/obj/Bird_FlyFlap.o"
 	include "build/obj/Bird_IdleFall.o"
+	include "build/obj/Bird_GlideUTurn.o"
 
 	include "build/obj/shadow.o"
 	include "build/obj/model_worldstress.o"

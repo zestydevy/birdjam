@@ -19,7 +19,8 @@ enum playerstate_t : u16 {
     PLAYERSTATE_WALKING,    //Walking on ground
     PLAYERSTATE_FLAPPING,   //Precision slow fly controls
     PLAYERSTATE_FLYING,     //Plane fly controls
-    PLAYERSTATE_STUNNED     //Hit a wall while flying
+    PLAYERSTATE_UTURN,
+    PLAYERSTATE_STUNNED,     //Hit a wall while flying
 };
 
 // -------------------------------------------------------------------------- //
@@ -114,7 +115,8 @@ class TPlayer :
     Vtx** mAnim_GlideFlap[4] = {bird_Bird_GlideFlap_0, bird_Bird_GlideFlap_1, bird_Bird_GlideFlap_2, bird_Bird_GlideFlap_3};        //Flapping wings while gliding
     Vtx** mAnim_Flap[4] = {bird_Bird_FlyFlap_0, bird_Bird_FlyFlap_1, bird_Bird_FlyFlap_2, bird_Bird_FlyFlap_3};                     //Flapping wings while stationary
     Vtx** mAnim_IdleFall[4] = {bird_Bird_IdleFall_0, bird_Bird_IdleFall_1, bird_Bird_IdleFall_2, bird_Bird_IdleFall_3};             //Falling
-    Vtx** mAnim_IdleCaw[4] = {bird_Bird_IdleCaw_0, bird_Bird_IdleCaw_1, bird_Bird_IdleCaw_2, bird_Bird_IdleCaw_3};                     //Cawing while stationary
+    Vtx** mAnim_IdleCaw[4] = {bird_Bird_IdleCaw_0, bird_Bird_IdleCaw_1, bird_Bird_IdleCaw_2, bird_Bird_IdleCaw_3};                  //Cawing while stationary
+    Vtx** mAnim_GlideUTurn[4] = {bird_Bird_GlideUTurn_0, bird_Bird_GlideUTurn_1, bird_Bird_GlideUTurn_2, bird_Bird_GlideUTurn_3};   //UTurn
 
     bool mCawing{false};
     bool mFlappingWings{false};

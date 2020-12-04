@@ -521,11 +521,11 @@ void TPlayer::update()
 
     //Mesh collision
     checkMeshCollision(mClosestFace, BIRD_RADIUS);
-    float carryrad = TFlockObj::getFlockObj()->getRadius();
-    if (carryrad > 0.0f){
-        mClosestFaceCarry = TCollision::findClosest(mHeldPos, TMath<float>::max(BIRD_RADIUS, carryrad));
-        checkMeshCollision(mClosestFaceCarry, carryrad);
-    }
+    //float carryrad = TFlockObj::getFlockObj()->getRadius();
+    //if (carryrad > 0.0f){
+    //    mClosestFaceCarry = TCollision::findClosest(mHeldPos, TMath<float>::max(BIRD_RADIUS, carryrad));
+    //    checkMeshCollision(mClosestFaceCarry, carryrad);
+    //}
 
     //Object collision
     setCollideCenter(mPosition);
