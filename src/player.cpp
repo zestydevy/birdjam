@@ -481,13 +481,13 @@ void TPlayer::update()
 
             // Configure the camera
             mCamera->setPosition(mPosition + (fback * 150.0f * camDist));
-            mCameraTarget.lerpTime(mPosition + (up * 60.00f) + (mDirection * mSpeed * 20.0f), 0.1f, kInterval);  //Target slightly above player and slightly in front of player
+            mCameraTarget.lerpTime(mPosition + (up * 30.00f) + (mDirection * mSpeed * 20.0f), 0.1f, kInterval);  //Target slightly above player and slightly in front of player
 
             //Flight camera controls
             if (mPad->isHeld(C_DOWN))
-                mCameraTarget += (up * -20.00f);
+                mCameraTarget += (up * -10.00f);
             if (mPad->isHeld(C_UP))
-                mCameraTarget += (up * 20.00f);
+                mCameraTarget += (up * 10.00f);
             if (mPad->isHeld(C_LEFT))
                 mCameraTarget += (fright * -20.00f);
             if (mPad->isHeld(C_RIGHT))
