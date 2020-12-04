@@ -13,6 +13,7 @@ u32 TCollision::sNumCollFace { 0 };
 
 TCollPacket * TCollision::sCollPktAry { nullptr };
 u32 TCollision::sMaxNumCollPkt { 0 };
+u32 TCollision::sFreeCollPkt { 0 };
 u32 TCollision::sNumCollPkt { 0 };
 
 float TCollision::sBlkMapSz { 0.0F };
@@ -28,6 +29,23 @@ void TCollFace::calc() {
   nrm.cross(a, b);
   nrm.normalize();
   d = nrm.dot(vtx[0]);
+}
+
+// -------------------------------------------------------------------------- //
+
+bool TCollFace::isPassThru() const {
+  return (nrm.x() == 0.0F && nrm.y() == 0.0F && nrm.z() == 0.0F);
+}
+
+// -------------------------------------------------------------------------- //
+
+void TCollFace::setPassThru(bool pass_thru) {
+  if (pass_thru) {
+    nrm.set(0.0F, 0.0F, 0.0F);
+    d = 0.0F;
+  } else {
+    calc();
+  }
 }
 
 // -------------------------------------------------------------------------- //
@@ -281,6 +299,7 @@ void TCollision::shutdown() {
   delete[] sCollPktAry;
   sCollPktAry = nullptr;
   sMaxNumCollPkt = 0;
+  sFreeCollPkt = 0;
   sNumCollPkt = 0;
 
   delete[] sBlkMap;
@@ -427,6 +446,10 @@ TCollision::findClosest(
         face = pkt->face;
         pkt = pkt->next;
 
+        if (face->isPassThru()) {
+          continue;
+        }
+
         d = face->calcDist(pt);
 
         if (d < 0.0F) {
@@ -479,6 +502,10 @@ TCollision::findGroundBelow(
           continue;
         }
 
+        if (face->isPassThru()) {
+          continue;
+        }
+
         if (py < face->minY()) {
           continue;
         }
@@ -518,8 +545,15 @@ TCollision::fetchPktFast(
     return nullptr;
   }
 
-  sCollPktAry[sNumCollPkt].face = face;
-  return &sCollPktAry[sNumCollPkt++];
+  TPacket * pkt = &sCollPktAry[sNumCollPkt];
+  pkt->face = face;
+
+  if (sFreeCollPkt == sNumCollPkt) {
+    ++sFreeCollPkt;
+  }
+
+  ++sNumCollPkt;
+  return pkt;
 }
 
 // -------------------------------------------------------------------------- //
@@ -528,11 +562,12 @@ TCollPacket *
 TCollision::fetchPktSlow(
   TFace const * face
 ) {
-  for (u32 i = 0; i < sNumCollPkt; ++i) {
+  for (u32 i = sFreeCollPkt; i < sNumCollPkt; ++i) {
     if (sCollPktAry[i].face != nullptr) {
       continue;
     }
 
+    sFreeCollPkt = (i + 1);
     sCollPktAry[i].face = face;
     return &sCollPktAry[i];
   }
@@ -574,6 +609,12 @@ void TCollision::blkMapUnlink(
 
   pkt->next = nullptr;
   pkt->face = nullptr;
+
+  auto idx = (u32)(pkt - sCollPktAry);
+
+  if (idx < sFreeCollPkt) {
+    sFreeCollPkt = idx;
+  }
 }
 
 // -------------------------------------------------------------------------- //

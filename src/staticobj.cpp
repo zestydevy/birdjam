@@ -48,6 +48,7 @@
 #include "../models/static/objects/pot/model_pot.h"
 #include "../models/static/objects/bush/model_bush.h"
 #include "../models/static/objects/lamp/model_lamp.h"
+#include "../models/static/objects/car/model_car.h"
 
 // -------------------------------------------------------------------------- //
 
@@ -97,6 +98,7 @@ static Gfx * gObjMeshList[] =
     pot_Pot_mesh,
     bush_Bush_mesh,
     lamp_Lamp_mesh,
+    car_Car_mesh,
     nullptr
 };
 

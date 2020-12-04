@@ -31,10 +31,9 @@ TCamera::TCamera(TDynList2 * list)
 }
 
 bool TCamera::checkVisible(const TVec3F & pos){
-    TVec3F dif = pos - sCamera->mPosition;
-    return dif.dot(dif) > 0.0f;
+    TVec3F dif = pos - sCamera->mOldPos;
+    return dif.dot(sCamera->mForward) > 0.0f;
 }
-
 void TCamera::jumpToTarget(){
     TVec3F dif = (*mTarget - mPosition);
     float pdist = dif.getLength();
@@ -128,7 +127,8 @@ void TCamera::render()
     gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFRotMtx),
 	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
 
-    mForward = mViewMtx.mul(TVec3F(1.0f, 0.0f, 0.0f));
+    mForward = *mTarget - mOldPos;
+    mForward.normalize();
 }
 
 // -------------------------------------------------------------------------- //

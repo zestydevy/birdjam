@@ -27,6 +27,10 @@ class TFlockObj :
   float getStrength() const { return mStrength; }
   float getSize() const { return mCarrySize; }
 
+  int getNumObjects() const { return mHeldNum; }
+  float getRadius(float min = 0.0f);
+  float getObjRadius(int idx);
+
   bool grabObject(TNestObj * obj);
   bool dropTopObject();
   bool dropAllObjects();
@@ -77,10 +81,12 @@ class TNestObj :
 
   void startNesting();
 
+  virtual float getHalfHeight();
+  virtual float getHalfWidth();
+
   protected:
   virtual void setCollision(bool set);
   virtual void updateCollider();
-  virtual float getHalfHeight();
 
   enum class EState {
 
@@ -143,6 +149,7 @@ class TNest :
   virtual ~TNest();
 
   float getSize() const { return mSize; }
+  float getCount() const { return mCount; }
   static TNest * getNestObject();
 
   static float getTopY();
@@ -159,6 +166,7 @@ class TNest :
 
   protected:
   float mSize { 0.0F };
+  int mCount {0};
   TNestArea * mNestArea{nullptr};
 
   static TNest * sNest;
@@ -180,10 +188,12 @@ class TNestObjSphere :
 
   virtual void init() override;
 
+  virtual float getHalfHeight() override;
+  virtual float getHalfWidth() override;
+
   protected:
   virtual void setCollision(bool set) override;
   virtual void updateCollider() override;
-  virtual float getHalfHeight() override;
 
   float mObjRadius { 0.0F };
 
@@ -204,10 +214,12 @@ class TNestObjBox :
 
   virtual void init() override;
 
+  virtual float getHalfHeight() override;
+  virtual float getHalfWidth() override;
+
   protected:
   virtual void setCollision(bool set) override;
   virtual void updateCollider() override;
-  virtual float getHalfHeight() override;
 
   TVec3F mSize{0.0f, 0.0f, 0.0f};
 
