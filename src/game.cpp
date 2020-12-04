@@ -143,6 +143,7 @@ void TGame::update()
     // split our tasks
     
     mDynList->reset();
+    mDynList->flip();
 
     gSPDisplayList(mDynList->pushDL(), rdpinit_spr_dl);
     TSprite::init(mDynList);

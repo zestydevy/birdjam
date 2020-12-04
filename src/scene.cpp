@@ -397,19 +397,19 @@ void TTestScene::draw()
 void TTestScene::draw2D()
 {
     TSprite timeSpr = TSprite(&time_sprite, 20, 15);
-    timeSpr.mScale = {1.0f,1.0f};
-    timeSpr.mColor = {255,255,255,255};
-    timeSpr.mAttributes = SP_TRANSPARENT;
+    timeSpr.setScale(TVec3F(1.0f,1.0f,1.0f));
+    timeSpr.setColor({255,255,255,255});
+    timeSpr.setAttribute(SP_TRANSPARENT);
     
-    TSprite dig1Spr = TSprite(&num_1_sprite, 24, 35);
-    dig1Spr.mScale = {1.0f,1.0f};
-    dig1Spr.mColor = {255,255,255,255};
-    dig1Spr.mAttributes = SP_TRANSPARENT;
+    TSprite dig1Spr = TSprite(&num_0_sprite, 24, 35);
+    dig1Spr.setScale(TVec3F(1.0f,1.0f,1.0f));
+    dig1Spr.setColor({255,255,255,255});
+    dig1Spr.setAttribute(SP_TRANSPARENT);
 
-    TSprite dig2Spr = TSprite(&num_7_sprite, 42, 35);
-    dig2Spr.mScale = {1.0f,1.0f};
-    dig2Spr.mColor = {255,255,255,255};
-    dig2Spr.mAttributes = SP_TRANSPARENT;
+    TSprite dig2Spr = TSprite(&num_0_sprite, 42, 35);
+    dig2Spr.setScale(TVec3F(1.0f,1.0f,1.0f));
+    dig2Spr.setColor({255,255,255,255});
+    dig2Spr.setAttribute(SP_TRANSPARENT);
     
     timeSpr.render();
     dig1Spr.render();
