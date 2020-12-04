@@ -318,7 +318,7 @@ bool TCollision::calc(
 
   // count is guaranteed to be < sNumCollFace,
   // thus preventing any arithmetic overflow
-  if ((sNumCollFace - count) > start) {
+  if (start > (sNumCollFace - count)) {
     return false; // bad range
   }
 
