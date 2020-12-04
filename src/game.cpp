@@ -8,9 +8,6 @@
 #include "graphic.h"
 #include "audio.hpp"
 
-#include "../models/static/sprites/sprite_time.h"
-#include "../models/static/sprites/sprite_items.h"
-
 // -------------------------------------------------------------------------- //
 TGame * TGame::sGameInstance{nullptr};
 
@@ -126,7 +123,7 @@ void TGame::update()
     initZBuffer();
     initFrameBuffer();
     
-    gSPDisplayList(mDynList->pushDL(), letters_setup_dl)
+    gSPDisplayList(mDynList->pushDL(), letters_setup_dl);
 
     auto scene = getCurrentScene();
     
@@ -135,26 +132,29 @@ void TGame::update()
         scene->draw();
     }
 
-    /*
+    // that's a wrap for this frame. finalize
+    gDPFullSync(mDynList->pushDL());
+	gSPEndDisplayList(mDynList->pushDL());
+
+    nuGfxTaskStart(mDynList->getHead(),
+        (s32)(mDynList->fetchCmdIndex()) * sizeof (Gfx),
+	    NU_GFX_UCODE_F3DEX, NU_SC_NOSWAPBUFFER);
+
+    // split our tasks
+    
+    mDynList->reset();
+
     gSPDisplayList(mDynList->pushDL(), rdpinit_spr_dl);
     TSprite::init(mDynList);
 
-    TSprite timeSpr = TSprite(&time_sprite, 20, 20);
-    timeSpr.mScale = {1.0f,1.0f};
-    timeSpr.mColor = {255,255,255,255};
-    timeSpr.mAttributes = SP_TRANSPARENT;
-    timeSpr.render();
-
-    TSprite itemsSpr = TSprite(&items_sprite, 230, 22);
-    itemsSpr.mScale = {1.1f,1.1f};
-    itemsSpr.mColor = {255,255,255,255};
-    itemsSpr.mAttributes = SP_TRANSPARENT;
-    itemsSpr.render();
+    // check for null scene or scene that has not yet been initialized
+    if (scene != nullptr && scene->isInitialized()) {
+        scene->draw2D();
+    }
 
     gSPDisplayList(mDynList->pushDL(), rdpinit_dl);
 	gSPDisplayList(mDynList->pushDL(), rspinit_dl);
-    */
-
+    
     // that's a wrap for this frame. finalize
     gDPFullSync(mDynList->pushDL());
 	gSPEndDisplayList(mDynList->pushDL());
@@ -173,6 +173,8 @@ void TGame::update()
     nuDebConCPuts(0, conbuff);
     */
     nuDebConDisp(NU_SC_SWAPBUFFER);
+
+    mDynList->flip();
 
 }
 
@@ -313,6 +315,7 @@ void TGame::setCurrentScene(TScene * scene)
 
 void TGame::testRender(u32 taskNum)
 {
+    
     auto game = TGame::getInstance();
     auto scene = game->getCurrentScene();
     

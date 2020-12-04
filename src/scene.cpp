@@ -22,6 +22,7 @@
 #include "../models/static/sprites/sprite_time.h"
 #include "../models/static/sprites/sprite_items.h"
 #include "../models/ovl/sprites/sprite_logo.h"
+#include "../models/ovl/sprites/sprite_numfont.h"
 
 // -------------------------------------------------------------------------- //
 
@@ -135,6 +136,10 @@ void TLogoScene::update()
 void TLogoScene::draw()
 {
     // ...
+}
+
+void TLogoScene::draw2D()
+{
     gSPDisplayList(mDynList->pushDL(), rdpinit_spr_dl);
     TSprite::init(mDynList);
 
@@ -358,6 +363,28 @@ void TTestScene::draw()
 
     
     */
+}
+
+void TTestScene::draw2D()
+{
+    TSprite timeSpr = TSprite(&time_sprite, 20, 15);
+    timeSpr.mScale = {1.0f,1.0f};
+    timeSpr.mColor = {255,255,255,255};
+    timeSpr.mAttributes = SP_TRANSPARENT;
+    
+    TSprite dig1Spr = TSprite(&num_1_sprite, 24, 35);
+    dig1Spr.mScale = {1.0f,1.0f};
+    dig1Spr.mColor = {255,255,255,255};
+    dig1Spr.mAttributes = SP_TRANSPARENT;
+
+    TSprite dig2Spr = TSprite(&num_7_sprite, 42, 35);
+    dig2Spr.mScale = {1.0f,1.0f};
+    dig2Spr.mColor = {255,255,255,255};
+    dig2Spr.mAttributes = SP_TRANSPARENT;
+    
+    timeSpr.render();
+    dig1Spr.render();
+    dig2Spr.render();
 }
 
 // -------------------------------------------------------------------------- //
