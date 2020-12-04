@@ -95,6 +95,18 @@ class TCollision {
     u32 * l, u32 * b, u32 * r, u32 * t
   );
 
+  static u32 blkMapCount(u32 x, u32 y) {
+    u32 count = 0;
+    TPacket * list = sBlkMap[y * sNumBlkMap + x];
+
+    while (list != nullptr) {
+      list = list->next;
+      ++count;
+    }
+
+    return count;
+  }
+
   private:
 
   static TFace * sCollFaceAry;
@@ -102,6 +114,7 @@ class TCollision {
 
   static TPacket * sCollPktAry;
   static u32 sMaxNumCollPkt;
+  static u32 sFreeCollPkt;
   static u32 sNumCollPkt;
 
   static TPacket ** sBlkMap;

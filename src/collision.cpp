@@ -13,6 +13,7 @@ u32 TCollision::sNumCollFace { 0 };
 
 TCollPacket * TCollision::sCollPktAry { nullptr };
 u32 TCollision::sMaxNumCollPkt { 0 };
+u32 TCollision::sFreeCollPkt { 0 };
 u32 TCollision::sNumCollPkt { 0 };
 
 float TCollision::sBlkMapSz { 0.0F };
@@ -281,6 +282,7 @@ void TCollision::shutdown() {
   delete[] sCollPktAry;
   sCollPktAry = nullptr;
   sMaxNumCollPkt = 0;
+  sFreeCollPkt = 0;
   sNumCollPkt = 0;
 
   delete[] sBlkMap;
@@ -518,8 +520,15 @@ TCollision::fetchPktFast(
     return nullptr;
   }
 
-  sCollPktAry[sNumCollPkt].face = face;
-  return &sCollPktAry[sNumCollPkt++];
+  TPacket * pkt = &sCollPktAry[sNumCollPkt];
+  pkt->face = face;
+
+  if (sFreeCollPkt == sNumCollPkt) {
+    ++sFreeCollPkt;
+  }
+
+  ++sNumCollPkt;
+  return pkt;
 }
 
 // -------------------------------------------------------------------------- //
@@ -528,11 +537,12 @@ TCollPacket *
 TCollision::fetchPktSlow(
   TFace const * face
 ) {
-  for (u32 i = 0; i < sNumCollPkt; ++i) {
+  for (u32 i = sFreeCollPkt; i < sNumCollPkt; ++i) {
     if (sCollPktAry[i].face != nullptr) {
       continue;
     }
 
+    sFreeCollPkt = (i + 1);
     sCollPktAry[i].face = face;
     return &sCollPktAry[i];
   }
@@ -574,6 +584,12 @@ void TCollision::blkMapUnlink(
 
   pkt->next = nullptr;
   pkt->face = nullptr;
+
+  auto idx = (u32)(pkt - sCollPktAry);
+
+  if (idx < sFreeCollPkt) {
+    sFreeCollPkt = idx;
+  }
 }
 
 // -------------------------------------------------------------------------- //
