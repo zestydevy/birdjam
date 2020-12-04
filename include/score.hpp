@@ -26,6 +26,8 @@ class TFlockObj :
   void incFlock(u32 n, float strength);
   float getStrength() const { return mStrength; }
   float getSize() const { return mCarrySize; }
+  float getCapacity() const { return mCarrySize / 4.0f / mStrength; }
+  float maxCarryWeight() const { return mStrength - (mCarrySize / 4.0f); }
 
   int getNumObjects() const { return mHeldNum; }
   float getRadius(float min = 0.0f);

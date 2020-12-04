@@ -30,10 +30,12 @@ TCamera::TCamera(TDynList2 * list)
     sCamera = this;
 }
 
-bool TCamera::checkVisible(const TVec3F & pos){
+bool TCamera::checkVisible(const TVec3F & pos, float drawDistance = 100000000.0f){
     TVec3F dif = pos - sCamera->mOldPos;
-    return dif.dot(sCamera->mForward) > 0.0f;
+    dif.normalize();
+    return dif.dot(dif) <= drawDistance && dif.dot(sCamera->mForward) > 0.1f;
 }
+
 void TCamera::jumpToTarget(){
     TVec3F dif = (*mTarget - mPosition);
     float pdist = dif.getLength();

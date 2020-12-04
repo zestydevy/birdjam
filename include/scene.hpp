@@ -118,6 +118,8 @@ class TTestScene final
     int mColL2End;
     int mColL3Start;
     int mColL3End;
+    int mColL4Start;
+    int mColL4End;
 
 //    TObject * mObjects[4];
     TObject * mSky{nullptr};

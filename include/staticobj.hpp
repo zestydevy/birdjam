@@ -36,6 +36,9 @@ enum EObjType : s16
     CAT,
     CHICKEN,
     CRITIC,
+    AVGN,
+    WOMAN,
+    CHILD,
     LOGO,
     STORE_E,
     STORE_B,
@@ -54,6 +57,7 @@ enum EObjType : s16
     TOASTER,
     PLANK,
     TRASHCAN,
+    TRASHCAN2,
     POT,
     BUSH,
     LAMP,
@@ -108,6 +112,8 @@ class TObject
     u32 mTag{0};
     Gfx * mMesh{nullptr};
     TDynList2 * mDynList{nullptr};
+
+    float mDrawDistanceSquared{100000000.0f};
 };
 
 // -------------------------------------------------------------------------- //

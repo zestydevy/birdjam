@@ -23,6 +23,14 @@ extern "C"{
 #define SIZE_LAYER3 150.0f
 #define SIZE_IMPOSSIBLE 10000.0f
 
+
+#define DRAWDIST_ALWAYS 8500.0f
+#define DRAWDIST_THREEQUARTERS 6500.0f
+#define DRAWDIST_HALF 4500.0f
+#define DRAWDIST_QUARTER 2500.0f
+#define DRAWDIST_EIGHTH 1500.0f
+#define DRAWDIST_SIXTEENTH 1000.0f
+
 struct TObjectData{
     Gfx * mesh;
     char name[16];
@@ -35,6 +43,8 @@ struct TObjectData{
 
     float mass;
     s16 value;
+
+    float drawDist;
 };
 
 extern const struct TObjectData gObjectDataList[];

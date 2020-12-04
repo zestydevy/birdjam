@@ -162,6 +162,7 @@ TNestObj::TNestObj(
   mObjType { type }
 {
   mData = &TObject::getNestObjectInfo(type);
+  mDrawDistanceSquared = mData->drawDist * mData->drawDist;
 
   TMtx44 mMountRotMtx;
   mMountRotMtx.identity();
@@ -297,6 +298,7 @@ void TNestObj::draw() {
 
 void TNestObj::startNesting(){
   mState = EState::STASHING;
+  updateCollider();
 }
 
 // -------------------------------------------------------------------------- //
@@ -474,6 +476,8 @@ TNestObjBox::TNestObjBox(
 
 void TNestObjBox::updateCollider(){
   setCollideCenter(mPosition);
+  if (mState == EState::NESTING)
+    setCollideSize(TVec3F(mSize.x() * mScale.x(), mSize.x() * mScale.x(), mSize.x() * mScale.x()) * 2.0f);
   updateBlkMap();
 }
 
@@ -598,8 +602,8 @@ void TNest::assimilateObject(TNestObj * obj){
   mSize += obj->getObjWeight();
   mCount++;
 
-  setCollideRadius(64.0f + (mSize));
-  setCollideHeight(32.0f + (4.0f * mSize));
+  setCollideRadius(64.0f + (mSize / 2.0f));
+  setCollideHeight(32.0f + (mSize));
   setCollideCenter(mPosition + TVec3F(0.0f, -9.0f, 0.0f));
 
   mNestArea->updateSize(mSize);

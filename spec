@@ -59,6 +59,7 @@ beginseg
 	include "build/obj/model_world_col.o"
 	include "build/obj/model_world_col2.o"
 	include "build/obj/model_world_col3.o"
+	include "build/obj/model_world_col4.o"
 	include "build/obj/model_world_col_nest.o"
 	include "build/obj/model_sky.o"
 	include "build/obj/model_distant.o"

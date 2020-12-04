@@ -30,9 +30,6 @@
 extern Gfx rdpinit_spr_dl[];
 extern Gfx rdpinit_dl[];
 extern Gfx rspinit_dl[];
-//he didnt think i would do it
-#define BIG_CHUNGUS 9999.9f
-#define BIGGER_CHUNGUS TVec3F(BIG_CHUNGUS, BIG_CHUNGUS, BIG_CHUNGUS)
 
 // -------------------------------------------------------------------------- //
 
@@ -287,6 +284,10 @@ void TTestScene::init()
     faceStart = vertSize * 3 + 4;
     u16 faceSizeL3 = worldcol_layer3[faceStart - 1];        //layer 3 face count
 
+    vertSize = worldcol_layer4[1];
+    faceStart = vertSize * 3 + 4;
+    u16 faceSizeL4 = worldcol_layer4[faceStart - 1];        //layer 4 face count
+
     vertSize = worldcol_layernest[1];
     faceStart = vertSize * 3 + 4;
     u16 faceSizeNest = worldcol_layernest[faceStart - 1];        //save nest layer for last
@@ -296,6 +297,7 @@ void TTestScene::init()
     loadCollision(worldcol_collision, mCollisionFaces);
     loadCollision(worldcol_layer2, mCollisionFaces, faceSizeMain);
     loadCollision(worldcol_layer3, mCollisionFaces, faceSizeMain + faceSizeL2);
+    //loadCollision(worldcol_layer4, mCollisionFaces, faceSizeMain + faceSizeL2 + faceSizeL3);
     loadCollision(worldcol_layernest, mCollisionFaces, faceSizeMain + faceSizeL2 + faceSizeL3);
 
     mColL2Start = faceSizeMain;
@@ -305,7 +307,7 @@ void TTestScene::init()
 
     TCollision::startup(
         mCollisionFaces, faceSize, nullptr,
-        (faceSize * 1.5f), 24, 256.0F
+        (faceSize * 1.5f), 10, 512.0F
     );
 
     mCurrentLayer = 0;
@@ -313,20 +315,28 @@ void TTestScene::init()
 
 void TTestScene::clearCollisions(int start, int end){
     for (int i = start; i < end; i++){
-        mCollisionFaces[i].vtx[0] = BIGGER_CHUNGUS;
-        mCollisionFaces[i].vtx[1] = BIGGER_CHUNGUS;
-        mCollisionFaces[i].vtx[2] = BIGGER_CHUNGUS;
+        mCollisionFaces[i].setPassThru(true);
     }
-    TCollision::calc();
 }
 
 void TTestScene::update()
 {
-    if (mCurrentLayer == 0 && TFlockObj::getFlockObj()->getStrength() > SIZE_LAYER1){
+    //Add layers
+    //if (mCurrentLayer == 2 && TFlockObj::getFlockObj()->maxCarryWeight() < SIZE_LAYER2){
+    //    clearCollisions(mColL3Start, mColL3End);
+    //    mCurrentLayer--;
+    //}
+    //if (mCurrentLayer == 1 && TFlockObj::getFlockObj()->maxCarryWeight() < SIZE_LAYER1){
+    //    clearCollisions(mColL2Start, mColL2End);
+    //    mCurrentLayer--;
+    //}
+
+    //Remove layers
+    if (mCurrentLayer == 0 && TFlockObj::getFlockObj()->getStrength() >= SIZE_LAYER1){
         clearCollisions(mColL2Start, mColL2End);
         mCurrentLayer++;
     }
-    else if (mCurrentLayer == 1 && TFlockObj::getFlockObj()->getStrength() > SIZE_LAYER2){
+    if (mCurrentLayer == 1 && TFlockObj::getFlockObj()->getStrength() >= SIZE_LAYER2){
         clearCollisions(mColL3Start, mColL3End);
         mCurrentLayer++;
     }

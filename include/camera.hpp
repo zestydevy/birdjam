@@ -42,7 +42,7 @@ class TCamera
     float mFov{44.0f};
     TDynList2 * mDynList{nullptr};
 
-    static bool checkVisible(const TVec3F & pos);
+    static bool checkVisible(const TVec3F & pos, float drawDistance);
 
     private:
 

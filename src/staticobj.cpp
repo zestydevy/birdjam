@@ -27,6 +27,9 @@
 #include "../models/static/cat/model_cat.h"
 #include "../models/static/chicken/model_chicken.h"
 #include "../models/static/critic/model_critic.h"
+#include "../models/static/avgn/model_avgn.h"
+#include "../models/static/woman/model_woman.h"
+#include "../models/static/child/model_child.h"
 #include "../models/static/objects/n64/model_n64.h"
 #include "../models/static/objects/store_b/model_storeb.h"
 #include "../models/static/objects/store_e/model_storee.h"
@@ -77,6 +80,9 @@ static Gfx * gObjMeshList[] =
     cat_Cat_mesh,
     chicken_Chicken_mesh,
     critic_Critic_mesh,
+    avgn_AVGN_mesh,
+    woman_Woman_mesh,
+    child_Child_mesh,
     n64_N_mesh,
     store_e_E_mesh,
     store_b_B_mesh,
@@ -94,6 +100,7 @@ static Gfx * gObjMeshList[] =
     tire_Tire_mesh,
     toaster_Toaster_mesh,
     plank_Plank_mesh,
+    trashcan_TrashCan_mesh,
     trashcan_TrashCan_mesh,
     pot_Pot_mesh,
     bush_Bush_mesh,
@@ -151,7 +158,7 @@ void TObject::updateMtx()
 }
 
 void TObject::update() {
-    mInCamera = mAlwaysDraw || TCamera::checkVisible(mPosition);
+    mInCamera = mAlwaysDraw || TCamera::checkVisible(mPosition, mDrawDistanceSquared);
     //mInCamera = true;
 }
 
