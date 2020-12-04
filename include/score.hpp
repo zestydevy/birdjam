@@ -149,6 +149,7 @@ class TNest :
   virtual ~TNest();
 
   float getSize() const { return mSize; }
+  float getCount() const { return mCount; }
   static TNest * getNestObject();
 
   static float getTopY();
@@ -165,6 +166,7 @@ class TNest :
 
   protected:
   float mSize { 0.0F };
+  int mCount {0};
   TNestArea * mNestArea{nullptr};
 
   static TNest * sNest;
