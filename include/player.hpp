@@ -62,6 +62,8 @@ class TPlayer :
         return mDirection * mSpeed;
     }
 
+    bool canPickupObjects() { return mState == playerstate_t::PLAYERSTATE_FLYING; }
+
     virtual void updateMtx() override;
 
     virtual void init() override;
@@ -70,12 +72,16 @@ class TPlayer :
 
     void hitObject(TVec3F point, EObjType type);
 
-    //For debug only
     const TCollFace * mClosestFace;
+    const TCollFace * mClosestFaceCarry;
 
     TVec3<f32> mHeldPos;
 
     protected:
+    void startFlying();
+    void startIdle();
+    void checkLateralCollision();
+    void checkMeshCollision(const TCollFace * face, float radius);
 
     TAnimator * mAnim{nullptr};
     TPad * mPad{nullptr};
@@ -107,7 +113,10 @@ class TPlayer :
     Vtx** mAnim_GlideCrash[4] = {bird_Bird_GlideCrash_0, bird_Bird_GlideCrash_1, bird_Bird_GlideCrash_2, bird_Bird_GlideCrash_3};   //Stunned animation 
     Vtx** mAnim_GlideFlap[4] = {bird_Bird_GlideFlap_0, bird_Bird_GlideFlap_1, bird_Bird_GlideFlap_2, bird_Bird_GlideFlap_3};        //Flapping wings while gliding
     Vtx** mAnim_Flap[4] = {bird_Bird_FlyFlap_0, bird_Bird_FlyFlap_1, bird_Bird_FlyFlap_2, bird_Bird_FlyFlap_3};                     //Flapping wings while stationary
+    Vtx** mAnim_IdleFall[4] = {bird_Bird_IdleFall_0, bird_Bird_IdleFall_1, bird_Bird_IdleFall_2, bird_Bird_IdleFall_3};             //Falling
+    Vtx** mAnim_IdleCaw[4] = {bird_Bird_IdleCaw_0, bird_Bird_IdleCaw_1, bird_Bird_IdleCaw_2, bird_Bird_IdleCaw_3};                     //Cawing while stationary
 
+    bool mCawing{false};
     bool mFlappingWings{false};
     bool mSlowingDown{false};
     bool mGoingFast{false};
@@ -115,6 +124,8 @@ class TPlayer :
     float mStutterTimer{0.0f};
     float mIdleTimer{0.0f};
     float mPitchModifier {0.0f};
+
+    int mFlyTimer{0};
 
     s16 mBankAngle;
 

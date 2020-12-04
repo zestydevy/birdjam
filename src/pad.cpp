@@ -6,6 +6,8 @@
 
 NUContData TPad::sConts[kMaxControllers];
 
+#define DEADZONE 4
+
 // -------------------------------------------------------------------------- //
 
 TPad::TPad(s32 contNum)
@@ -56,6 +58,8 @@ bool TPad::isReleased(EButton const button)
 
 s8 TPad::getAnalogX()
 {
+    if (mAnalogX > -DEADZONE && mAnalogX < DEADZONE)
+        return 0;
     return mAnalogX;
 }
 
@@ -63,6 +67,8 @@ s8 TPad::getAnalogX()
 
 s8 TPad::getAnalogY()
 {
+    if (mAnalogY > -DEADZONE && mAnalogY < DEADZONE)
+        return 0;
     return mAnalogY;
 }
 

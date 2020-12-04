@@ -23,6 +23,7 @@ const float BIRD_FLAPDESCENDSPEED = 240.0f * kInterval;
 const float BIRD_BANKDEGREES = 45.0f;
 const float BIRD_WINDRES = 0.42f * kInterval;
 const float BIRD_GRAVITY = 150.0f * kInterval;
+const float BIRD_FALLGRAVITY = 450.0f * kInterval;
 
 const float BIRD_STUTTERDEG = 10.0f;
 
@@ -64,6 +65,147 @@ void TPlayer::init()
     mCameraTarget = mPosition;
 }
 
+void TPlayer::startFlying(){
+    // Set state and animation
+    mState = PLAYERSTATE_FLYING;
+    mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, false, 0.25f);
+
+    mPosition += TVec3F(0.0f, BIRD_RADIUS, 0.0f);
+
+    mFlappingWings = true;
+
+    // Set initial flight direction to the facing direction
+    mDirection.set(TSine::ssin(mRotation.y()), 0.2f, TSine::scos(mRotation.y()));
+
+    // Set initial flight speed
+    mSpeed = BIRD_INITSPEED;
+    mGoingFast = false;
+
+    mCamera->setMode(true);
+}
+
+void TPlayer::startIdle(){
+    mState = PLAYERSTATE_FALLING;
+    mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, true, 0.0f);
+    mRotation = TVec3<s16>((s16)0, mRotation.y(), (s16)0);
+
+    mCamera->setMode(false);
+
+    // Convert direction into velocity for flapping
+    mDirection = mDirection * mSpeed;
+    mSpeed = 1.0f;
+
+    //land if we are on ground
+    if (mGroundFace != nullptr) {
+        float yPos = mGroundFace->calcYAt(mPosition.xz()) + BIRD_RADIUS;
+        if (mPosition.y() - yPos <= BIRD_RADIUS)
+            mPosition.y() = yPos;
+        else
+            mState = PLAYERSTATE_FALLING;
+    }
+    else
+        mState = PLAYERSTATE_FALLING;
+}
+
+void TPlayer::checkLateralCollision(){
+    TVec3F nrmm = mDirection;
+    nrmm.normalize();
+    nrmm *= (BIRD_RADIUS / 2.0f);
+
+    mGroundFace = TCollision::findGroundBelow(mPosition + nrmm, BIRD_RADIUS);  //recalc ground pos
+
+    // attach to the closet point of the ground
+    if (mGroundFace != nullptr && mGroundFace->nrm.y() > 0.707f) {
+        float yPos = mGroundFace->calcYAt((mPosition + nrmm).xz()) + BIRD_RADIUS;
+        if (mPosition.y() - yPos <= BIRD_RADIUS){
+            mPosition.y() = yPos;
+
+            mClosestFace = TCollision::findClosest(mPosition + nrmm , BIRD_RADIUS / 2.0f); //use closest face in front of player
+        }
+        else{
+            mAnim->setAnimation(bird_Bird_IdleFall_Length, mAnim_IdleFall, false, 0.25f);    //honestly the sonic fall walk looks better
+            mState = PLAYERSTATE_FALLING;
+        }
+    }
+    else{
+        mAnim->setAnimation(bird_Bird_IdleFall_Length, mAnim_IdleFall, false, 0.0f);
+        mState = PLAYERSTATE_FALLING;
+    }
+}
+
+void TPlayer::checkMeshCollision(const TCollFace * face, float radius){
+    if (face != nullptr){  //collision!
+        float d = -mDirection.dot(face->nrm);
+
+        if (mState == playerstate_t::PLAYERSTATE_FLYING){
+            if (mSlowingDown && mSpeed < BIRD_SLOWSPEED && TFlockObj::getFlockObj()->getSize() <= 0)
+            {
+                mState = PLAYERSTATE_FALLING;
+                mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, true, 0.0f);
+                mRotation = TVec3<s16>((s16)0, mRotation.y(), (s16)0);
+
+                mCamera->setMode(false);
+
+                // Convert direction into velocity for flapping
+                mDirection = mDirection * mSpeed;
+                mSpeed = 1.0f;
+            }
+            else if (d > 0.1f){
+                if (d > 0.9f){  //Head on crash
+                    mLastDirection = mDirection;
+                    mDirection += d * face->nrm * 2.0f;
+                    mState = PLAYERSTATE_STUNNED;
+                    mAnim->setAnimation(bird_Bird_GlideCrash_Length, mAnim_GlideCrash, false, 0.4f);
+                    mCamera->setMode(true);
+                }
+                else{   //Bounce
+                    mDirection += d * face->nrm * 2.0f;
+                    mSpeed *= 1.0f - d;
+                    mStutterTimer = 1.0f;
+                }
+
+                TFlockObj::getFlockObj()->dropTopObject();
+            }
+        }
+        else if (d >= 0.0f){   //keep the player from going oob
+            TVec3F p;
+            face->project(mPosition, &p);
+            mPosition = p + face->nrm * radius;
+        }
+    }
+}
+
+void TPlayer::hitObject(TVec3F point, EObjType type){
+    if (type == EObjType::LEAVES)
+        return;
+
+    TVec3F nrm = mPosition - point;
+    if (nrm.getSqrLength() <= 0.0f)
+        nrm = TVec3F(0.0f, 1.0f, 0.0f);
+    nrm.normalize();
+
+    float d = -mDirection.dot(nrm);
+
+    if (mState == playerstate_t::PLAYERSTATE_FLYING && d > 0.1f){
+        if (d > 0.9f){  //Head on crash
+            mLastDirection = mDirection;
+            mDirection += d * nrm * 2.0f;
+            mState = PLAYERSTATE_STUNNED;
+            mAnim->setAnimation(bird_Bird_GlideCrash_Length, mAnim_GlideCrash, false, 0.4f);
+        }
+        else{   //Bounce
+            mDirection += d * nrm * 2.0f;
+            mSpeed *= 1.0f - d;
+            mStutterTimer = 1.0f;
+        }
+
+        TFlockObj::getFlockObj()->dropTopObject();
+    }
+    else if (d >= 0.0f) {   //keep the player from going oob
+        mPosition = point + nrm * BIRD_RADIUS;
+    }
+}
+
 void TPlayer::update()
 {
     TObject::update();
@@ -95,7 +237,7 @@ void TPlayer::update()
 
     TVec3<f32> move = TVec3<f32>(0.0f, 0.0f, 0.0f);
 
-    setCollideCenter(mPosition);
+    /* Ground check */
     mGroundFace = TCollision::findGroundBelow(mPosition, BIRD_RADIUS);
 
     /* Collision check */
@@ -110,9 +252,9 @@ void TPlayer::update()
         // -------------------------------------------------------------------- //
         // walk controls
         case playerstate_t::PLAYERSTATE_FALLING:
-        
+            mAnim->setTimescale(0.25f);
             if (mClosestFace == nullptr) {
-                mVelocity += BIRD_GRAVITY * kInterval;
+                mVelocity += BIRD_FALLGRAVITY * kInterval;
                 mPosition -= {0.0f, mVelocity, 0.0f};
             } else {
                 // we touched the ground, idle
@@ -127,45 +269,16 @@ void TPlayer::update()
             mCameraTarget = mPosition + (up * 35.00f) + (mDirection * mSpeed * 10.0f);  //Target slightly above player and slightly in front of player
 
             // Switch to flying state
-            if (mPad->isPressed(Z)){    //Start flying
-                // Set state and animation
-                mState = PLAYERSTATE_FLYING;
-                mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, false, 0.25f);
-
-                mFlappingWings = true;
-
-                // Set initial flight direction to the facing direction
-                mDirection.set(TSine::ssin(mRotation.y()), 0.0f, TSine::scos(mRotation.y()));
-
-                // Set initial flight speed
-                mSpeed = BIRD_INITSPEED;
-                mGoingFast = false;
-
-                mCamera->setMode(true);
-            }
-            //Switch to flapping state
-            if (mPad->isPressed(A)){    //Return back to flapping
-                mState = PLAYERSTATE_FLAPPING;
-                mAnim->setAnimation(bird_Bird_FlyFlap_Length, mAnim_Flap, true, 0.25f);
-                mRotation = TVec3<s16>((s16)0, mRotation.y(), (s16)0);
-
-                mCamera->setMode(false);
-
-                // Convert direction into velocity for flapping
-                mDirection = mDirection * mSpeed;
-                mSpeed = 1.0f;
-            }
+            if (mPad->isPressed(A) || mPad->isPressed(Z))    //Start flying
+                startFlying();
         break;
 
         // -------------------------------------------------------------------- //
         // idle. c'mon let's get a move on...
         case playerstate_t::PLAYERSTATE_IDLE:
-            // attach to the closet point of the ground
-            if (mGroundFace != nullptr) {
-                mPosition.y() = (mGroundFace->calcYAt(mPosition.xz()) + BIRD_RADIUS);
-            }
-
             moveCameraRelative(move, forward, right);
+
+            checkLateralCollision();
 
             if (mIdleTimer++ == 150)
                 mAnim->setAnimation(bird_Bird_IdlePreen_Length, mAnim_IdlePreen, false, 0.3f);
@@ -178,53 +291,17 @@ void TPlayer::update()
                 mAnim->setAnimation(bird_Bird_Walk_Length, mAnim_Walk, true, 0.3f);
             }
 
-            if (mPad->isPressed(Z)){    //Start flying
-                    // Set state and animation
-                    mState = PLAYERSTATE_FLYING;
-                    mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, false, 0.25f);
-
-                    mFlappingWings = true;
-
-                    // Set initial flight direction to the facing direction
-                    mDirection.set(TSine::ssin(mRotation.y()), 0.0f, TSine::scos(mRotation.y()));
-
-                    // Set initial flight speed
-                    mSpeed = BIRD_INITSPEED;
-                    mGoingFast = false;
-
-                    mCamera->setMode(true);
-            }
-            if (mPad->isPressed(A)){    //Return back to flapping
-                mState = PLAYERSTATE_FLAPPING;
-                mAnim->setAnimation(bird_Bird_FlyFlap_Length, mAnim_Flap, true, 0.25f);
-                mRotation = TVec3<s16>((s16)0, mRotation.y(), (s16)0);
-                mPosition += up * BIRD_RADIUS * 4.0f;
-
-                mCamera->setMode(false);
-
-                // Convert direction into velocity for flapping
-                mDirection = mDirection * mSpeed;
-                mSpeed = 1.0f;
-            }
+            if (mPad->isPressed(A) || mPad->isPressed(Z))    //Start flying
+                startFlying();
         
         break;
 
         // -------------------------------------------------------------------- //
         // walking on the ground
-        case playerstate_t::PLAYERSTATE_WALKING:
-
-            // attach to the closet point of the ground
-            if (mGroundFace != nullptr) {
-                float yPos = mGroundFace->calcYAt(mPosition.xz()) + BIRD_RADIUS;
-                if (mPosition.y() - yPos <= BIRD_RADIUS)
-                    mPosition.y() = yPos;
-                else
-                    mState = PLAYERSTATE_FALLING;
-            }
-            else
-                mState = PLAYERSTATE_FALLING;
-
+        case playerstate_t::PLAYERSTATE_WALKING:{
             moveCameraRelative(move, forward, right);
+
+            checkLateralCollision();
 
             mCameraTarget = mPosition + (up * 35.00f) + (mDirection * mSpeed * 10.0f);  //Target slightly above player and slightly in front of player
 
@@ -239,35 +316,9 @@ void TPlayer::update()
             mAnim->setTimescale(move.getLength() * 0.1f);
 
             // Switch to flying state
-            if (mPad->isPressed(Z)){    //Start flying
-                // Set state and animation
-                mState = PLAYERSTATE_FLYING;
-                mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, false, 0.25f);
-
-                mFlappingWings = true;
-
-                // Set initial flight direction to the facing direction
-                mDirection.set(TSine::ssin(mRotation.y()), 0.0f, TSine::scos(mRotation.y()));
-
-                // Set initial flight speed
-                mSpeed = BIRD_INITSPEED;
-                mGoingFast = false;
-
-                mCamera->setMode(true);
-            }
-            //Switch to flapping state
-            if (mPad->isPressed(A)){    //Return back to flapping
-                mState = PLAYERSTATE_FLAPPING;
-                mAnim->setAnimation(bird_Bird_FlyFlap_Length, mAnim_Flap, true, 0.25f);
-                mRotation = TVec3<s16>((s16)0, mRotation.y(), (s16)0);
-
-                mCamera->setMode(false);
-
-                // Convert direction into velocity for flapping
-                mDirection = mDirection * mSpeed;
-                mSpeed = 1.0f;
-            }
-        
+            if (mPad->isPressed(A) || mPad->isPressed(Z))    //Start flying
+                startFlying();
+        }
         break;
         
         // -------------------------------------------------------------------- //
@@ -422,24 +473,15 @@ void TPlayer::update()
             if (!mFlappingWings && !mGoingFast)
                 mAnim->setTimescale(animRate); // Shake faster from wind
 
-            if (mPad->isPressed(Z)){    //Return back to flapping
-                mState = PLAYERSTATE_FALLING;
-                mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, true, 0.0f);
-                mRotation = TVec3<s16>((s16)0, mRotation.y(), (s16)0);
-
-                mCamera->setMode(false);
-
-                // Convert direction into velocity for flapping
-                mDirection = mDirection * mSpeed;
-                mSpeed = 1.0f;
-            }
+            //if (mPad->isPressed(Z))    //Return back to flapping
+            //    startIdle();
 
             //Add in pitch animation
             mRotation.x() += TSine::fromDeg(-mPitchModifier);
 
             // Configure the camera
             mCamera->setPosition(mPosition + (fback * 150.0f * camDist));
-            mCameraTarget.lerpTime(mPosition + (up * 80.00f) + (mDirection * mSpeed * 20.0f), 0.1f, kInterval);  //Target slightly above player and slightly in front of player
+            mCameraTarget.lerpTime(mPosition + (up * 60.00f) + (mDirection * mSpeed * 20.0f), 0.1f, kInterval);  //Target slightly above player and slightly in front of player
 
             //Flight camera controls
             if (mPad->isHeld(C_DOWN))
@@ -465,15 +507,7 @@ void TPlayer::update()
 
             //Restore flight after crash animation
             if (mAnim->isAnimationCompleted()){
-                mState = PLAYERSTATE_FLAPPING;
-                mAnim->setAnimation(bird_Bird_FlyFlap_Length, mAnim_Flap);
-                mRotation = TVec3<s16>((s16)0, mRotation.y(), (s16)0);
-
-                mCamera->setMode(false);
-
-                // Convert direction into velocity for flapping
-                mDirection = mDirection * mSpeed;
-                mSpeed = 1.0f;
+                startFlying();
             }
 
             // Move along movement vector
@@ -481,39 +515,20 @@ void TPlayer::update()
 
             // Configure the camera
             mCamera->setPosition(mPosition + (fback * 150.0f * camDist));
-            mCameraTarget = mPosition + (up * 80.00f) + (mLastDirection * mSpeed * 20.0f);  //Target slightly above player and slightly in front of player
+            mCameraTarget = mPosition + (up * 60.00f) + (mLastDirection * mSpeed * 20.0f);  //Target slightly above player and slightly in front of player
             break;
     }
 
     //Mesh collision
-    if (mClosestFace != nullptr){  //collision!
-        float d = -mDirection.dot(mClosestFace->nrm);
-
-        if (mState == playerstate_t::PLAYERSTATE_FLYING){
-            if (d > 0.1f){
-                if (d > 0.9f){  //Head on crash
-                    mLastDirection = mDirection;
-                    mDirection += d * mClosestFace->nrm * 2.0f;
-                    mState = PLAYERSTATE_STUNNED;
-                    mAnim->setAnimation(bird_Bird_GlideCrash_Length, mAnim_GlideCrash, false, 0.4f);
-                }
-                else{   //Bounce
-                    mDirection += d * mClosestFace->nrm * 2.0f;
-                    mSpeed *= 1.0f - d;
-                    mStutterTimer = 1.0f;
-                }
-
-                TFlockObj::getFlockObj()->dropTopObject();
-            }
-            else if (d >= 0.0f){   //keep the player from going oob
-                TVec3F p;
-                mClosestFace->project(mPosition, &p);
-                mPosition = p + mClosestFace->nrm * BIRD_RADIUS;
-            }
-        }
+    checkMeshCollision(mClosestFace, BIRD_RADIUS);
+    float carryrad = TFlockObj::getFlockObj()->getRadius();
+    if (carryrad > 0.0f){
+        mClosestFaceCarry = TCollision::findClosest(mHeldPos, TMath<float>::max(BIRD_RADIUS, carryrad));
+        checkMeshCollision(mClosestFaceCarry, carryrad);
     }
 
     //Object collision
+    setCollideCenter(mPosition);
 
     //Adjust FOV based on speed
     float fov = ((mSpeed - BIRD_SLOWSPEED) / (BIRD_FASTSPEED - BIRD_SLOWSPEED)) * (75.0f - 45.0f) + 45.0f;
@@ -528,37 +543,13 @@ void TPlayer::update()
         mShadow->setRotation(TVec3<s16>((s16)TSine::atan2(mGroundFace->nrm.z(), mGroundFace->nrm.y()), (s16)0, (s16)-TSine::atan2(mGroundFace->nrm.x(), mGroundFace->nrm.y())));
     }
 
+    //OOB Check
+    mPosition.x() = TMath<float>::clamp(mPosition.x(), -4200.0f, 4200.0f);
+    mPosition.y() = TMath<float>::clamp(mPosition.y(), 0.0f, 2000.0f);
+    mPosition.z() = TMath<float>::clamp(mPosition.z(), -4200.0f, 4200.0f);
+
     updateBlkMap();
     mAnim->update();
-}
-
-void TPlayer::hitObject(TVec3F point, EObjType type){
-    if (type == EObjType::LEAVES)
-        return;
-
-    TVec3F nrm = mPosition - point;
-    if (nrm.getSqrLength() <= 0.0f)
-        nrm = TVec3F(0.0f, 1.0f, 0.0f);
-    nrm.normalize();
-
-    float d = -mDirection.dot(nrm);
-
-    if (mState == playerstate_t::PLAYERSTATE_FLYING && d > 0.1f){
-        if (d > 0.9f){  //Head on crash
-            mLastDirection = mDirection;
-            mDirection += d * nrm * 2.0f;
-            mState = PLAYERSTATE_STUNNED;
-            mAnim->setAnimation(bird_Bird_GlideCrash_Length, mAnim_GlideCrash, false, 0.4f);
-        }
-        else{   //Bounce
-            mDirection += d * nrm * 2.0f;
-            mSpeed *= 1.0f - d;
-            mStutterTimer = 1.0f;
-        }
-    }
-    else if (d >= 0.0f) {   //keep the player from going oob
-        mPosition = point + nrm * BIRD_RADIUS;
-    }
 }
 
 void TPlayer::updateMtx()

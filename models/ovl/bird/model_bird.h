@@ -67,4 +67,16 @@ extern Vtx* bird_Bird_Walk_1[];
 extern Vtx* bird_Bird_Walk_2[];
 extern Vtx* bird_Bird_Walk_3[];
 
+extern int bird_Bird_IdleCaw_Length;
+extern Vtx* bird_Bird_IdleCaw_0[];
+extern Vtx* bird_Bird_IdleCaw_1[];
+extern Vtx* bird_Bird_IdleCaw_2[];
+extern Vtx* bird_Bird_IdleCaw_3[];
+
+extern int bird_Bird_IdleFall_Length;
+extern Vtx* bird_Bird_IdleFall_0[];
+extern Vtx* bird_Bird_IdleFall_1[];
+extern Vtx* bird_Bird_IdleFall_2[];
+extern Vtx* bird_Bird_IdleFall_3[];
+
 extern Gfx bird_Bird_mesh[];

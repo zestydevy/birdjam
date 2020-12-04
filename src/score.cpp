@@ -72,7 +72,22 @@ void TFlockObj::draw() {
 
 // -------------------------------------------------------------------------- //
 
+float TFlockObj::getRadius(float min){
+  float r = min;
+  for (int i = 0; i < mHeldNum; i++)
+  {
+    float objrad = mHeldObjects[i]->getHalfHeight();
+    if (objrad > r)
+      r = objrad;
+  }
+  return r;
+}
+
+// -------------------------------------------------------------------------- //
+
 bool TFlockObj::grabObject(TNestObj * obj) {
+  if (!gPlayer->canPickupObjects())
+    return false;
   if (obj->getObjWeight() > mStrength - (mCarrySize / 4.0f))
     return false;
   if (mHeldNum > 32)
@@ -88,9 +103,14 @@ bool TFlockObj::dropTopObject() {
   if (mHeldNum <= 0)
     return false;
 
-  mHeldObjects[mHeldNum - 1]->drop(TVec3F(0.0f, 0.0f, 0.0f));    //need to calculate what velocity to land in nest
+  mHeldObjects[mHeldNum - 1]->drop(TVec3F(0.0f, (float)RAND(1000) / 10.0f, 0.0f));    //need to calculate what velocity to land in nest
+                                                                                     //no lateral velocity so we don't need to do collision checks
   mCarrySize -= mHeldObjects[mHeldNum - 1]->getObjWeight();
   mHeldNum--;
+
+  if (mHeldNum == 0)  //rounding errors
+    mCarrySize = 0.0f;
+
   return true;
 }
 
@@ -145,6 +165,12 @@ TNestObj::TNestObj(
 // -------------------------------------------------------------------------- //
 
 float TNestObj::getHalfHeight() {
+  return 0.0f;
+}
+
+// -------------------------------------------------------------------------- //
+
+float TNestObj::getHalfWidth() {
   return 0.0f;
 }
 
@@ -205,7 +231,7 @@ void TNestObj::update() {
           mPosition.xz()) + getHalfHeight()
         );
 
-        if (mPosition.y() < y){
+        if (mVelocity.y() < 0.0f && mPosition.y() < y){  //hit the nest
           setCollision(true);
           mState = EState::IDLE;
         }
@@ -331,8 +357,14 @@ bool TNestObj::onPickup(
   mPlayer = static_cast<TPlayer *>(other);
 
   if (!TFlockObj::getFlockObj()->grabObject(this)){
+    TVec3F modifiedCenter = mPosition;
+    modifiedCenter.y() = mPlayer->getPosition().y();
+    TVec3F point = mPlayer->getPosition() - modifiedCenter;
+    point.normalize();
+    point *= getHalfWidth();
+
     if (!mData->hasMeshCol)
-      mPlayer->hitObject(mPosition, mObjType);
+      mPlayer->hitObject(modifiedCenter + point, mObjType);
     return false;
   }
 
@@ -397,6 +429,12 @@ float TNestObjSphere::getHalfHeight() {
 
 // -------------------------------------------------------------------------- //
 
+float TNestObjSphere::getHalfWidth() {
+  return getCollideRadius();
+}
+
+// -------------------------------------------------------------------------- //
+
 void TNestObjSphere::onCollide(
   TCollider * const other
 ) {
@@ -450,6 +488,12 @@ void TNestObjBox::init() {
 
 float TNestObjBox::getHalfHeight() {
   return getCollideSize().y() / 2.0f;
+}
+
+// -------------------------------------------------------------------------- //
+
+float TNestObjBox::getHalfWidth() {
+  return getCollideSize().x() / 2.0f;
 }
 
 // -------------------------------------------------------------------------- //

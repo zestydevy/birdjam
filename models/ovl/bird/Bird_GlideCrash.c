@@ -5094,8 +5094,19 @@ Vtx bird_Bird_GlideCrash_vtx_3_11[8] = {
 	{{{73, 230, 645},0, {965, 454},{0x33, 0x7, 0x74, 0xFF}}},
 };
 
-int bird_Bird_GlideCrash_Length = 11;
-Vtx* bird_Bird_GlideCrash_0[12] = {
+int bird_Bird_GlideCrash_Length = 23;
+Vtx* bird_Bird_GlideCrash_0[23] = {
+	bird_Bird_GlideCrash_vtx_0_0,
+	bird_Bird_GlideCrash_vtx_0_1,
+	bird_Bird_GlideCrash_vtx_0_2,
+	bird_Bird_GlideCrash_vtx_0_3,
+	bird_Bird_GlideCrash_vtx_0_4,
+	bird_Bird_GlideCrash_vtx_0_5,
+	bird_Bird_GlideCrash_vtx_0_6,
+	bird_Bird_GlideCrash_vtx_0_7,
+	bird_Bird_GlideCrash_vtx_0_8,
+	bird_Bird_GlideCrash_vtx_0_9,
+	bird_Bird_GlideCrash_vtx_0_10,
 	bird_Bird_GlideCrash_vtx_0_0,
 	bird_Bird_GlideCrash_vtx_0_1,
 	bird_Bird_GlideCrash_vtx_0_2,
@@ -5109,7 +5120,18 @@ Vtx* bird_Bird_GlideCrash_0[12] = {
 	bird_Bird_GlideCrash_vtx_0_10,
 	bird_Bird_GlideCrash_vtx_0_11
 };
-Vtx* bird_Bird_GlideCrash_1[12] = {
+Vtx* bird_Bird_GlideCrash_1[23] = {
+	bird_Bird_GlideCrash_vtx_1_0,
+	bird_Bird_GlideCrash_vtx_1_1,
+	bird_Bird_GlideCrash_vtx_1_2,
+	bird_Bird_GlideCrash_vtx_1_3,
+	bird_Bird_GlideCrash_vtx_1_4,
+	bird_Bird_GlideCrash_vtx_1_5,
+	bird_Bird_GlideCrash_vtx_1_6,
+	bird_Bird_GlideCrash_vtx_1_7,
+	bird_Bird_GlideCrash_vtx_1_8,
+	bird_Bird_GlideCrash_vtx_1_9,
+	bird_Bird_GlideCrash_vtx_1_10,
 	bird_Bird_GlideCrash_vtx_1_0,
 	bird_Bird_GlideCrash_vtx_1_1,
 	bird_Bird_GlideCrash_vtx_1_2,
@@ -5123,7 +5145,18 @@ Vtx* bird_Bird_GlideCrash_1[12] = {
 	bird_Bird_GlideCrash_vtx_1_10,
 	bird_Bird_GlideCrash_vtx_1_11
 };
-Vtx* bird_Bird_GlideCrash_2[12] = {
+Vtx* bird_Bird_GlideCrash_2[23] = {
+	bird_Bird_GlideCrash_vtx_2_0,
+	bird_Bird_GlideCrash_vtx_2_1,
+	bird_Bird_GlideCrash_vtx_2_2,
+	bird_Bird_GlideCrash_vtx_2_3,
+	bird_Bird_GlideCrash_vtx_2_4,
+	bird_Bird_GlideCrash_vtx_2_5,
+	bird_Bird_GlideCrash_vtx_2_6,
+	bird_Bird_GlideCrash_vtx_2_7,
+	bird_Bird_GlideCrash_vtx_2_8,
+	bird_Bird_GlideCrash_vtx_2_9,
+	bird_Bird_GlideCrash_vtx_2_10,
 	bird_Bird_GlideCrash_vtx_2_0,
 	bird_Bird_GlideCrash_vtx_2_1,
 	bird_Bird_GlideCrash_vtx_2_2,
@@ -5137,7 +5170,18 @@ Vtx* bird_Bird_GlideCrash_2[12] = {
 	bird_Bird_GlideCrash_vtx_2_10,
 	bird_Bird_GlideCrash_vtx_2_11
 };
-Vtx* bird_Bird_GlideCrash_3[12] = {
+Vtx* bird_Bird_GlideCrash_3[23] = {
+	bird_Bird_GlideCrash_vtx_3_0,
+	bird_Bird_GlideCrash_vtx_3_1,
+	bird_Bird_GlideCrash_vtx_3_2,
+	bird_Bird_GlideCrash_vtx_3_3,
+	bird_Bird_GlideCrash_vtx_3_4,
+	bird_Bird_GlideCrash_vtx_3_5,
+	bird_Bird_GlideCrash_vtx_3_6,
+	bird_Bird_GlideCrash_vtx_3_7,
+	bird_Bird_GlideCrash_vtx_3_8,
+	bird_Bird_GlideCrash_vtx_3_9,
+	bird_Bird_GlideCrash_vtx_3_10,
 	bird_Bird_GlideCrash_vtx_3_0,
 	bird_Bird_GlideCrash_vtx_3_1,
 	bird_Bird_GlideCrash_vtx_3_2,
