@@ -51,6 +51,12 @@ enum EObjType : s16
     BALDHOOKTREE,
     BALDTREE,
     TIRE,
+    TOASTER,
+    PLANK,
+    TRASHCAN,
+    POT,
+    BUSH,
+    LAMP,
     INVALID
 };
 

@@ -37,6 +37,12 @@
 #include "../models/static/objects/baldhooktree/model_baldhooktree.h"
 #include "../models/static/objects/deadtree/model_deadtree.h"
 #include "../models/static/objects/tire/model_tire.h"
+#include "../models/static/objects/toaster/model_toaster.h"
+#include "../models/static/objects/plank/model_plank.h"
+#include "../models/static/objects/trashcan/model_trashcan.h"
+#include "../models/static/objects/pot/model_pot.h"
+#include "../models/static/objects/bush/model_bush.h"
+#include "../models/static/objects/lamp/model_lamp.h"
 
 /* Object info */
 /* Mesh, Name, Type, MeshCol, (Size), (Offset), Mass, Value */
@@ -54,7 +60,7 @@ const struct TObjectData gObjectDataList[] =
     {apple_Apple_mesh, "Apple", 0, false, 170.0f, 170.0f, 170.0f, 0.5f, 0},
     {balloon_deflated_Balloon_Deflated_mesh, "Balloon", 0, false, 20.0f, 20.0f, 20.0f, 0.1f, 5},
     {beehive_Beehive_mesh, "Beehive", 0, false, 106.0f, 106.0f, 106.0f, 1.0f, 8},
-    {bills_Bills_mesh, "Money", 0, false, 60.0f, 60.0f, 60.0f, 0.3f, 8},
+    {bills_Bills_mesh, "Money", 0, false, 60.0f, 60.0f, 60.0f, 0.3f, 20},
     {card_Cube_mesh, "Card", 0, false, 213.0f, 213.0f, 213.0f, 0.3f, 2},
     {flower_Head_mesh, "Flower", 1, false, 30.0f, 60.0f, 30.0f, 0.1f, 3},
     {necklace_Necklace_mesh, "Necklace", 0, false, 213.0f, 213.0f, 213.0f, 0.25f, 25},
@@ -80,4 +86,10 @@ const struct TObjectData gObjectDataList[] =
     {tree2_bald_Tree_Bald_mesh, "Tree", 0, true, 106.0f, 106.0f, 106.0f, SIZE_LAYER2, 5},
     {tree1_bald_TreeBald_mesh, "Tree", 0, true, 106.0f, 106.0f, 106.0f, SIZE_LAYER2, 5},
     {tire_Tire_mesh, "Car Tire", 0,  true, 213.0f, 213.0f, 213.0f, SIZE_LAYER1, 15},
+    {toaster_Toaster_mesh, "Old Toaster", 0,  false, 298.0f, 298.0f, 298.0f, 2.5f, 15},
+    {plank_Plank_mesh, "2x4", 0,  true, 1550.0f, 1550.0f, 1550.0f, SIZE_LAYER1, 5},
+    {trashcan_TrashCan_mesh, "Trash Can", 0,  true, 319.5f, 319.5f, 319.5f, SIZE_LAYER1, 10},
+    {pot_Pot_mesh, "Ceramic Pot", 0,  false, 170.5f, 170.5f, 170.5f, 2.0, 5},
+    {bush_Bush_mesh, "Bush", 0,  true, 404.5f, 404.5f, 404.5f, SIZE_LAYER2, 20},
+    {lamp_Lamp_mesh, "Lamp", 0,  false, 127.8f, 681.6f, 127.8f, 15.0f, 30},
 };

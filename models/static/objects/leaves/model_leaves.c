@@ -1,5 +1,7 @@
 #include <ultra64.h>
 
+#include "models/ovl/world/model_world.h"
+
 Lights1 leaves_leaves_f3d_lights = gdSPDefLights1(
 	0x14, 0x28, 0xE,
 	0x28, 0x51, 0x1C, 0x28, 0x28, 0x28);
@@ -96,8 +98,9 @@ Gfx mat_leaves_leaves_f3d[] = {
 
 
 Gfx leaves_Leaves_mesh[] = {
-	gsSPDisplayList(mat_leaves_leaves_f3d),
+	gsSPDisplayList(mat_world_leaves_f3d),
 	gsSPDisplayList(leaves_Leaves_mesh_tri_0),
+	gsSPDisplayList(mat_revert_world_leaves_f3d),
 	gsDPPipeSync(),
 	gsSPSetGeometryMode(G_LIGHTING),
 	gsSPClearGeometryMode(G_TEXTURE_GEN),

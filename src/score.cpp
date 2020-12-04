@@ -220,6 +220,7 @@ void TNestObj::update() {
 
       if (mVelocity.y() < 0.0f && mPosition.y() < TNest::getTopY()){  //hit the nest
         mState = EState::NESTING;
+        setCollision(true);
       }
 
       mMtxNeedsUpdate = true;
@@ -534,8 +535,8 @@ void TNest::assimilateObject(TNestObj * obj){
   obj->startNesting();
   mSize += obj->getObjWeight();
 
-  setCollideRadius(64.0f + (2.0f * mSize));
-  setCollideHeight(32.0f + (8.0f * mSize));
+  setCollideRadius(64.0f + (mSize));
+  setCollideHeight(32.0f + (4.0f * mSize));
   setCollideCenter(mPosition + TVec3F(0.0f, -9.0f, 0.0f));
 
   mNestArea->updateSize(mSize);
@@ -581,7 +582,7 @@ void TNestArea::updateSize(float size){
   TVec3F center = mNest->getPosition();
   center.y() = mNest->getTopY() + 2500.0f + 64.0f;
 
-  setCollideRadius(96.0f + (2.0f * size));
+  setCollideRadius(96.0f + (size));
   setCollideCenter(center);
 
   updateBlkMap();

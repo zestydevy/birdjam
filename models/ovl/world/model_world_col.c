@@ -1,5 +1,5 @@
-#include <nusys.h>
 #include "collision.h"
+
 const Collision worldcol_collision[] = {
 	COL_INIT(),
 	COL_VERTEX_INIT(538),

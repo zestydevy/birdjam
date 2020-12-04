@@ -1,8 +1,8 @@
 #include <ultra64.h>
 
 Lights1 balloon_balloon_f3d_lights = gdSPDefLights1(
-	0x7F, 0x7, 0x0,
-	0xFE, 0xE, 0x0, 0x28, 0x28, 0x28);
+	0x7F, 0x2, 0x0,
+	0xFE, 0x4, 0x0, 0x28, 0x28, 0x28);
 
 Lights1 balloon_string_f3d_lights = gdSPDefLights1(
 	0x7F, 0x7F, 0x7F,
@@ -112,6 +112,7 @@ Gfx mat_balloon_balloon_f3d[] = {
 	gsDPPipeSync(),
 	gsDPSetCombineLERP(0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT, 0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT),
 	gsSPTexture(65535, 65535, 0, 0, 1),
+	gsDPSetEnvColor(254, 250, 250, 255),
 	gsSPSetLights1(balloon_balloon_f3d_lights),
 	gsSPEndDisplayList(),
 };
@@ -127,6 +128,7 @@ Gfx mat_balloon_string_f3d[] = {
 
 
 Gfx balloon_Balloon_mesh[] = {
+	gsSPSetGeometryMode(G_SHADING_SMOOTH),
 	gsSPDisplayList(mat_balloon_balloon_f3d),
 	gsSPDisplayList(balloon_Balloon_mesh_tri_0),
 	gsSPDisplayList(mat_balloon_string_f3d),

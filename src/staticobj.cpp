@@ -42,6 +42,12 @@
 #include "../models/static/objects/baldhooktree/model_baldhooktree.h"
 #include "../models/static/objects/deadtree/model_deadtree.h"
 #include "../models/static/objects/tire/model_tire.h"
+#include "../models/static/objects/toaster/model_toaster.h"
+#include "../models/static/objects/plank/model_plank.h"
+#include "../models/static/objects/trashcan/model_trashcan.h"
+#include "../models/static/objects/pot/model_pot.h"
+#include "../models/static/objects/bush/model_bush.h"
+#include "../models/static/objects/lamp/model_lamp.h"
 
 // -------------------------------------------------------------------------- //
 
@@ -85,6 +91,12 @@ static Gfx * gObjMeshList[] =
     tree2_bald_Tree_Bald_mesh,
     tree1_bald_TreeBald_mesh,
     tire_Tire_mesh,
+    toaster_Toaster_mesh,
+    plank_Plank_mesh,
+    trashcan_TrashCan_mesh,
+    pot_Pot_mesh,
+    bush_Bush_mesh,
+    lamp_Lamp_mesh,
     nullptr
 };
 
