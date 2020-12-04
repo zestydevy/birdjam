@@ -71,6 +71,7 @@ enum EObject
     OBJECT_POT,
     OBJECT_BUSH,
     OBJECT_LAMP,
+    OBJECT_CAR,
 };
 
 #endif

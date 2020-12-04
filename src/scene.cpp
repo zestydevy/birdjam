@@ -305,7 +305,7 @@ void TTestScene::init()
 
     TCollision::startup(
         mCollisionFaces, faceSize, nullptr,
-        (faceSize * 1.5f), 14, 512.0F
+        (faceSize * 1.5f), 24, 256.0F
     );
 
     mCurrentLayer = 0;

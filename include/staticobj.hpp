@@ -57,6 +57,7 @@ enum EObjType : s16
     POT,
     BUSH,
     LAMP,
+    CAR,
     INVALID
 };
 

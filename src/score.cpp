@@ -198,6 +198,9 @@ void TNestObj::init() {
 void TNestObj::update() {
   TObject::update();
 
+  if (mState == EState::IDLE || mState == EState::NESTING)
+    return;
+
   float y = 0.0f;
   TVec3S speedRot {0.0f, 0.0f, 0.0f};
   TVec3S rot = getRotation();
@@ -356,6 +359,15 @@ TVec3F TNestObj::getMountPoint()
 bool TNestObj::onPickup(
   TCollider * const other
 ) {
+  if (mState == EState::NESTING)
+  { //hit the player
+    TVec3F modifiedCenter = mPosition;
+    modifiedCenter.y() = mPlayer->getPosition().y();
+    TVec3F point = mPlayer->getPosition() - modifiedCenter;
+    point.normalize();
+    point *= getHalfWidth();
+    mPlayer->hitObject(modifiedCenter + point, mObjType);
+  }
   if (mState != EState::IDLE)
     return false;
 
@@ -576,7 +588,7 @@ TVec3F TNest::getRandomPointInside(){
 // -------------------------------------------------------------------------- //
 
 float TNest::getTopY(){
-  return sNest->getPosition().y() + (sNest->getCollideHeight() / 2.0f);
+  return sNest->getPosition().y() + (sNest->getSize() * 10.0f);
 }
 
 // -------------------------------------------------------------------------- //
@@ -584,6 +596,7 @@ float TNest::getTopY(){
 void TNest::assimilateObject(TNestObj * obj){
   obj->startNesting();
   mSize += obj->getObjWeight();
+  mCount++;
 
   setCollideRadius(64.0f + (mSize));
   setCollideHeight(32.0f + (4.0f * mSize));
