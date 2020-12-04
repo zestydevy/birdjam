@@ -24,13 +24,23 @@ class TSprite
 {
     public:
     
-    inline TSprite(Sprite * sprite, s32 x, s32 y)
-        : mSprite{sprite}
+    TSprite(Sprite * sprite, s32 x, s32 y)
     {
+      // copy sprite so we no longer have to make copies
+      mSprite = new Sprite;
+      *mSprite = *sprite;
+      
+      mSpriteDL = new Gfx[mSprite->ndisplist];
+      mSprite->rsp_dl = mSpriteDL;
+
       mPosition.x() = x;
       mPosition.y() = y;
     }
-    ~TSprite() = default;
+    ~TSprite()
+    {
+        delete mSprite;
+        delete[] mSpriteDL;
+    }
 
     // initializes S2DEX. call before utilizing sprites
     static inline void init(TDynList2 * list)
@@ -48,6 +58,12 @@ class TSprite
 	    gSPDisplayList(dl, rspinit_dl);
     }
 
+    void setPosition(TVec3S const & pos);
+    void setScale(TVec3F const & scale);
+    void setColor(TColor const & color);
+    void setAttribute(u32 const attrib);
+    void setTexture(void * buffer);
+
     void render();
 
     TVec2<s32> mPosition{};
@@ -58,6 +74,7 @@ class TSprite
     private:
     
     Sprite * mSprite{nullptr};
+    Gfx * mSpriteDL{nullptr};
     static TDynList2 * sDynList;
 
 };

@@ -68,7 +68,7 @@ void TCamera::render()
         mDistance = 600.0f;
 
     guPerspective(&mProjectionMtx, &mPersp,
-		      mFov, 320.0/240.0, 8, 15000, 1.0);
+		      mFov, 320.0/240.0, 5, 8000, 1.0);
     guLookAtReflect(&mFViewMtx, mLookAtMtx,
 		       50, 0, 400,
 		       0, 0, 0,

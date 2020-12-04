@@ -30,13 +30,17 @@ class TDynList2 {
   Mtx const & getViewMtx() const { return mViewMtx; }
   void setViewMtx(Mtx const & mtx) { mViewMtx = mtx; }
 
+  inline void flip() { mFrameNum ^= 1; }
+
   private:
 
   Mtx mProjMtx, mViewMtx;
   THeap * mHeap { nullptr };
   Gfx * mGfxAry { nullptr };
+  Gfx * mGfxAry2 { nullptr };
   u32 mMaxNumGfx { 0 };
   u32 mNumGfx { 0 };
+  u32 mFrameNum{ 0 };
 
 };
 

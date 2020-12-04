@@ -37,6 +37,7 @@ class TScene
     virtual void init() = 0;
     virtual void update() = 0;
     virtual void draw() = 0;
+    virtual void draw2D() = 0;
     virtual TScene * exit() = 0;
 
     void loadObjects(TSceneEntry const list[]);
@@ -71,6 +72,7 @@ class TLogoScene final
     virtual void init() override;
     virtual void update() override;
     virtual void draw() override;
+    virtual void draw2D() override;
     virtual TScene * exit() override;
 
     private:
@@ -98,6 +100,7 @@ class TTestScene final
     virtual void init() override;
     virtual void update() override;
     virtual void draw() override;
+    virtual void draw2D() override;
     virtual TScene * exit() override;
     virtual TPlayer * getPlayer() override;
 
