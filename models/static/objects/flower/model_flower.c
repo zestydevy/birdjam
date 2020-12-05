@@ -120,9 +120,11 @@ Gfx mat_revert_flower_Flower_f3d[] = {
 
 
 Gfx flower_Head_mesh[] = {
+	gsDPSetRenderMode(G_RM_AA_ZB_TEX_EDGE, G_RM_AA_ZB_TEX_EDGE2),
 	gsSPDisplayList(mat_flower_Flower_f3d),
 	gsSPDisplayList(flower_Head_mesh_tri_0),
 	gsSPDisplayList(mat_revert_flower_Flower_f3d),
+	gsDPSetRenderMode(G_RM_AA_ZB_OPA_SURF, G_RM_AA_ZB_OPA_SURF2),
 	gsDPPipeSync(),
 	gsSPSetGeometryMode(G_LIGHTING),
 	gsSPClearGeometryMode(G_TEXTURE_GEN),
