@@ -37,6 +37,8 @@ class TFlockObj :
   bool dropTopObject();
   bool dropAllObjects();
 
+  bool canGrabObject(float size);
+
   virtual void init() override;
   virtual void update() override;
   virtual void draw() override;
@@ -80,6 +82,8 @@ class TNestObj :
   virtual void init() override;
   virtual void update() override;
   virtual void draw() override;
+
+  virtual void increaseRadius(float threshold) override;
 
   void startNesting();
 
@@ -163,8 +167,8 @@ class TNest :
 
   void areaCollide(TCollider *);
 
-
-  void assimilateObject(TNestObj * obj);
+  void assimilateObject(TNestObj * obj);      //Object lands in nest
+  void startAssimilateObject(TNestObj * obj); //Object thrown into nest
 
   protected:
   float mSize { 0.0F };
@@ -193,6 +197,8 @@ class TNestObjSphere :
   virtual float getHalfHeight() override;
   virtual float getHalfWidth() override;
 
+  virtual void increaseRadius(float threshold) override;
+
   protected:
   virtual void setCollision(bool set) override;
   virtual void updateCollider() override;
@@ -218,6 +224,8 @@ class TNestObjBox :
 
   virtual float getHalfHeight() override;
   virtual float getHalfWidth() override;
+
+  virtual void increaseRadius(float threshold) override;
 
   protected:
   virtual void setCollision(bool set) override;

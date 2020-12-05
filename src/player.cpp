@@ -81,6 +81,8 @@ void TPlayer::startFlying(){
     mSpeed = BIRD_INITSPEED;
     mGoingFast = false;
 
+    mCawing = false;
+
     mCamera->setMode(true);
 }
 
@@ -105,6 +107,8 @@ void TPlayer::startIdle(){
     }
     else
         mState = PLAYERSTATE_FALLING;
+
+    mCawing = false;
 }
 
 void TPlayer::checkLateralCollision(){
@@ -157,11 +161,13 @@ void TPlayer::checkMeshCollision(const TCollFace * face, float radius){
                     mState = PLAYERSTATE_STUNNED;
                     mAnim->setAnimation(bird_Bird_GlideCrash_Length, mAnim_GlideCrash, false, 0.4f);
                     mCamera->setMode(true);
+                    playCrashSFX();
                 }
                 else{   //Bounce
                     mDirection += d * face->nrm * 2.0f;
                     mSpeed *= 1.0f - d;
                     mStutterTimer = 1.0f;
+                    playStumbleSFX();
                 }
 
                 TFlockObj::getFlockObj()->dropTopObject();
@@ -192,11 +198,13 @@ void TPlayer::hitObject(TVec3F point, EObjType type){
             mDirection += d * nrm * 2.0f;
             mState = PLAYERSTATE_STUNNED;
             mAnim->setAnimation(bird_Bird_GlideCrash_Length, mAnim_GlideCrash, false, 0.4f);
+            playCrashSFX();
         }
         else{   //Bounce
             mDirection += d * nrm * 2.0f;
             mSpeed *= 1.0f - d;
             mStutterTimer = 1.0f;
+            playStumbleSFX();
         }
 
         TFlockObj::getFlockObj()->dropTopObject();
@@ -205,6 +213,42 @@ void TPlayer::hitObject(TVec3F point, EObjType type){
         mPosition = point + nrm * BIRD_RADIUS;
     }
 }
+
+void TPlayer::collectObject(EObjType type){
+    switch (type){
+        case EObjType::BALLOON:
+            playBalloonPopSFX();
+            break;
+        case EObjType::CHICKEN:
+            playChickenSFX();
+            break;
+        case EObjType::CAT:
+            playCatSFX();
+            break;
+        case EObjType::CRITIC:
+            playCriticSFX();
+            break;
+    }
+}
+void TPlayer::passthroughObject(EObjType type){
+    switch (type){
+        case EObjType::LEAVES:
+            playLeavesShuffleSFX();
+            break;
+    }
+}
+
+/* SFX */
+void TPlayer::playCawSFX(){
+    mCawTimer = 0.4f;
+}
+void TPlayer::playStumbleSFX(){}
+void TPlayer::playCrashSFX(){}
+void TPlayer::playBalloonPopSFX(){}
+void TPlayer::playCatSFX(){}
+void TPlayer::playChickenSFX(){}
+void TPlayer::playLeavesShuffleSFX(){}
+void TPlayer::playCriticSFX(){}
 
 void TPlayer::update()
 {
@@ -215,7 +259,8 @@ void TPlayer::update()
     //    mAngle = TSine::atan2(-mPad->getAnalogX(), -mPad->getAnalogY());
     //}
 
-    mFlapTimer--;
+    mFlapTimer -= kInterval;
+    mCawTimer -= kInterval;
 
     TMtx44 temp1, temp2, temp3;
 
@@ -231,7 +276,7 @@ void TPlayer::update()
     float animRate = 0.25f;
 
     // Crash stutter effect timer
-    mStutterTimer -= 0.016f;
+    mStutterTimer -= kInterval;
     if (mStutterTimer < 0.0f)
         mStutterTimer = 0.0f;
 
@@ -254,7 +299,7 @@ void TPlayer::update()
         }
     }
 
-    float camDist = TMath<float>::clamp(TFlockObj::getFlockObj()->getSize() / 2.0f, 1.0f, 5.0f);
+    float camDist = TMath<float>::clamp(TFlockObj::getFlockObj()->getSize() / 5.0f, 1.0f, 2.5f);
 
     switch (mState){
         
@@ -272,6 +317,8 @@ void TPlayer::update()
                 mAnim->setAnimation(bird_Bird_Idle_Length, mAnim_Idle);
                 mIdleTimer = 0;
             }
+
+            mCawing = false;
             
             moveCameraRelative(move, forward, right);
             
@@ -289,19 +336,35 @@ void TPlayer::update()
 
             checkLateralCollision();
 
-            if (mIdleTimer++ == 150)
-                mAnim->setAnimation(bird_Bird_IdlePreen_Length, mAnim_IdlePreen, false, 0.3f);
-            else if (mIdleTimer > 150 && mAnim->isAnimationCompleted())
-                mAnim->setAnimation(bird_Bird_Idle_Length, mAnim_Idle);
-            
-            // played moved, change to walking state
-            if (mPad->getAnalogX() != 0 || mPad->getAnalogY() != 0) {
-                mState = playerstate_t::PLAYERSTATE_WALKING;
-                mAnim->setAnimation(bird_Bird_Walk_Length, mAnim_Walk, true, 0.3f);
+
+            if (!mCawing){
+                if (mIdleTimer >= 5.0f && mIdleTimer <= 5.1f)
+                    mAnim->setAnimation(bird_Bird_IdlePreen_Length, mAnim_IdlePreen, false, 0.3f);
+                else if (mIdleTimer > 5.1f && mAnim->isAnimationCompleted())
+                    mAnim->setAnimation(bird_Bird_Idle_Length, mAnim_Idle);
+                mIdleTimer += kInterval;
             }
 
-            if (mPad->isPressed(A) || mPad->isPressed(Z))    //Start flying
-                startFlying();
+            if (mPad->isPressed(L) && !mCawing && mCawTimer <= 0.0f){
+                mCawing = true;
+                mAnim->setAnimation(bird_Bird_IdleCaw_Length, mAnim_IdleCaw, false, 0.4f);
+                playCawSFX();
+            }
+            
+            // played moved, change to walking state
+            if (!mCawing){
+                if (mPad->getAnalogX() != 0 || mPad->getAnalogY() != 0) {
+                    mState = playerstate_t::PLAYERSTATE_WALKING;
+                    mAnim->setAnimation(bird_Bird_Walk_Length, mAnim_Walk, true, 0.3f);
+                }
+
+                if (mPad->isPressed(A) || mPad->isPressed(Z))    //Start flying
+                    startFlying();
+            }
+            else if (mAnim->isAnimationCompleted() && mCawTimer < 0.0f){
+                mCawing = false;
+                mAnim->setAnimation(bird_Bird_IdleCaw_Length, mAnim_IdleCaw, false, -0.25f);
+            }
         
         break;
 
@@ -319,14 +382,23 @@ void TPlayer::update()
                 // back to idle
                 mState = playerstate_t::PLAYERSTATE_IDLE;
                 mAnim->setAnimation(bird_Bird_Idle_Length, mAnim_Idle);
-                mIdleTimer = 0;
+                mIdleTimer = 0.0f;
             }
 
             mAnim->setTimescale(move.getLength() * 0.1f);
 
+            if (mPad->isPressed(L) && !mCawing && mCawTimer <= 0.0f){
+                mCawing = true;
+                mAnim->setAnimation(bird_Bird_IdleCaw_Length, mAnim_IdleCaw, false, 0.4f);
+                mState = playerstate_t::PLAYERSTATE_IDLE;
+                playCawSFX();
+            }
+
             // Switch to flying state
-            if (mPad->isPressed(A) || mPad->isPressed(Z))    //Start flying
-                startFlying();
+            if (!mCawing){
+                if (mPad->isPressed(A) || mPad->isPressed(Z))    //Start flying
+                    startFlying();
+            }
         }
         break;
         
@@ -375,7 +447,8 @@ void TPlayer::update()
                 mState = playerstate_t::PLAYERSTATE_IDLE;
                 mVelocity = 0.0f;
                 mAnim->setAnimation(bird_Bird_Idle_Length, mAnim_Idle);
-                mIdleTimer = 0;
+                mIdleTimer = 0.0f;
+                mCawing = false;
             }
             break;
 
@@ -421,7 +494,7 @@ void TPlayer::update()
 
             if ((mPad->isHeld(A) || mSpeed < BIRD_SLOWSPEED) && !mSlowingDown && mSpeed < BIRD_FASTSPEED){ // Flapping speed - when you hold A, or when going too slow. Can't do this when going too fast.
                 mGoingFast = false;
-                if (mFlapTimer < 0 && mFlappingWings == false){
+                if (mFlapTimer < 0.0f && mFlappingWings == false){
                     mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, false, 0.25f);
                     mFlappingWings = true;
                 }
@@ -456,31 +529,45 @@ void TPlayer::update()
                         mPitchModifier = 0.0f;
             }
 
+            if (mPad->isPressed(L) && !mCawing && mCawTimer <= 0.0f){
+                //mCawing = true;
+                //mAnim->setAnimation(bird_Bird_GlideCaw_Length, mAnim_GlideCaw, false, 0.25f);
+                playCawSFX();
+            }
+            //if (mCawing)
+            //    mAnim->setTimescale(0.25f);
+
             // Move along movement vector
             mPosition += mDirection * mSpeed;
             
             // Fast movement animation
-            if (mSpeed > BIRD_FASTSPEED && !mFlappingWings && !mSlowingDown){
-                if (!mGoingFast){
-                    mAnim->setAnimation(bird_Bird_GlideFast_Length, mAnim_GlideFast, true, 0.0f);
-                    mGoingFast = true;
+            if (!mCawing){
+                if (mSpeed > BIRD_FASTSPEED && !mFlappingWings && !mSlowingDown){
+                    if (!mGoingFast){
+                        mAnim->setAnimation(bird_Bird_GlideFast_Length, mAnim_GlideFast, true, 0.0f);
+                        mGoingFast = true;
+                    }
+                    mAnim->setFrame((mSpeed - BIRD_FASTSPEED) / (BIRD_MAXSPEED - BIRD_FASTSPEED));
                 }
-                mAnim->setFrame((mSpeed - BIRD_FASTSPEED) / (BIRD_MAXSPEED - BIRD_FASTSPEED));
-            }
-            else if (mGoingFast && !mSlowingDown) {
-                mAnim->setAnimation(bird_Bird_Glide_Length, mAnim_Glide, true, animRate);
-                mGoingFast = false;
-            }
+                else if (mGoingFast && !mSlowingDown) {
+                    mAnim->setAnimation(bird_Bird_Glide_Length, mAnim_Glide, true, animRate);
+                    mGoingFast = false;
+                }
 
-            // Stop flapping wings
-            if (mFlappingWings && mAnim->isAnimationCompleted() && !mSlowingDown){
-                mFlappingWings = false;
-                mAnim->setAnimation(bird_Bird_Glide_Length, mAnim_Glide, true, animRate);
-                mFlapTimer = 8;
-            }
+                // Stop flapping wings
+                if (mFlappingWings && mAnim->isAnimationCompleted() && !mSlowingDown){
+                    mFlappingWings = false;
+                    mAnim->setAnimation(bird_Bird_Glide_Length, mAnim_Glide, true, animRate);
+                    mFlapTimer = 0.133f;
+                }
 
-            if (!mFlappingWings && !mGoingFast)
+                if (!mFlappingWings && !mGoingFast)
                 mAnim->setTimescale(animRate); // Shake faster from wind
+            }
+            //else if (mAnim->isAnimationCompleted()){
+                //mCawing = false;
+                //mAnim->setAnimation(bird_Bird_GlideCaw_Length, mAnim_GlideCaw, false, -0.25f);
+           // }
 
             //if (mPad->isPressed(Z))    //Return back to flapping
             //    startIdle();
@@ -551,10 +638,15 @@ void TPlayer::update()
         mShadow->setPosition(pt);
         mShadow->setRotation(TVec3<s16>((s16)TSine::atan2(mGroundFace->nrm.z(), mGroundFace->nrm.y()), (s16)0, (s16)-TSine::atan2(mGroundFace->nrm.x(), mGroundFace->nrm.y())));
     }
+    else if (mPosition.y() < 0.0f){
+        mPosition.y() = 0.0f;   //if they somehow got underground
+    }
 
     //OOB Check
+    if (mPosition.y() < -BIRD_RADIUS && (mState == playerstate_t::PLAYERSTATE_FALLING || mState == playerstate_t::PLAYERSTATE_WALKING))
+        startFlying();  //no more jesus bird
     mPosition.x() = TMath<float>::clamp(mPosition.x(), -4200.0f, 4200.0f);
-    mPosition.y() = TMath<float>::clamp(mPosition.y(), 0.0f, 2000.0f);
+    mPosition.y() = TMath<float>::clamp(mPosition.y(), -BIRD_RADIUS, 2000.0f);
     mPosition.z() = TMath<float>::clamp(mPosition.z(), -4200.0f, 4200.0f);
 
     updateBlkMap();
@@ -628,12 +720,12 @@ void TPlayer::onCollide(
 // -------------------------------------------------------------------------- //
 
 // move player relative to camera
-void TPlayer::moveCameraRelative(TVec3F & move, TVec3F & forward, TVec3F & right)
+void TPlayer::moveCameraRelative(TVec3F & move, TVec3F & forward, TVec3F & right, float multiplier)
 {
     // make sure bird is moving relative to the camera
     if (mPad->getAnalogX() != 0 || mPad->getAnalogY() != 0) {
         move = (forward * (float)mPad->getAnalogY() / 160.0f) + (right * (float)mPad->getAnalogX() / 160.0f); //Move relative to camera
-        move = move * BIRD_FLAPSPEED;
+        move = move * BIRD_FLAPSPEED * multiplier;
     }
 
     // Smooth acceleration

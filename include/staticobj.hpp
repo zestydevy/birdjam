@@ -62,6 +62,7 @@ enum EObjType : s16
     BUSH,
     LAMP,
     CAR,
+    GOAL,
     INVALID
 };
 
@@ -89,6 +90,8 @@ class TObject
     virtual void init();
     virtual void update();
     virtual void draw();
+
+    virtual void increaseRadius(float threshold);
 
     static Gfx * getMeshGfx(EObjType type);
     static const TObjectData & getNestObjectInfo(EObjType type);

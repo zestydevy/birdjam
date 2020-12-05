@@ -52,6 +52,7 @@
 #include "../models/static/objects/bush/model_bush.h"
 #include "../models/static/objects/lamp/model_lamp.h"
 #include "../models/static/objects/car/model_car.h"
+#include "../models/static/objects/goal/model_goal.h"
 
 // -------------------------------------------------------------------------- //
 
@@ -106,6 +107,7 @@ static Gfx * gObjMeshList[] =
     bush_Bush_mesh,
     lamp_Lamp_mesh,
     car_Car_mesh,
+    goal_Goal_mesh,
     nullptr
 };
 
@@ -133,6 +135,10 @@ void TObject::init()
 {
     mInCamera = true;
     updateMtx();
+}
+
+void TObject::increaseRadius(float threshold){
+
 }
 
 void TObject::updateMtx()

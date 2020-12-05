@@ -48,7 +48,10 @@ void TAnimator::setTimescale(float dt){
 }
 
 bool TAnimator::isAnimationCompleted(){
-    return !loop && mTime >= mLength - 1;
+    if (mTimescale >= 0.0f)
+        return !loop && mTime >= mLength - 1;
+    else
+        return !loop && mTime < 0;
 }
 bool TAnimator::isAnimationLooping(){
     return loop;
@@ -81,6 +84,10 @@ void TAnimator::setAnimation(int length, Vtx** animation[], bool loop, float spe
     mLength = length;
     for (int i = 0; i < mMeshCount; i++)
         mAnim[i] = animation[i];
+
+    if (speed < 0.0f)
+        mTime = mLength - 1;
+
     setTimescale(speed);
 }
 
