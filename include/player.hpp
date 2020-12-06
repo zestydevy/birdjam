@@ -158,6 +158,9 @@ class TPlayer :
 
     s16 mBankAngle;
 
+    s16 mEndCameraAngle;
+    float mEndCameraDistance;
+    float mEndCameraTimer;
     playerstate_t mState;
     gameplaystate_t mGameState;
 

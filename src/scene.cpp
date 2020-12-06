@@ -295,31 +295,33 @@ void TTestScene::init()
     faceStart = vertSize * 3 + 4;
     u16 faceSizeL3 = worldcol_layer3[faceStart - 1];        //layer 3 face count
 
-    // @miluaces, add layer 4
-    // vertSize = worldcol_layer4[1];
-    // faceStart = vertSize * 3 + 4;
-    // u16 faceSizeL4 = worldcol_layer4[faceStart - 1];        //layer 4 face count
+    //@miluaces, add layer 4
+    vertSize = worldcol_layer4[1];
+    faceStart = vertSize * 3 + 4;
+    u16 faceSizeL4 = worldcol_layer4[faceStart - 1];        //layer 4 face count
 
     vertSize = worldcol_layernest[1];
     faceStart = vertSize * 3 + 4;
     u16 faceSizeNest = worldcol_layernest[faceStart - 1];        //save nest layer for last
 
-    u16 faceSize = faceSizeMain + faceSizeL2 + faceSizeL3 + faceSizeNest;
+    u16 faceSize = faceSizeMain + faceSizeL2 + faceSizeL3 + faceSizeL4 + faceSizeNest;
     mCollisionFaces = new TCollFace[faceSize];
     loadCollision(worldcol_collision, mCollisionFaces);
     loadCollision(worldcol_layer2, mCollisionFaces, faceSizeMain);
     loadCollision(worldcol_layer3, mCollisionFaces, faceSizeMain + faceSizeL2);
-    //loadCollision(worldcol_layer4, mCollisionFaces, faceSizeMain + faceSizeL2 + faceSizeL3);
-    loadCollision(worldcol_layernest, mCollisionFaces, faceSizeMain + faceSizeL2 + faceSizeL3);
+    loadCollision(worldcol_layer4, mCollisionFaces, faceSizeMain + faceSizeL2 + faceSizeL3);
+    loadCollision(worldcol_layernest, mCollisionFaces, faceSizeMain + faceSizeL2 + faceSizeL3 + faceSizeL4);
 
     mColL2Start = faceSizeMain;
     mColL2End = mColL2Start + faceSizeL2;
     mColL3Start = mColL2End;
     mColL3End = mColL3Start + faceSizeL3;
+    mColL4Start = mColL3End;
+    mColL4End = mColL4Start + faceSizeL4;
 
     TCollision::startup(
         mCollisionFaces, faceSize, nullptr,
-        (faceSize * 1.5f), 10, 512.0F
+        (faceSize * 1.5f), 10, 768.0F
     );
 
     mCurrentLayer = 0;
@@ -344,13 +346,26 @@ void TTestScene::update()
     //}
 
     //Remove layers
-    if (mCurrentLayer == 0 && TFlockObj::getFlockObj()->getStrength() >= SIZE_LAYER1){
+    if (mCurrentLayer == 0 && TFlockObj::getFlockObj()->canGrabObject(SIZE_LAYER1)){
         clearCollisions(mColL2Start, mColL2End);
         mCurrentLayer++;
+
+        for (int i = 0; i < mObjList.capacity(); ++i) 
+            mObjList[i]->increaseRadius(SIZE_LAYER1);
     }
-    if (mCurrentLayer == 1 && TFlockObj::getFlockObj()->getStrength() >= SIZE_LAYER2){
+    if (mCurrentLayer == 1 && TFlockObj::getFlockObj()->canGrabObject(SIZE_LAYER2)){
         clearCollisions(mColL3Start, mColL3End);
         mCurrentLayer++;
+
+        //for (int i = 0; i < mObjList.capacity(); ++i) 
+            //mObjList[i]->increaseRadius(SIZE_LAYER2);
+    }
+    if (mCurrentLayer == 2 && TFlockObj::getFlockObj()->canGrabObject(SIZE_LAYER3)){
+        clearCollisions(mColL4Start, mColL4End);
+        mCurrentLayer++;
+
+        //for (int i = 0; i < mObjList.capacity(); ++i) 
+            //mObjList[i]->increaseRadius(SIZE_LAYER3);
     }
 
     TCollider::frameBegin();

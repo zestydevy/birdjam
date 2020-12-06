@@ -660,8 +660,15 @@ void TPlayer::update()
     mPosition.z() = TMath<float>::clamp(mPosition.z(), -4200.0f, 4200.0f);
 
     //Game state and HUD check
-    if (gHud->isTimeUp())
+    if (gHud->isTimeUp() && mGameState != gameplaystate_t::PLAYERGAMESTATE_FINISHED){
         mGameState = gameplaystate_t::PLAYERGAMESTATE_FINISHED;
+
+        mEndCameraAngle = 0;
+        mEndCameraDistance = 300.0f + TNest::getNestObject()->getSize() / 2.0f;
+        mEndCameraTimer = 0.0f;
+        
+        mCamera->setMode(true);
+    }
     if (mGameState == gameplaystate_t::PLAYERGAMESTATE_COUNTDOWN){
         if (gHud->isCountedDown()){
             mGameState = gameplaystate_t::PLAYERGAMESTATE_FLIGHT;
@@ -670,9 +677,21 @@ void TPlayer::update()
         }
     }
     else if (mGameState == gameplaystate_t::PLAYERGAMESTATE_FINISHED){
-        mCamera->setMode(true);
-        mCamera->setTarget(&(TNest::getNestObject()->getPosition()));
+        mEndCameraAngle += TSine::fromDeg(15.0f * kInterval);
+        mCameraTarget = TNest::getNestObject()->getPosition();
+
+        float dy = TNest::getNestObject()->getTopY() - mCameraTarget.y();
+        mCameraTarget.y() += dy * -(TSine::scos(TSine::fromDeg(mEndCameraTimer * 12.0f)) + 1.0f) / 2.0f;
+
+        mCamera->setPosition(
+            TNest::getNestObject()->getPosition() +
+            TVec3F(0.0f, (0.5f * dy * TSine::scos(TSine::fromDeg(mEndCameraTimer * 12.0f))), 0.0f) +
+            (mEndCameraDistance * TVec3F(TSine::scos(TSine::fromDeg(mEndCameraTimer * -12.0f)), 0.0f, TSine::ssin(TSine::fromDeg(mEndCameraTimer * -12.0f))))
+            );
+
         mCamera->setFOV(45.0f);
+
+        mEndCameraTimer += kInterval;
     }
 
     updateBlkMap();
