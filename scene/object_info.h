@@ -15,8 +15,8 @@ extern "C"{
 #define SIZE_MED 1.25f
 #define SIZE_ANIMAL 3.5f
 #define SIZE_LARGE 5.0f
-#define SIZE_MAN 10.0f
-#define SIZE_LAYER1 15.0f
+#define SIZE_MAN 15.0f
+#define SIZE_LAYER1 10.0f
 #define SIZE_MASSIVE 25.0f
 #define SIZE_GIANT 40.0f
 #define SIZE_LAYER2 60.0f
