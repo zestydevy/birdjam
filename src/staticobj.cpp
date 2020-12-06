@@ -143,8 +143,10 @@ void TObject::increaseRadius(float threshold){
 
 void TObject::updateMtx()
 {
-    if (!mInCamera)
+    if (!mInCamera){
+        mMtxNeedsUpdate = true;
         return;
+    }
 
     TMtx44 temp1, temp2, temp3, mPosMtx, mScaleMtx;
     

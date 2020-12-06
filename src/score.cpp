@@ -13,6 +13,8 @@
 #include "staticobj.hpp"
 #include "util.hpp"
 
+#include "../models/static/dropoff/model_dropoff.h"
+
 // -------------------------------------------------------------------------- //
 
 TFlockObj * TFlockObj::sFlockObj { nullptr };
@@ -151,7 +153,7 @@ bool TFlockObj::dropAllObjects() {
     TNest::getNestObject()->startAssimilateObject(mHeldObjects[i]);
     incFlock(1, mHeldObjects[i]->getObjWeight() / 2.0f);
 
-    gHud->addScore((mHeldObjects[i]->getHalfWidth() * 25.0f));
+    gHud->addScore((mHeldObjects[i]->getScore() * 0.005f));
   }
   mHeldNum = 0;
   mCarrySize = 0.0f;
@@ -186,6 +188,13 @@ float TNestObj::getHalfWidth() {
   return 0.0f;
 }
 
+// -------------------------------------------------------------------------- //
+
+float TNestObj::getScore() {
+  if (mData->volume > 0)
+    return mData->volume;
+  return 0.0f;
+}
 
 // -------------------------------------------------------------------------- //
 
@@ -265,7 +274,7 @@ void TNestObj::update() {
       mPosition += mVelocity * kInterval;   //velocity
       mRotation += TVec3S(TSine::fromDeg(mRotVel.x()), TSine::fromDeg(mRotVel.y()), TSine::fromDeg(mRotVel.z()));     //rotational velocity
 
-      if (mVelocity.y() < 0.0f && mPosition.y() - getHalfWidth() < TNest::getTopY()){  //hit the nest
+      if (mVelocity.y() < 0.0f && mPosition.y() < TNest::getTopY()){  //hit the nest
         mState = EState::NESTING;
         mVelocity.y() = 0.0f;
         setCollision(true);
@@ -487,6 +496,14 @@ float TNestObjSphere::getHalfWidth() {
 
 // -------------------------------------------------------------------------- //
 
+float TNestObjSphere::getScore() {
+  if (mData->volume > 0)
+    return mData->volume;
+  return 4 * 3.14f * getCollideRadius() * getCollideRadius();
+}
+
+// -------------------------------------------------------------------------- //
+
 void TNestObjSphere::onCollide(
   TCollider * const other
 ) {
@@ -561,6 +578,14 @@ float TNestObjBox::getHalfWidth() {
 
 // -------------------------------------------------------------------------- //
 
+float TNestObjBox::getScore() {
+  if (mData->volume > 0)
+    return mData->volume;
+  return getCollideSize().x() * getCollideSize().y() / 8.0f;
+}
+
+// -------------------------------------------------------------------------- //
+
 void TNestObjBox::onCollide(
   TCollider * const other
 ) {
@@ -584,8 +609,6 @@ TNest::TNest(
 
   updateBlkMap();
 
-  mNestArea = new TNestArea(dl, this);
-
   sNest = this;
 }
 
@@ -606,18 +629,25 @@ TNest * TNest::getNestObject() {
 
 void TNest::init() {
   TObject::init();
+
+  mNestArea = new TNestArea(mDynList, this);
+  mNestArea->init();
 }
 
 // -------------------------------------------------------------------------- //
 
 void TNest::update() {
   TObject::update();
+  if (mNestArea != nullptr)
+    mNestArea->update();
 }
 
 // -------------------------------------------------------------------------- //
 
 void TNest::draw() {
   TObject::draw();
+  if (mNestArea != nullptr)
+    mNestArea->draw();
 }
 
 // -------------------------------------------------------------------------- //
@@ -647,8 +677,8 @@ void TNest::startAssimilateObject(TNestObj * obj){
 // -------------------------------------------------------------------------- //
 
 void TNest::assimilateObject(TNestObj * obj){
-  setCollideRadius(getCollideRadius() + (obj->getHalfWidth() / 32.0f));
-  setCollideHeight(getCollideHeight() + (obj->getHalfWidth()) / 8.0f);
+  setCollideRadius(getCollideRadius() + (obj->getScore() * 0.0001f));
+  setCollideHeight(getCollideHeight() + (obj->getScore() * 0.0005f));
   //setCollideCenter(mPosition + TVec3F(0.0f, -9.0f, 0.0f));
 
   mNestArea->updateSize(mSize);
@@ -676,28 +706,44 @@ void TNest::onCollide(
 
 TNestArea::TNestArea(
   TDynList2 * dl, TNest * nest
-)
+) :
+  TObject { dl }
 {
+  mNest = nest;
+
   initCollider(TAG_NEST, 0, TAG_PLAYER, 1);
-  setCollideCenter(nest->getPosition() + TVec3F(0.0f, 2580.0f, 0.0f));  // Bottom of collider on top of nest. can't use getTopY here yet.
+  setCollideCenter(nest->getPosition() + TVec3F(0.0f, 2500.0f, 0.0f));  // Bottom of collider on top of nest. can't use getTopY here yet.
   setCollideRadius(96.0f);
   setCollideHeight(5000.0f);
 
-  updateBlkMap();
+  mPosition = nest->getPosition();
+  mPosition.y() = mNest->getTopY() + getCollideHeight() / 32.0f;
+  mRotation = TVec3S(0,0,0);
+  mScale = TVec3F(getCollideRadius() / 213.0f, getCollideHeight() / 213.0f / 32.0f, getCollideRadius() / 213.0f);
 
-  mNest = nest;
+  mAlwaysDraw = true;
+  setMesh(dropoff_Cylinder_mesh);
+
+  updateBlkMap();
 }
 
 // -------------------------------------------------------------------------- //
 
 void TNestArea::updateSize(float size){
   TVec3F center = mNest->getPosition();
-  center.y() = mNest->getTopY() + 2500.0f + 80.0f;
+  center.y() = mNest->getTopY() + 2500.0f;
 
   setCollideRadius(96.0f + (size / 4.0f));
   setCollideCenter(center);
 
   updateBlkMap();
+
+  mPosition = mNest->getPosition();
+  mPosition.y() = mNest->getTopY() + getCollideHeight() / 32.0f;
+  mRotation = TVec3S(0,0,0);
+  mScale = TVec3F(getCollideRadius() / 213.0f, getCollideHeight() / 213.0f / 32.0f, getCollideRadius() / 213.0f);
+
+  mMtxNeedsUpdate = true;
 }
 
 // -------------------------------------------------------------------------- //
@@ -706,6 +752,13 @@ void TNestArea::onCollide(
   TCollider * const other
 ) {
   mNest->areaCollide(other);
+}
+
+// -------------------------------------------------------------------------- //
+
+void TNestArea::draw(){
+  if (TFlockObj::getFlockObj()->getCapacity() > 0.0f && (gPlayer->getPosition().xz() - getPosition().xz()).getLength() > getCollideRadius() * 1.5f)
+    TObject::draw();
 }
 
 // -------------------------------------------------------------------------- //

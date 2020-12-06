@@ -56,9 +56,6 @@ void TCamera::jumpToTarget(){
         z = mTarget->z() - TSine::scos(mAngle) * pdist;
         mPosition.set(x, y, z);
     }
-    else
-        mPosition = *mTarget;
-
     mOldPos = mPosition;
 }
 

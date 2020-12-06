@@ -42,7 +42,7 @@ struct TObjectData{
     float sizez;
 
     float mass;
-    s16 value;
+    float volume;
 
     float drawDist;
 };

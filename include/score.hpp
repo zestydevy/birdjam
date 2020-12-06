@@ -89,6 +89,7 @@ class TNestObj :
 
   virtual float getHalfHeight();
   virtual float getHalfWidth();
+  virtual float getScore();
 
   protected:
   virtual void setCollision(bool set);
@@ -128,6 +129,7 @@ class TNestObj :
 
 class TNest;
 class TNestArea :
+  public TObject,
   public TCylinderCollider
 {
   public:
@@ -136,6 +138,8 @@ class TNestArea :
   virtual ~TNestArea() = default;
 
   void updateSize(float size);
+
+  virtual void draw() override;
 
   protected:
   TNest * mNest{nullptr};
@@ -196,6 +200,7 @@ class TNestObjSphere :
 
   virtual float getHalfHeight() override;
   virtual float getHalfWidth() override;
+  virtual float getScore() override;
 
   virtual void increaseRadius(float threshold) override;
 
@@ -224,6 +229,7 @@ class TNestObjBox :
 
   virtual float getHalfHeight() override;
   virtual float getHalfWidth() override;
+  virtual float getScore() override;
 
   virtual void increaseRadius(float threshold) override;
 

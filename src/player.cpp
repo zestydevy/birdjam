@@ -597,8 +597,9 @@ void TPlayer::update()
                     mCameraTarget += (fright * 20.00f);
 
                 if (mPad->isHeld(R)){
-                    mCamera->setPosition(mPosition + TVec3F(0.0f, -15.00f, 0.0f));
-                    mCameraTarget.lerpTime(mPosition + TVec3F(0.0f, -2000.00f, 0.0f), 0.1f, kInterval);
+                    mCamera->setPosition(mPosition + (mDirection * BIRD_RADIUS));
+                    mCameraTarget = mPosition + (mDirection * BIRD_RADIUS * 2.0f);
+                    mCamera->jumpToTarget();
                 }
             }
             break;
@@ -664,7 +665,7 @@ void TPlayer::update()
         mGameState = gameplaystate_t::PLAYERGAMESTATE_FINISHED;
 
         mEndCameraAngle = 0;
-        mEndCameraDistance = 300.0f + TNest::getNestObject()->getSize() / 2.0f;
+        mEndCameraDistance = 300.0f + TNest::getNestObject()->getSize() / 1.5f;
         mEndCameraTimer = 0.0f;
         
         mCamera->setMode(true);
@@ -685,7 +686,7 @@ void TPlayer::update()
 
         mCamera->setPosition(
             TNest::getNestObject()->getPosition() +
-            TVec3F(0.0f, (0.5f * dy * TSine::scos(TSine::fromDeg(mEndCameraTimer * 12.0f))), 0.0f) +
+            TVec3F(0.0f, (dy + (dy * TSine::scos(TSine::fromDeg(mEndCameraTimer * 12.0f)))) / 2.0f, 0.0f) +
             (mEndCameraDistance * TVec3F(TSine::scos(TSine::fromDeg(mEndCameraTimer * -12.0f)), 0.0f, TSine::ssin(TSine::fromDeg(mEndCameraTimer * -12.0f))))
             );
 
