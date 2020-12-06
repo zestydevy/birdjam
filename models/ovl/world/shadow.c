@@ -250,7 +250,7 @@ Gfx shadow_Plane_mesh_tri_0[] = {
 Gfx mat_shadow_sm64_material[] = {
 	gsDPPipeSync(),
 	gsDPSetCombineLERP(TEXEL0, 0, SHADE, 0, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, SHADE, 0, TEXEL0, 0, PRIMITIVE, 0),
-	gsSPClearGeometryMode(G_CULL_BACK),
+	gsSPSetGeometryMode(G_CULL_BACK),
 	gsSPTexture(65535, 65535, 0, 0, 1),
 	gsDPTileSync(),
 	gsDPSetTextureImage(G_IM_FMT_IA, G_IM_SIZ_8b, 32, shadow_shadow_ia4),

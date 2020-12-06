@@ -60,7 +60,7 @@ const struct TObjectData gObjectDataList[] =
     {chair_Chair_mesh, "Chair", 1, true, 800.0f, 800.0f, 800.0f, SIZE_LAYER1, 0.0f, DRAWDIST_HALF},
     {basket_Basket_mesh, "Basket", 1, false, 380.0f, 380.0f, 380.0f, SIZE_MED, 0.0f, DRAWDIST_QUARTER},
     {beer_Beer_mesh, "Drink", 0, false, 380.0f, 380.0f, 380.0f, SIZE_SMALL, 0.0f, DRAWDIST_EIGHTH},
-    {noodle_Noodle_mesh, "Pool Toy", 0, true, 250.0f, 250.0f, 250.0f, SIZE_LARGE, 0.0f, DRAWDIST_QUARTER},
+    {noodle_Noodle_mesh, "Pool Toy", 0, true, 350.0f, 350.0f, 350.0f, SIZE_MAN, 0.0f, DRAWDIST_QUARTER},
     {melon_Melon_mesh, "Melon", 0, false, 213.0f, 213.0f, 213.0f, SIZE_MED, 0.0f, DRAWDIST_QUARTER},
     {apple_Apple_mesh, "Apple", 0, false, 200.0f, 200.0f, 200.0f, SIZE_SMALL, 0.0f, DRAWDIST_EIGHTH},
     {balloon_deflated_Balloon_Deflated_mesh, "Balloon", 0, false, 20.0f, 20.0f, 20.0f, SIZE_SMALL, 0.0f, DRAWDIST_EIGHTH},

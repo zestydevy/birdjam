@@ -55,7 +55,7 @@ void TPlayer::init()
     mShadow = new TObject(mDynList);
     mShadow->init();
     mShadow->setPosition({0.0f,0.0f,0.0f});
-    mShadow->setScale(TVec3F(0.15f, 0.15f, 0.15f));
+    mShadow->setScale(TVec3F(0.10f, 0.10f, 0.10f));
     mShadow->setMesh(shadow_Plane_mesh);
 
     setMesh(bird_Bird_mesh);
@@ -311,7 +311,7 @@ void TPlayer::update()
         // walk controls
         case playerstate_t::PLAYERSTATE_FALLING:
             mAnim->setTimescale(0.25f);
-            if (mClosestFace == nullptr) {
+            if (mClosestFace == nullptr || mClosestFace->nrm.y() > 0.707f) {
                 mVelocity += BIRD_FALLGRAVITY * kInterval;
                 mPosition -= {0.0f, mVelocity, 0.0f};
             } else {
@@ -656,7 +656,7 @@ void TPlayer::update()
     //OOB Check
     if (mPosition.y() < -BIRD_RADIUS && (mState == playerstate_t::PLAYERSTATE_FALLING || mState == playerstate_t::PLAYERSTATE_WALKING))
         startFlying();  //no more jesus bird
-    mPosition.x() = TMath<float>::clamp(mPosition.x(), -4200.0f, 4200.0f);
+    mPosition.x() = TMath<float>::clamp(mPosition.x(), -4500.0f, 3600.0f);
     mPosition.y() = TMath<float>::clamp(mPosition.y(), -BIRD_RADIUS, 2000.0f);
     mPosition.z() = TMath<float>::clamp(mPosition.z(), -4200.0f, 4200.0f);
 
