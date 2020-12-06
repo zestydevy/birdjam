@@ -26,6 +26,13 @@ T Lerp(T p0, T p1, float mu) {
 // -------------------------------------------------------------------------- //
 
 template<typename T>
+T Sinerp(T p0, T p1, float mu) {
+  return Lerp<T>(p0, p1, TSine::ssin(TSine::fromDeg(mu * 90.0F)));
+}
+
+// -------------------------------------------------------------------------- //
+
+template<typename T>
 T Lagrange(T p0, T p1, T p2, float mu) {
   float t0 = ((1.0F - mu) * (1.0F - mu));
   float t1 = (2.0F * (1.0F - mu) * mu);
@@ -36,172 +43,240 @@ T Lagrange(T p0, T p1, T p2, float mu) {
 
 // -------------------------------------------------------------------------- //
 
-void THud::init() {
-  mSprite[SPR_SCORE].load(hud_score_sprite);
-  mSprite[SPR_TIME].load(hud_time_sprite);
-  mSprite[SPR_TIME_COLON].load(hud_colon_sprite);
-
-  Sprite const & digit = *getDigitSprite(0);
-
-  for (u32 i = 0; i < NUM_SCORE_DIGITS; ++i) {
-    mSprite[SPR_SCORE_0 + i].load(digit);
+float THudAlarm::get() const {
+  if (mAlarm == 0.0F) {
+    return 1.0F;
   }
 
-  for (u32 i = 0; i < NUM_TIME_DIGITS; ++i) {
-    mSprite[SPR_TIME_0 + i].load(digit);
-  }
-
-  mFlashTime = 3.0F;
-  mState = ST_LOWERING;
-  mClock.start(5 * 60); // 5 minutes
-  startTimer(1.0F);
+  return (mTime / mAlarm);
 }
 
 // -------------------------------------------------------------------------- //
 
-void THud::update() {
-  s32 x[NUM_SPRITES];
-  s32 y[NUM_SPRITES];
+float THudAlarm::get(float a, float b) const {
+  if (a >= b) {
+    return 0.0F;
+  }
+
+  float t = get();
+
+  if (t < a) {
+    return 0.0F;
+  }
+
+  if (t > b) {
+    return 1.0F;
+  }
+
+  return ((t - a) / (b - a));
+}
+
+// -------------------------------------------------------------------------- //
+
+void THudAlarm::set(float t) {
+  if (t < 0.0F) {
+    t = 0.0F;
+  }
+
+  mTime = 0.0F;
+  mAlarm = t;
+}
+
+// -------------------------------------------------------------------------- //
+
+bool THudAlarm::update() {
+  if (mTime >= mAlarm) {
+    return false;
+  }
+
+  mTime += kInterval;
+
+  if (mTime >= mAlarm) {
+    mTime = mAlarm;
+  }
+
+  return off();
+}
+
+// -------------------------------------------------------------------------- //
+
+bool THudAlarm::off() const {
+  return (mTime >= mAlarm);
+}
+
+// -------------------------------------------------------------------------- //
+
+void THudScore::hide() {
+  mState = ST_HIDE;
+}
+
+// -------------------------------------------------------------------------- //
+
+void THudScore::show() {
+  mState = ST_SHOW;
+  mStateTimer.set(1.0F);
+
+  for (u32 i = 0; i < NUM_SPRITES; ++i) {
+    setOffSprite(i);
+  }
+}
+
+// -------------------------------------------------------------------------- //
+
+void THudScore::lower() {
+  mState = ST_LOWER;
+  mStateTimer.set(1.0F);
+}
+
+// -------------------------------------------------------------------------- //
+
+void THudScore::raise() {
+  mState = ST_RAISE;
+  mStateTimer.set(0.5F);
+}
+
+// -------------------------------------------------------------------------- //
+
+u32 THudScore::getScore() const {
+  return mFinScore;
+}
+
+// -------------------------------------------------------------------------- //
+
+void THudScore::setScore(u32 pts) {
+  mBounceTime = 1.0F;
+  mFinScore = pts;
+}
+
+// -------------------------------------------------------------------------- //
+
+void THudScore::init() {
+  mSprite[SPR_SCORE].load(hud_score_sprite);
+
+  for (u32 i = 0; i < NUM_SCORE_DIGITS; ++i) {
+    mSprite[SPR_SCORE_0 + i].load(
+      THud::getDigitSprite(0)
+    );
+  }
+
+  for (u32 i = 0; i < NUM_SPRITES; ++i) {
+    mSprite[i].setAttributes(SP_FASTCOPY);
+  }
+}
+
+// -------------------------------------------------------------------------- //
+
+void THudScore::update() {
+  u32 digits[NUM_SCORE_DIGITS];
+  s16 digit_y[NUM_SCORE_DIGITS];
+  s16 score_y;
 
   switch (mState) {
-    case ST_DOWN: {
-      mSpriteMask &= ~(1U << SPR_SCORE);
-      mSpriteMask &= ~(1U << SPR_TIME);
+    case ST_SHOW: {
+      setOnSprite(SPR_SCORE);
 
-      y[SPR_SCORE] = 5;
-      y[SPR_TIME] = 5;
-      y[SPR_TIME_COLON] = 34;
-
-      for (u32 i = 0; i < NUM_SCORE_DIGITS; ++i) {
-        y[SPR_SCORE_0 + i] = 34;
-      }
-
-      for (u32 i = 0; i < NUM_TIME_DIGITS; ++i) {
-        y[SPR_TIME_0 + i] = 34;
-      }
-
-      if (updateTimer()) {
-        startTimer(0.5F);
-        mState = ST_RAISING;
-      }
-
-      break;
-    }
-    case ST_UP: {
-      mSpriteMask |= (1U << SPR_SCORE);
-      mSpriteMask |= (1U << SPR_TIME);
-
-      y[SPR_TIME_COLON] = 5;
+      score_y = Lerp<s16>(
+        -95, 5, mStateTimer.get(0.0F, 0.6F)
+      );
 
       for (u32 i = 0; i < NUM_SCORE_DIGITS; ++i) {
-        y[SPR_SCORE_0 + i] = 5;
-      }
+        float a = (0.0F + 0.08F * (float)i);
+        float b = (a + 0.5F);
 
-      for (u32 i = 0; i < NUM_TIME_DIGITS; ++i) {
-        y[SPR_TIME_0 + i] = 5;
-      }
-
-      break;
-    }
-    case ST_LOWERING: {
-      mSpriteMask &= ~(1U << SPR_SCORE);
-      mSpriteMask &= ~(1U << SPR_TIME);
-
-      y[SPR_SCORE] = Lerp<s32>(-40, 5, getTimer(0.0F, 0.75F));
-      y[SPR_TIME] = Lerp<s32>(-40, 5, getTimer(0.0F, 0.75F));
-
-      for (u32 i = 0; i < NUM_SCORE_DIGITS; ++i) {
-        float a = (0.0F + 0.05F * (float)i);
-        float b = (a + 0.6F);
-
-        y[SPR_SCORE_0 + i] = Lagrange<s32>(
-          5, 70, 34, getTimer(a, b)
+        digit_y[i] = Lagrange<s16>(
+          -40, 70, 34, mStateTimer.get(a, b)
         );
       }
 
-      y[SPR_TIME_0] = Lagrange<s32>(
-        5, 70, 34, getTimer(0.00F, 0.60F)
-      );
-
-      y[SPR_TIME_COLON] = Lagrange<s32>(
-        5, 70, 34, getTimer(0.05F, 0.65F)
-      );
-
-      y[SPR_TIME_1] = Lagrange<s32>(
-        5, 70, 34, getTimer(0.10F, 0.70F)
-      );
-
-      y[SPR_TIME_2] = Lagrange<s32>(
-        5, 70, 34, getTimer(0.15F, 0.75F)
-      );
-
-      if (updateTimer()) {
-        startTimer(3.5F);
+      if (mStateTimer.update()) {
         mState = ST_DOWN;
       }
 
       break;
     }
-    case ST_RAISING: {
-      mSpriteMask &= ~(1U << SPR_SCORE);
-      mSpriteMask &= ~(1U << SPR_TIME);
+    case ST_LOWER: {
+      setOnSprite(SPR_SCORE);
 
-      y[SPR_SCORE] = Lerp<s32>(5, -25, getTimer());
-      y[SPR_TIME] = Lerp<s32>(5, -25, getTimer());
-      y[SPR_TIME_COLON] = Lerp<s32>(35, 5, getTimer());
+      score_y = Lerp<s16>(
+        -40, 5, mStateTimer.get(0.0F, 0.75F)
+      );
 
       for (u32 i = 0; i < NUM_SCORE_DIGITS; ++i) {
-        y[SPR_SCORE_0 + i] = Lerp<s32>(35, 5, getTimer());
+        float a = (0.0F + 0.05F * (float)i);
+        float b = (a + 0.6F);
+
+        digit_y[i] = Lagrange<s16>(
+          5, 70, 34, mStateTimer.get(a, b)
+        );
       }
 
-      for (u32 i = 0; i < NUM_TIME_DIGITS; ++i) {
-        y[SPR_TIME_0 + i] = Lerp<s32>(35, 5, getTimer());
+      if (mStateTimer.update()) {
+        mState = ST_DOWN;
       }
 
-      if (updateTimer()) {
+      break;
+    }
+    case ST_RAISE: {
+      setOnSprite(SPR_SCORE);
+      score_y = Lerp<s16>(5, -25, mStateTimer.get());
+
+      for (u32 i = 0; i < NUM_SCORE_DIGITS; ++i) {
+        digit_y[i] = Lerp<s16>(35, 5, mStateTimer.get());
+      }
+
+      if (mStateTimer.update()) {
         mState = ST_UP;
+      }
+
+      break;
+    }
+    case ST_DOWN: {
+      setOnSprite(SPR_SCORE);
+      score_y = 5;
+
+      for (u32 i = 0; i < NUM_SCORE_DIGITS; ++i) {
+        digit_y[i] = 34;
+      }
+
+      break;
+    }
+    case ST_UP: {
+      setOffSprite(SPR_SCORE);
+      score_y = 0;
+
+      for (u32 i = 0; i < NUM_SCORE_DIGITS; ++i) {
+        digit_y[i] = 5;
       }
 
       break;
     }
   }
 
-  x[SPR_SCORE] = 9;
-  x[SPR_TIME] = 228;
+  if (mState != ST_HIDE) {
+    for (u32 i = 0; i < NUM_SCORE_DIGITS; ++i) {
+      setOnSprite(SPR_SCORE_0 + i);
+    }
+  }
+
+  mSprite[SPR_SCORE].setPosition({ (s16)9, score_y });
 
   for (u32 i = 0; i < NUM_SCORE_DIGITS; ++i) {
-    x[SPR_SCORE_0 + i] = (9 + 20 * i);
+    mSprite[SPR_SCORE_0 + i].setPosition(
+      { (s16)(9 + 20 * i), digit_y[i] }
+    );
   }
 
-  x[SPR_TIME_0] = 241;
-  x[SPR_TIME_COLON] = 256;
-  x[SPR_TIME_1] = 272;
-  x[SPR_TIME_2] = 292;
+  if (mBounceTime > 0.0F) {
+    mBounceTime -= kInterval;
 
-  for (u32 i = 0; i < NUM_SPRITES; ++i) {
-    mSprite[i].setPosition({ x[i], y[i] });
-  }
-
-  updateScore();
-  updateTime();
-}
-
-// -------------------------------------------------------------------------- //
-
-void THud::updateScore() {
-  u32 digits[NUM_SCORE_DIGITS];
-
-  if (mScoreTime > 0.0F) {
-    mScoreTime -= kInterval;
-
-    if (mScoreTime < 0.0F) {
-      mScoreTime = 0.0F;
+    if (mBounceTime < 0.0F) {
+      mBounceTime = 0.0F;
     }
   }
 
   if ((u32)mCurScore != mFinScore) {
-    if (mScoreTime == 0.0F) {
-      mScoreTime = 1.0F;
+    if (mBounceTime == 0.0F) {
+      mBounceTime = 1.0F;
     }
 
     float final = (float)mFinScore;
@@ -221,12 +296,12 @@ void THud::updateScore() {
     }
   }
 
-  if (mScoreTime != 0.0F) {
+  if (mBounceTime != 0.0F) {
     TVec2S pos;
     s32 ofs;
 
     ofs = TMath<s32>::abs((s32)(8.0F *
-      TSine::ssin(TSine::fromDeg(mScoreTime * 360 * 2))
+      TSine::ssin(TSine::fromDeg(mBounceTime * 360 * 2))
     ));
 
     for (u32 i = 0; i < NUM_SCORE_DIGITS; ++i) {
@@ -236,92 +311,22 @@ void THud::updateScore() {
     }
   }
 
-  splitDigits((u32)mCurScore, digits, NUM_SCORE_DIGITS);
+  THud::splitDigits((u32)mCurScore, digits, NUM_SCORE_DIGITS);
 
   for (u32 i = 0; i < NUM_SCORE_DIGITS; ++i) {
     mSprite[SPR_SCORE_0 + i].load(
-      *getDigitSprite(digits[i])
+      THud::getDigitSprite(digits[i])
     );
   }
 }
 
 // -------------------------------------------------------------------------- //
 
-void THud::updateTime() {
-  u32 digits[2];
-  u32 old, min, sec;
-  float t;
-
-  mClock.get(&old);
-  mClock.update();
-  t = mClock.get(&min, &sec);
-
-  if (mState == ST_UP && old > min) {
-    mFlashTime = 3.0F;
-    mState = ST_LOWERING;
-    startTimer(1.0F);
+void THudScore::draw() {
+  if (mState == ST_HIDE) {
+    return;
   }
 
-  if (mFlashTime > 0.0F) {
-    if (TMath<float>::mod(mFlashTime, 0.4F) < 0.2F) {
-      mSpriteMask |= (1U << SPR_TIME_COLON);
-      mSpriteMask |= (1U << SPR_TIME_0);
-      mSpriteMask |= (1U << SPR_TIME_1);
-      mSpriteMask |= (1U << SPR_TIME_2);
-    } else {
-      mSpriteMask &= ~(1U << SPR_TIME_COLON);
-      mSpriteMask &= ~(1U << SPR_TIME_0);
-      mSpriteMask &= ~(1U << SPR_TIME_1);
-      mSpriteMask &= ~(1U << SPR_TIME_2);
-    }
-
-    mFlashTime -= kInterval;
-
-    if (mFlashTime < 0.0F) {
-      mFlashTime = 0.0F;
-    }
-
-    mSprite[SPR_TIME_0].load(
-      *getDigitSprite((min + 1) % 10)
-    );
-
-    mSprite[SPR_TIME_1].load(
-      *getDigitSprite(0)
-    );
-
-    mSprite[SPR_TIME_2].load(
-      *getDigitSprite(0)
-    );
-  } else {
-    mSpriteMask &= ~(1U << SPR_TIME_0);
-    mSpriteMask &= ~(1U << SPR_TIME_1);
-    mSpriteMask &= ~(1U << SPR_TIME_2);
-
-    if (TMath<float>::mod(t, 1.0F) < 0.5F) {
-      mSpriteMask |= (1U << SPR_TIME_COLON);
-    } else {
-      mSpriteMask &= ~(1U << SPR_TIME_COLON);
-    }
-
-    splitDigits(sec, digits, 2);
-
-    mSprite[SPR_TIME_0].load(
-      *getDigitSprite(min % 10)
-    );
-
-    mSprite[SPR_TIME_1].load(
-      *getDigitSprite(digits[0])
-    );
-
-    mSprite[SPR_TIME_2].load(
-      *getDigitSprite(digits[1])
-    );
-  }
-}
-
-// -------------------------------------------------------------------------- //
-
-void THud::draw() {
   for (u32 i = 0; i < NUM_SPRITES; ++i) {
     if (mSpriteMask & (1U << i)) {
       continue;
@@ -333,64 +338,525 @@ void THud::draw() {
 
 // -------------------------------------------------------------------------- //
 
+void THudTime::hide() {
+  mState = ST_HIDE;
+}
+
+// -------------------------------------------------------------------------- //
+
+void THudTime::show(u32 min) {
+  mState = ST_SHOW_WAIT;
+  mStateTimer.set(1.25F);
+  flash(min);
+
+  for (u32 i = 0; i < NUM_SPRITES; ++i) {
+    setOffSprite(i);
+  }
+}
+
+// -------------------------------------------------------------------------- //
+
+void THudTime::lower() {
+  mState = ST_LOWER;
+  mStateTimer.set(1.0F);
+}
+
+// -------------------------------------------------------------------------- //
+
+void THudTime::raise() {
+  mState = ST_RAISE;
+  mStateTimer.set(0.5F);
+}
+
+// -------------------------------------------------------------------------- //
+
+void THudTime::flash(u32 min) {
+  mFlashTime = 3.0F;
+  mFlashMin = min;
+}
+
+// -------------------------------------------------------------------------- //
+
+void THudTime::init() {
+  mSprite[SPR_TIME].load(hud_time_sprite);
+  mSprite[SPR_COLON].load(hud_colon_sprite);
+  mSprite[SPR_MIN].load(THud::getDigitSprite(0));
+  mSprite[SPR_SEC_0].load(THud::getDigitSprite(0));
+  mSprite[SPR_SEC_1].load(THud::getDigitSprite(0));
+
+  for (u32 i = 0; i < NUM_SPRITES; ++i) {
+    mSprite[i].setAttributes(SP_FASTCOPY);
+  }
+}
+
+// -------------------------------------------------------------------------- //
+
+void THudTime::update(
+  TTimer const * clock
+) {
+  s16 digit_y[4]; // [0] min, [1] colon, [2-3] sec 0-1
+  s16 time_y, x = 228;
+  u32 min, sec;
+  float t;
+
+  switch (mState) {
+    case ST_LOWER: {
+      setOnSprite(SPR_TIME);
+      time_y = Lerp<s16>(-40, 5, mStateTimer.get(0.0F, 0.75F));
+
+      for (u32 i = 0; i < 4; ++i) {
+        float a = (0.0F + 0.05F * (float)i);
+        float b = (a + 0.6F);
+
+        digit_y[i] = Lagrange<s16>(
+          5, 70, 34, mStateTimer.get(a, b)
+        );
+      }
+
+      if (mStateTimer.update()) {
+        mState = ST_DOWN;
+      }
+
+      break;
+    }
+    case ST_RAISE: {
+      setOnSprite(SPR_TIME);
+      time_y = Lerp<s16>(5, -25, mStateTimer.get());
+
+      for (u32 i = 0; i < 4; ++i) {
+        digit_y[i] = Lerp<s16>(35, 5, mStateTimer.get());
+      }
+
+      if (mStateTimer.update()) {
+        mState = ST_UP;
+      }
+
+      break;
+    }
+    case ST_DOWN: {
+      setOnSprite(SPR_TIME);
+      time_y = 5;
+
+      for (u32 i = 0; i < 4; ++i) {
+        digit_y[i] = 34;
+      }
+
+      break;
+    }
+    case ST_UP: {
+      setOffSprite(SPR_TIME);
+      time_y = 0;
+
+      for (u32 i = 0; i < 4; ++i) {
+        digit_y[i] = 5;
+      }
+
+      break;
+    }
+    case ST_SHOW_WAIT: {
+      setOnSprite(SPR_TIME);
+      x = 115;
+      time_y = 100;
+
+      for (u32 i = 0; i < 4; ++i) {
+        digit_y[i] = (time_y + 29);
+      }
+
+      if (mStateTimer.update()) {
+        mState = ST_SHOW_SLIDE;
+        mStateTimer.set(1.0F);
+      }
+
+      break;
+    }
+    case ST_SHOW_SLIDE: {
+      setOnSprite(SPR_TIME);
+      x = Sinerp<s16>(115, 228, mStateTimer.get());
+      time_y = Sinerp<s16>(100, 5, mStateTimer.get());
+
+      for (u32 i = 0; i < 4; ++i) {
+        digit_y[i] = (time_y + 29);
+      }
+
+      if (mStateTimer.update()) {
+        mState = ST_DOWN;
+      }
+
+      break;
+    }
+  }
+
+  mSprite[SPR_TIME].setPosition({ (s16)x, time_y });
+  mSprite[SPR_MIN].setPosition({ (s16)(x + 13), digit_y[0] });
+  mSprite[SPR_COLON].setPosition({ (s16)(x + 28), digit_y[1] });
+  mSprite[SPR_SEC_0].setPosition({ (s16)(x + 44), digit_y[2] });
+  mSprite[SPR_SEC_1].setPosition({ (s16)(x + 64), digit_y[3] });
+
+  t = clock->get(&min, &sec);
+
+  if (mFlashTime > 0.0F) {
+    if (TMath<float>::mod(mFlashTime, 0.4F) >= 0.2F) {
+      setOffSprite(SPR_MIN);
+      setOffSprite(SPR_COLON);
+      setOffSprite(SPR_SEC_0);
+      setOffSprite(SPR_SEC_1);
+    } else {
+      setOnSprite(SPR_MIN);
+      setOnSprite(SPR_COLON);
+      setOnSprite(SPR_SEC_0);
+      setOnSprite(SPR_SEC_1);
+    }
+
+    mFlashTime -= kInterval;
+
+    if (mFlashTime < 0.0F) {
+      mFlashTime = 0.0F;
+    }
+
+    mSprite[SPR_MIN].load(
+      THud::getDigitSprite(mFlashMin)
+    );
+
+    mSprite[SPR_SEC_0].load(
+      THud::getDigitSprite(0)
+    );
+
+    mSprite[SPR_SEC_1].load(
+      THud::getDigitSprite(0)
+    );
+  } else {
+    u32 digits[2];
+
+    setOnSprite(SPR_MIN);
+    setOnSprite(SPR_SEC_0);
+    setOnSprite(SPR_SEC_1);
+
+    if (TMath<float>::mod(t, 1.0F) >= 0.5F) {
+      setOffSprite(SPR_COLON);
+    } else {
+      setOnSprite(SPR_COLON);
+    }
+
+    THud::splitDigits(sec, digits, 2);
+
+    mSprite[SPR_MIN].load(
+      THud::getDigitSprite(min)
+    );
+
+    mSprite[SPR_SEC_0].load(
+      THud::getDigitSprite(digits[0])
+    );
+
+    mSprite[SPR_SEC_1].load(
+      THud::getDigitSprite(digits[1])
+    );
+  }
+}
+
+// -------------------------------------------------------------------------- //
+
+void THudTime::draw() {
+  if (mState == ST_HIDE) {
+    return;
+  }
+
+  for (u32 i = 0; i < NUM_SPRITES; ++i) {
+    if (mSpriteMask & (1U << i)) {
+      continue;
+    }
+
+    mSprite[i].draw();
+  }
+}
+
+// -------------------------------------------------------------------------- //
+
+void THudCountDown::hide() {
+  mState = ST_HIDE;
+}
+
+// -------------------------------------------------------------------------- //
+
+void THudCountDown::show() {
+  mState = ST_READY_IN;
+  mStateTimer.set(1.0F);
+
+  for (u32 i = 0; i < NUM_SPRITES; ++i) {
+    setOffSprite(i);
+  }
+}
+
+// -------------------------------------------------------------------------- //
+
+void THudCountDown::init() {
+  for (u32 i = 0; i < NUM_SPRITES; ++i) {
+    mSprite[i].setAttributes(SP_FASTCOPY);
+  }
+}
+
+// -------------------------------------------------------------------------- //
+
+void THudCountDown::update() {
+  s16 header_x, header_y = 40;
+  s16 digit_x = 120;
+  s16 digit_y = 92;
+
+  switch (mState) {
+    case ST_READY_IN: {
+      setOnSprite(SPR_HEADER);
+      setOffSprite(SPR_DIGIT);
+      mSprite[SPR_HEADER].load(hud_ready_sprite);
+
+      header_x = Lagrange<s16>(
+        -320, 190, 50, mStateTimer.get()
+      );
+
+      if (mStateTimer.update()) {
+        mState = ST_READY;
+        mStateTimer.set(0.4F);
+      }
+
+      break;
+    }
+    case ST_READY: {
+      setOffSprite(SPR_DIGIT);
+      header_x = 50;
+
+      if (mStateTimer.update()) {
+        mSprite[SPR_DIGIT].load(hud_count3_sprite);
+
+        mState = ST_READY_3;
+        mStateTimer.set(1.0F);
+      }
+
+      break;
+    }
+    case ST_READY_3: {
+      setOnSprite(SPR_DIGIT);
+      mSprite[SPR_DIGIT].load(hud_count3_sprite);
+      header_x = 50;
+
+      float t = mStateTimer.get(0.0F, 0.2F);
+      float s = (1.0F + TSine::ssin(TSine::fromDeg(t * 180.0F)) * 0.35F);
+      digit_x -= (s16)((float)hud_count3TRUEIMAGEW * (s - 1.0F) * 0.5F);
+      digit_y -= (s16)((float)hud_count3TRUEIMAGEH * (s - 1.0F) * 0.5F);
+      mSprite[SPR_DIGIT].setScale({ s, s });
+
+      if (mStateTimer.update()) {
+        mState = ST_READY_2;
+        mStateTimer.set(1.0F);
+      }
+
+      break;
+    }
+    case ST_READY_2: {
+      setOnSprite(SPR_DIGIT);
+      mSprite[SPR_DIGIT].load(hud_count2_sprite);
+      header_x = 50;
+
+      float t = mStateTimer.get(0.0F, 0.2F);
+      float s = (1.0F + TSine::ssin(TSine::fromDeg(t * 180.0F)) * 0.35F);
+      digit_x -= (s16)((float)hud_count2TRUEIMAGEW * (s - 1.0F) * 0.5F);
+      digit_y -= (s16)((float)hud_count2TRUEIMAGEH * (s - 1.0F) * 0.5F);
+      mSprite[SPR_DIGIT].setScale({ s, s });
+
+      if (mStateTimer.update()) {
+        mState = ST_READY_1;
+        mStateTimer.set(1.0F);
+      }
+
+      break;
+    }
+    case ST_READY_1: {
+      setOnSprite(SPR_DIGIT);
+      mSprite[SPR_DIGIT].load(hud_count1_sprite);
+      header_x = 50;
+
+      float t = mStateTimer.get(0.0F, 0.2F);
+      float s = (1.0F + TSine::ssin(TSine::fromDeg(t * 180.0F)) * 0.35F);
+      digit_x -= (s16)((float)hud_count1TRUEIMAGEW * (s - 1.0F) * 0.5F);
+      digit_y -= (s16)((float)hud_count1TRUEIMAGEH * (s - 1.0F) * 0.5F);
+      mSprite[SPR_DIGIT].setScale({ s, s });
+
+      if (mStateTimer.update()) {
+        mState = ST_FLY;
+        mStateTimer.set(0.6F);
+      }
+
+      break;
+    }
+    case ST_FLY: {
+      setOffSprite(SPR_DIGIT);
+      mSprite[SPR_HEADER].load(hud_fly_sprite);
+      header_x = 100;
+
+      float t = mStateTimer.get(0.0F, 0.3F);
+      header_x += (s16)((float)hud_flyTRUEIMAGEW * (1.0 - t) * 0.5F);
+      header_y += (s16)((float)hud_flyTRUEIMAGEH * (1.0 - t) * 0.5F);
+      mSprite[SPR_HEADER].setScale({ t, t });
+
+      if (mStateTimer.update()) {
+        mState = ST_FLY_OUT;
+        mStateTimer.set(1.0F);
+      }
+
+      break;
+    }
+    case ST_FLY_OUT: {
+      setOffSprite(SPR_DIGIT);
+
+      header_x = Lagrange<s16>(
+        100, -100, 500, mStateTimer.get()
+      );
+
+      if (mStateTimer.update()) {
+        mState = ST_HIDE;
+      }
+
+      break;
+    }
+  }
+
+  mSprite[SPR_HEADER].setPosition({ header_x, header_y });
+  mSprite[SPR_DIGIT].setPosition({ digit_x, digit_y });
+}
+
+// -------------------------------------------------------------------------- //
+
+void THudCountDown::draw() {
+  if (mState == ST_HIDE) {
+    return;
+  }
+
+  for (u32 i = 0; i < NUM_SPRITES; ++i) {
+    if (mSpriteMask & (1U << i)) {
+      continue;
+    }
+
+    mSprite[i].draw();
+  }
+}
+
+// -------------------------------------------------------------------------- //
+
+void THud::init() {
+  mCountDown.init();
+  mScore.init();
+  mTime.init();
+}
+
+// -------------------------------------------------------------------------- //
+
+void THud::update() {
+  mCountDown.update();
+  mScore.update();
+  mTime.update(&mClock);
+
+  switch (mState) {
+    case ST_COUNTDOWN: {
+      if (mStateTimer.update()) {
+        mScore.show();
+        mClock.start((float)(mTimeLimit * 60));
+        mTime.show(mTimeLimit);
+
+        mState = ST_TIME_FLASH;
+        mStateTimer.set(3.5F);
+      }
+
+      break;
+    }
+    case ST_TIME_FLASH: {
+      if (mStateTimer.update()) {
+        mScore.raise();
+        mTime.raise();
+        mState = ST_SHOW;
+      }
+
+      break;
+    }
+  }
+
+  u32 before, after;
+  mClock.get(&before);
+  mClock.update();
+  mClock.get(&after);
+
+  if (mState == ST_SHOW && after < before) {
+    mTime.flash(before);
+    mScore.lower();
+    mTime.lower();
+
+    mState = ST_TIME_FLASH;
+    mStateTimer.set(4.5F);
+  }
+}
+
+// -------------------------------------------------------------------------- //
+
+void THud::draw() {
+  mScore.draw();
+  mTime.draw();
+  mCountDown.draw();
+}
+
+// -------------------------------------------------------------------------- //
+
 u32 THud::getScore() const {
-  return mFinScore;
+  return mScore.getScore();
 }
 
 // -------------------------------------------------------------------------- //
 
 void THud::addScore(u32 pts) {
-  if (pts > MAX_SCORE - mFinScore) {
-    pts = (MAX_SCORE - mFinScore);
+  u32 score = mScore.getScore();
+
+  if (pts > MAX_SCORE - score) {
+    pts = (MAX_SCORE - score);
   }
 
   if (pts == 0) {
     return;
   }
 
-  mFinScore += pts;
-  mScoreTime = 1.0F;
+  mScore.setScore(score + pts);
 }
 
 // -------------------------------------------------------------------------- //
 
 void THud::subScore(u32 pts) {
-  if (pts > mFinScore) {
-    pts = mFinScore;
+  u32 score = mScore.getScore();
+
+  if (pts > score) {
+    pts = score;
   }
 
   if (pts == 0) {
     return;
   }
 
-  mFinScore -= pts;
-  mScoreTime = 1.0F;
+  mScore.setScore(score - pts);
 }
 
 // -------------------------------------------------------------------------- //
 
-bool THud::isTimeUp() const {
-  return (mClock.get() == 0.0F);
+void THud::startCountDown(u32 minutes) {
+  mTimeLimit = minutes;
+  mCountDown.show();
+  mScore.hide();
+  mTime.hide();
+
+  mState = ST_COUNTDOWN;
+  mStateTimer.set(5.0F);
 }
 
 // -------------------------------------------------------------------------- //
 
-void THud::startClock(u32 minutes) {
-  mClock.start((float)(minutes * 60));
-}
-
-// -------------------------------------------------------------------------- //
-
-bool THud::updateTimer() {
-  if (mTime >= mMaxTime) {
-    return true;
-  }
-
-  mTime += kInterval;
-
-  if (mTime >= mMaxTime) {
-    mTime = mMaxTime;
-    return true;
+bool THud::isCountedDown() const {
+  switch (mState) {
+    case ST_SHOW:
+    case ST_TIME_FLASH: {
+      return true;
+    }
   }
 
   return false;
@@ -398,39 +864,12 @@ bool THud::updateTimer() {
 
 // -------------------------------------------------------------------------- //
 
-void THud::startTimer(float t) {
-  mTime = 0.0F;
-  mMaxTime = t;
-}
-
-// -------------------------------------------------------------------------- //
-
-float THud::getTimer() const {
-  if (mMaxTime == 0.0F) {
-    return 1.0F;
+bool THud::isTimeUp() const {
+  if (!isCountedDown()) {
+    return false;
   }
 
-  return (mTime / mMaxTime);
-}
-
-// -------------------------------------------------------------------------- //
-
-float THud::getTimer(float a, float b) const {
-  if (a >= b) {
-    return 0.0F;
-  }
-
-  float t = getTimer();
-
-  if (t < a) {
-    return 0.0F;
-  }
-
-  if (t > b) {
-    return 1.0F;
-  }
-
-  return ((t - a) / (b - a));
+  return (mClock.get() == 0.0F);
 }
 
 // -------------------------------------------------------------------------- //
@@ -446,12 +885,8 @@ void THud::splitDigits(
 
 // -------------------------------------------------------------------------- //
 
-Sprite const *
+Sprite const &
 THud::getDigitSprite(u32 digit) {
-  if (digit >= 10) {
-    return nullptr;
-  }
-
   static Sprite const * SPRITES[10] = {
     &hud_digit0_sprite, &hud_digit1_sprite,
     &hud_digit2_sprite, &hud_digit3_sprite,
@@ -460,7 +895,7 @@ THud::getDigitSprite(u32 digit) {
     &hud_digit8_sprite, &hud_digit9_sprite,
   };
 
-  return SPRITES[digit];
+  return *SPRITES[digit % 10];
 }
 
 // -------------------------------------------------------------------------- //
