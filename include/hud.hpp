@@ -68,16 +68,24 @@ class THudScore {
   enum : u32 {
 
     SPR_SCORE,
+
+    // these need to be contiguous, with metric last
     SPR_SCORE_0,
     SPR_SCORE_1,
     SPR_SCORE_2,
     SPR_SCORE_3,
     SPR_SCORE_4,
     SPR_SCORE_5,
+    SPR_DOT,
+    SPR_METRIC,
 
     NUM_SPRITES,
 
-    NUM_SCORE_DIGITS = 6
+    NUM_SCORE_DIGITS = 6,
+    NUM_FRAC_PLACES = 2,
+    NUM_INT_PLACES = (NUM_SCORE_DIGITS - NUM_FRAC_PLACES),
+
+    SCORE_SPEED = 1000 // pts per sec
 
   };
 

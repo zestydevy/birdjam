@@ -9,8 +9,7 @@
 
 // -------------------------------------------------------------------------- //
 
-#define MAX_SCORE    999999
-#define SCORE_SPEED    1000 // pts per sec
+#define MAX_SCORE 999999
 
 // -------------------------------------------------------------------------- //
 
@@ -152,6 +151,8 @@ void THudScore::setScore(u32 pts) {
 
 void THudScore::init() {
   mSprite[SPR_SCORE].load(hud_score_sprite);
+  mSprite[SPR_DOT].load(hud_dot_sprite);
+  mSprite[SPR_METRIC].load(hud_ft_sprite);
 
   for (u32 i = 0; i < NUM_SCORE_DIGITS; ++i) {
     mSprite[SPR_SCORE_0 + i].load(
@@ -253,18 +254,34 @@ void THudScore::update() {
   }
 
   if (mState != ST_HIDE) {
-    for (u32 i = 0; i < NUM_SCORE_DIGITS; ++i) {
-      setOnSprite(SPR_SCORE_0 + i);
+    for (u32 i = SPR_SCORE_0; i <= SPR_METRIC; ++i) {
+      setOnSprite(i);
     }
   }
 
   mSprite[SPR_SCORE].setPosition({ (s16)9, score_y });
 
   for (u32 i = 0; i < NUM_SCORE_DIGITS; ++i) {
+    s16 x = (s16)(9 + 20 * i);
+
+    if (i >= NUM_INT_PLACES) {
+      x += 9;
+    }
+
     mSprite[SPR_SCORE_0 + i].setPosition(
-      { (s16)(9 + 20 * i), digit_y[i] }
+      { x, digit_y[i] }
     );
   }
+
+  mSprite[SPR_DOT].setPosition({
+    (s16)(9 + 20 * NUM_INT_PLACES),
+    (s16)(13 + (digit_y[NUM_INT_PLACES - 1] + digit_y[NUM_INT_PLACES]) / 2),
+  });
+
+  mSprite[SPR_METRIC].setPosition({
+    (s16)(18 + 20 * NUM_SCORE_DIGITS),
+    (s16)(10 + digit_y[NUM_SCORE_DIGITS - 1]),
+  });
 
   if (mBounceTime > 0.0F) {
     mBounceTime -= kInterval;
@@ -300,14 +317,14 @@ void THudScore::update() {
     TVec2S pos;
     s32 ofs;
 
-    ofs = TMath<s32>::abs((s32)(8.0F *
+    ofs = TMath<s32>::abs((s32)(5.0F *
       TSine::ssin(TSine::fromDeg(mBounceTime * 360 * 2))
     ));
 
-    for (u32 i = 0; i < NUM_SCORE_DIGITS; ++i) {
-      pos = mSprite[SPR_SCORE_0 + i].getPosition();
+    for (u32 i = SPR_SCORE_0; i <= SPR_METRIC; ++i) {
+      pos = mSprite[i].getPosition();
       pos.y() += ofs;
-      mSprite[SPR_SCORE_0 + i].setPosition(pos);
+      mSprite[i].setPosition(pos);
     }
   }
 

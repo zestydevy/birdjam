@@ -17,7 +17,6 @@
 #define hud_timeSCALEY	1.0
 #define hud_timeMODE	SP_Z | SP_OVERLAP | SP_TRANSPARENT
 
-// extern varaibles 
 extern Bitmap hud_time_bitmaps[];
 extern Gfx hud_time_dl[];
 
@@ -38,7 +37,6 @@ extern Sprite hud_time_sprite;
 #define hud_colonSCALEY	1.0
 #define hud_colonMODE	SP_Z | SP_OVERLAP | SP_TRANSPARENT
 
-// extern varaibles 
 extern Bitmap hud_colon_bitmaps[];
 extern Gfx hud_colon_dl[];
 
@@ -59,7 +57,6 @@ extern Sprite hud_colon_sprite;
 #define hud_digit0SCALEY	1.0
 #define hud_digit0MODE	SP_Z | SP_OVERLAP | SP_TRANSPARENT
 
-// extern varaibles 
 extern Bitmap hud_digit0_bitmaps[];
 extern Gfx hud_digit0_dl[];
 
@@ -80,7 +77,6 @@ extern Sprite hud_digit0_sprite;
 #define hud_digit1SCALEY	1.0
 #define hud_digit1MODE	SP_Z | SP_OVERLAP | SP_TRANSPARENT
 
-// extern varaibles 
 extern Bitmap hud_digit1_bitmaps[];
 extern Gfx hud_digit1_dl[];
 
@@ -101,7 +97,6 @@ extern Sprite hud_digit1_sprite;
 #define hud_digit2SCALEY	1.0
 #define hud_digit2MODE	SP_Z | SP_OVERLAP | SP_TRANSPARENT
 
-// extern varaibles 
 extern Bitmap hud_digit2_bitmaps[];
 extern Gfx hud_digit2_dl[];
 
@@ -122,7 +117,6 @@ extern Sprite hud_digit2_sprite;
 #define hud_digit3SCALEY	1.0
 #define hud_digit3MODE	SP_Z | SP_OVERLAP | SP_TRANSPARENT
 
-// extern varaibles 
 extern Bitmap hud_digit3_bitmaps[];
 extern Gfx hud_digit3_dl[];
 
@@ -143,7 +137,6 @@ extern Sprite hud_digit3_sprite;
 #define hud_digit4SCALEY	1.0
 #define hud_digit4MODE	SP_Z | SP_OVERLAP | SP_TRANSPARENT
 
-// extern varaibles 
 extern Bitmap hud_digit4_bitmaps[];
 extern Gfx hud_digit4_dl[];
 
@@ -164,7 +157,6 @@ extern Sprite hud_digit4_sprite;
 #define hud_digit5SCALEY	1.0
 #define hud_digit5MODE	SP_Z | SP_OVERLAP | SP_TRANSPARENT
 
-// extern varaibles 
 extern Bitmap hud_digit5_bitmaps[];
 extern Gfx hud_digit5_dl[];
 
@@ -185,7 +177,6 @@ extern Sprite hud_digit5_sprite;
 #define hud_digit6SCALEY	1.0
 #define hud_digit6MODE	SP_Z | SP_OVERLAP | SP_TRANSPARENT
 
-// extern varaibles 
 extern Bitmap hud_digit6_bitmaps[];
 extern Gfx hud_digit6_dl[];
 
@@ -206,7 +197,6 @@ extern Sprite hud_digit6_sprite;
 #define hud_digit7SCALEY	1.0
 #define hud_digit7MODE	SP_Z | SP_OVERLAP | SP_TRANSPARENT
 
-// extern varaibles 
 extern Bitmap hud_digit7_bitmaps[];
 extern Gfx hud_digit7_dl[];
 
@@ -227,7 +217,6 @@ extern Sprite hud_digit7_sprite;
 #define hud_digit8SCALEY	1.0
 #define hud_digit8MODE	SP_Z | SP_OVERLAP | SP_TRANSPARENT
 
-// extern varaibles 
 extern Bitmap hud_digit8_bitmaps[];
 extern Gfx hud_digit8_dl[];
 
@@ -248,7 +237,6 @@ extern Sprite hud_digit8_sprite;
 #define hud_digit9SCALEY	1.0
 #define hud_digit9MODE	SP_Z | SP_OVERLAP | SP_TRANSPARENT
 
-// extern varaibles 
 extern Bitmap hud_digit9_bitmaps[];
 extern Gfx hud_digit9_dl[];
 
@@ -269,7 +257,6 @@ extern Sprite hud_digit9_sprite;
 #define hud_scoreSCALEY	1.0
 #define hud_scoreMODE	SP_Z | SP_OVERLAP | SP_TRANSPARENT
 
-// extern varaibles 
 extern Bitmap hud_score_bitmaps[];
 extern Gfx hud_score_dl[];
 
@@ -290,7 +277,6 @@ extern Sprite hud_score_sprite;
 #define hud_readySCALEY	1.0
 #define hud_readyMODE	SP_Z | SP_OVERLAP | SP_TRANSPARENT
 
-// extern varaibles 
 extern Bitmap hud_ready_bitmaps[];
 extern Gfx hud_ready_dl[];
 
@@ -311,7 +297,6 @@ extern Sprite hud_ready_sprite;
 #define hud_flySCALEY	1.0
 #define hud_flyMODE	SP_Z | SP_OVERLAP | SP_TRANSPARENT
 
-// extern varaibles 
 extern Bitmap hud_fly_bitmaps[];
 extern Gfx hud_fly_dl[];
 
@@ -332,7 +317,6 @@ extern Sprite hud_fly_sprite;
 #define hud_count3SCALEY	1.0
 #define hud_count3MODE	SP_Z | SP_OVERLAP | SP_TRANSPARENT
 
-// extern varaibles 
 extern Bitmap hud_count3_bitmaps[];
 extern Gfx hud_count3_dl[];
 
@@ -353,7 +337,6 @@ extern Sprite hud_count3_sprite;
 #define hud_count2SCALEY	1.0
 #define hud_count2MODE	SP_Z | SP_OVERLAP | SP_TRANSPARENT
 
-// extern varaibles 
 extern Bitmap hud_count2_bitmaps[];
 extern Gfx hud_count2_dl[];
 
@@ -374,13 +357,52 @@ extern Sprite hud_count2_sprite;
 #define hud_count1SCALEY	1.0
 #define hud_count1MODE	SP_Z | SP_OVERLAP | SP_TRANSPARENT
 
-// extern varaibles 
 extern Bitmap hud_count1_bitmaps[];
 extern Gfx hud_count1_dl[];
 
 #define NUM_hud_count1_BMS  (sizeof(hud_count1_bitmaps)/sizeof(Bitmap))
 
 extern Sprite hud_count1_sprite;
+
+// -------------------------------------------------------------------------- //
+// @hud_dot
+
+#define hud_dotTRUEIMAGEH	10
+#define hud_dotTRUEIMAGEW	8
+#define hud_dotIMAGEH	32
+#define hud_dotIMAGEW	32
+#define hud_dotBLOCKSIZEW	32
+#define hud_dotBLOCKSIZEH	32
+#define hud_dotSCALEX	1.0
+#define hud_dotSCALEY	1.0
+#define hud_dotMODE	SP_Z | SP_OVERLAP | SP_TRANSPARENT
+
+extern Bitmap hud_dot_bitmaps[];
+extern Gfx hud_dot_dl[];
+
+#define NUM_hud_dot_BMS  (sizeof(hud_dot_bitmaps)/sizeof(Bitmap))
+
+extern Sprite hud_dot_sprite;
+
+// -------------------------------------------------------------------------- //
+// @hud_ft
+
+#define hud_ftTRUEIMAGEH	14
+#define hud_ftTRUEIMAGEW	20
+#define hud_ftIMAGEH	32
+#define hud_ftIMAGEW	32
+#define hud_ftBLOCKSIZEW	32
+#define hud_ftBLOCKSIZEH	32
+#define hud_ftSCALEX	1.0
+#define hud_ftSCALEY	1.0
+#define hud_ftMODE	SP_Z | SP_OVERLAP | SP_TRANSPARENT
+
+extern Bitmap hud_ft_bitmaps[];
+extern Gfx hud_ft_dl[];
+
+#define NUM_hud_ft_BMS  (sizeof(hud_ft_bitmaps)/sizeof(Bitmap))
+
+extern Sprite hud_ft_sprite;
 
 // -------------------------------------------------------------------------- //
 
