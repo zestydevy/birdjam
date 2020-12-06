@@ -305,6 +305,26 @@ extern Gfx hud_fly_dl[];
 extern Sprite hud_fly_sprite;
 
 // -------------------------------------------------------------------------- //
+// @hud_timeup
+
+#define hud_timeupTRUEIMAGEH	52
+#define hud_timeupTRUEIMAGEW	170
+#define hud_timeupIMAGEH	64
+#define hud_timeupIMAGEW	192
+#define hud_timeupBLOCKSIZEW	32
+#define hud_timeupBLOCKSIZEH	32
+#define hud_timeupSCALEX	1.0
+#define hud_timeupSCALEY	1.0
+#define hud_timeupMODE	SP_Z | SP_OVERLAP | SP_TRANSPARENT
+
+extern Bitmap hud_timeup_bitmaps[];
+extern Gfx hud_timeup_dl[];
+
+#define NUM_hud_timeup_BMS  (sizeof(hud_timeup_bitmaps)/sizeof(Bitmap))
+
+extern Sprite hud_timeup_sprite;
+
+// -------------------------------------------------------------------------- //
 // @hud_count3
 
 #define hud_count3TRUEIMAGEH	95

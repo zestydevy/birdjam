@@ -143,7 +143,10 @@ u32 THudScore::getScore() const {
 // -------------------------------------------------------------------------- //
 
 void THudScore::setScore(u32 pts) {
-  mBounceTime = 1.0F;
+  if (mState != ST_SHOW) {
+    mBounceTime = 1.0F;
+  }
+
   mFinScore = pts;
 }
 
@@ -292,7 +295,7 @@ void THudScore::update() {
   }
 
   if ((u32)mCurScore != mFinScore) {
-    if (mBounceTime == 0.0F) {
+    if (mBounceTime == 0.0F && mState != ST_SHOW) {
       mBounceTime = 1.0F;
     }
 
@@ -605,6 +608,16 @@ void THudCountDown::show() {
 
 // -------------------------------------------------------------------------- //
 
+void THudCountDown::timeup() {
+  mSprite[SPR_HEADER].load(hud_timeup_sprite);
+  setOffSprite(SPR_HEADER);
+
+  mState = ST_TIMEUP_IN;
+  mStateTimer.set(0.3F);
+}
+
+// -------------------------------------------------------------------------- //
+
 void THudCountDown::init() {
   for (u32 i = 0; i < NUM_SPRITES; ++i) {
     mSprite[i].setAttributes(SP_FASTCOPY);
@@ -625,7 +638,7 @@ void THudCountDown::update() {
       mSprite[SPR_HEADER].load(hud_ready_sprite);
 
       header_x = Lagrange<s16>(
-        -320, 190, 50, mStateTimer.get()
+        -320, 190, 55, mStateTimer.get()
       );
 
       if (mStateTimer.update()) {
@@ -637,13 +650,13 @@ void THudCountDown::update() {
     }
     case ST_READY: {
       setOffSprite(SPR_DIGIT);
-      header_x = 50;
+      header_x = 55;
 
       if (mStateTimer.update()) {
         mSprite[SPR_DIGIT].load(hud_count3_sprite);
 
         mState = ST_READY_3;
-        mStateTimer.set(1.0F);
+        mStateTimer.set(0.66F);
       }
 
       break;
@@ -651,7 +664,7 @@ void THudCountDown::update() {
     case ST_READY_3: {
       setOnSprite(SPR_DIGIT);
       mSprite[SPR_DIGIT].load(hud_count3_sprite);
-      header_x = 50;
+      header_x = 55;
 
       float t = mStateTimer.get(0.0F, 0.2F);
       float s = (1.0F + TSine::ssin(TSine::fromDeg(t * 180.0F)) * 0.35F);
@@ -661,7 +674,7 @@ void THudCountDown::update() {
 
       if (mStateTimer.update()) {
         mState = ST_READY_2;
-        mStateTimer.set(1.0F);
+        mStateTimer.set(0.66F);
       }
 
       break;
@@ -669,7 +682,7 @@ void THudCountDown::update() {
     case ST_READY_2: {
       setOnSprite(SPR_DIGIT);
       mSprite[SPR_DIGIT].load(hud_count2_sprite);
-      header_x = 50;
+      header_x = 55;
 
       float t = mStateTimer.get(0.0F, 0.2F);
       float s = (1.0F + TSine::ssin(TSine::fromDeg(t * 180.0F)) * 0.35F);
@@ -679,7 +692,7 @@ void THudCountDown::update() {
 
       if (mStateTimer.update()) {
         mState = ST_READY_1;
-        mStateTimer.set(1.0F);
+        mStateTimer.set(0.66F);
       }
 
       break;
@@ -687,7 +700,7 @@ void THudCountDown::update() {
     case ST_READY_1: {
       setOnSprite(SPR_DIGIT);
       mSprite[SPR_DIGIT].load(hud_count1_sprite);
-      header_x = 50;
+      header_x = 55;
 
       float t = mStateTimer.get(0.0F, 0.2F);
       float s = (1.0F + TSine::ssin(TSine::fromDeg(t * 180.0F)) * 0.35F);
@@ -697,7 +710,7 @@ void THudCountDown::update() {
 
       if (mStateTimer.update()) {
         mState = ST_FLY;
-        mStateTimer.set(0.6F);
+        mStateTimer.set(0.4F);
       }
 
       break;
@@ -724,6 +737,49 @@ void THudCountDown::update() {
 
       header_x = Lagrange<s16>(
         100, -100, 500, mStateTimer.get()
+      );
+
+      if (mStateTimer.update()) {
+        mState = ST_HIDE;
+      }
+
+      break;
+    }
+    case ST_TIMEUP_IN: {
+      setOnSprite(SPR_HEADER);
+      setOffSprite(SPR_DIGIT);
+      header_x = 75;
+      header_y = 90;
+
+      float t = mStateTimer.get();
+      header_x += (s16)((float)hud_timeupTRUEIMAGEW * (1.0 - t) * 0.5F);
+      header_y += (s16)((float)hud_timeupTRUEIMAGEH * (1.0 - t) * 0.5F);
+      mSprite[SPR_HEADER].setScale({ t, t });
+
+      if (mStateTimer.update()) {
+        mState = ST_TIMEUP_WAIT;
+        mStateTimer.set(1.0F);
+      }
+
+      break;
+    }
+    case ST_TIMEUP_WAIT: {
+      header_x = 75;
+      header_y = 90;
+      mSprite[SPR_HEADER].setScale({ 1.0F, 1.0F });
+
+      if (mStateTimer.update()) {
+        mState = ST_TIMEUP_OUT;
+        mStateTimer.set(1.0F);
+      }
+
+      break;
+    }
+    case ST_TIMEUP_OUT: {
+      header_y = 90;
+
+      header_x = Lagrange<s16>(
+        75, -120, 500, mStateTimer.get()
       );
 
       if (mStateTimer.update()) {
@@ -772,7 +828,6 @@ void THud::update() {
   switch (mState) {
     case ST_COUNTDOWN: {
       if (mStateTimer.update()) {
-        mScore.show();
         mClock.start((float)(mTimeLimit * 60));
         mTime.show(mTimeLimit);
 
@@ -784,6 +839,18 @@ void THud::update() {
     }
     case ST_TIME_FLASH: {
       if (mStateTimer.update()) {
+        if (mScoreDown) {
+          mScore.raise();
+        }
+
+        mTime.raise();
+        mState = ST_SHOW;
+      }
+
+      break;
+    }
+    case ST_SCORE: {
+      if (mStateTimer.update()) {
         mScore.raise();
         mTime.raise();
         mState = ST_SHOW;
@@ -791,20 +858,45 @@ void THud::update() {
 
       break;
     }
+    case ST_TIME_UP: {
+      if (mStateTimer.update()) {
+        if (mScoreDown) {
+          mScore.lower();
+        } else {
+          mScoreDown = true;
+          mScore.show();
+        }
+
+        mTime.lower();
+      }
+
+      break;
+    }
   }
 
-  u32 before, after;
-  mClock.get(&before);
-  mClock.update();
-  mClock.get(&after);
+  if (mState != ST_HIDE && mState != ST_COUNTDOWN) {
+    float t;
+    u32 before, after;
 
-  if (mState == ST_SHOW && after < before) {
-    mTime.flash(before);
-    mScore.lower();
-    mTime.lower();
+    mClock.get(&before);
+    mClock.update();
+    t = mClock.get(&after);
 
-    mState = ST_TIME_FLASH;
-    mStateTimer.set(4.5F);
+    if (t == 0.0F && mState != ST_TIME_UP) {
+      mCountDown.timeup();
+
+      mState = ST_TIME_UP;
+      mStateTimer.set(1.0F);
+    }
+
+    if (mState == ST_SHOW && after < before) {
+      mTime.flash(before);
+      mScore.lower();
+      mTime.lower();
+
+      mState = ST_TIME_FLASH;
+      mStateTimer.set(4.5F);
+    }
   }
 }
 
@@ -835,6 +927,18 @@ void THud::addScore(u32 pts) {
     return;
   }
 
+  if (!mScoreDown && mScore.getScore() == 0) {
+    mScoreDown = true;
+    mScore.show();
+
+    if (mState == ST_SHOW) {
+      mTime.lower();
+    }
+
+    mState = ST_SCORE;
+    mStateTimer.set(2.5F);
+  }
+
   mScore.setScore(score + pts);
 }
 
@@ -863,7 +967,7 @@ void THud::startCountDown(u32 minutes) {
   mTime.hide();
 
   mState = ST_COUNTDOWN;
-  mStateTimer.set(5.0F);
+  mStateTimer.set(3.8F);
 }
 
 // -------------------------------------------------------------------------- //
@@ -871,6 +975,7 @@ void THud::startCountDown(u32 minutes) {
 bool THud::isCountedDown() const {
   switch (mState) {
     case ST_SHOW:
+    case ST_TIME_UP:
     case ST_TIME_FLASH: {
       return true;
     }

@@ -170,6 +170,7 @@ class THudCountDown {
 
   void hide();
   void show();
+  void timeup();
 
   void init();
   void update();
@@ -186,7 +187,10 @@ class THudCountDown {
     ST_READY_2,
     ST_READY_1,
     ST_FLY,
-    ST_FLY_OUT
+    ST_FLY_OUT,
+    ST_TIMEUP_IN,
+    ST_TIMEUP_WAIT,
+    ST_TIMEUP_OUT
 
   };
 
@@ -240,7 +244,10 @@ class THud {
     ST_HIDE,
     ST_COUNTDOWN,
     ST_SHOW,
-    ST_TIME_FLASH
+    ST_TIME_FLASH,
+    ST_TIME_UP,
+    ST_RESULTS,
+    ST_SCORE
 
   };
 
@@ -251,6 +258,7 @@ class THud {
   THudCountDown mCountDown;
   THudScore mScore;
   THudTime mTime;
+  bool mScoreDown { false };
 
 };
 
