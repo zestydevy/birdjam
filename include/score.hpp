@@ -238,37 +238,4 @@ class TNestObjBox :
 
 // -------------------------------------------------------------------------- //
 
-#define SEC_PER_MIN  60
-#define MS_PER_SEC   1000
-
-class TTimer {
-
-  public:
-
-  TTimer() = default;
-
-  void start(u32 seconds);
-  bool update(); // returns true if 0:00:00
-
-  // returns float seconds
-  float get(
-    u32 * min = nullptr,
-    u32 * sec = nullptr,
-    u32 * ms = nullptr
-  ) const;
-
-  static TTimer * getInstance() {
-    return &sInstance;
-  }
-
-  private:
-
-  static TTimer sInstance;
-
-  float mTime { 0.0F };
-
-};
-
-// -------------------------------------------------------------------------- //
-
 #endif

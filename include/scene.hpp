@@ -2,15 +2,16 @@
 
 #include <nusys.h>
 
-#include "dynlist.hpp"
 #include "array.hpp"
 #include "camera.hpp"
+#include "collision.hpp"
+#include "dynlist.hpp"
+#include "hud.hpp"
 #include "pad.hpp"
 #include "player.hpp"
-#include "collision.hpp"
-#include "staticobj.hpp"
-#include "score.hpp"
 #include "scenedata.h"
+#include "score.hpp"
+#include "staticobj.hpp"
 
 // -------------------------------------------------------------------------- //
 
@@ -20,8 +21,6 @@ enum ESceneState : u32
     RUNNING,
     EXITING,
 };
-
-// -------------------------------------------------------------------------- //
 
 // -------------------------------------------------------------------------- //
 

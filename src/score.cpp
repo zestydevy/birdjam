@@ -17,7 +17,6 @@
 
 TFlockObj * TFlockObj::sFlockObj { nullptr };
 TNest * TNest::sNest { nullptr };
-TTimer TTimer::sInstance;
 
 // -------------------------------------------------------------------------- //
 
@@ -151,6 +150,7 @@ bool TFlockObj::dropAllObjects() {
     mHeldObjects[i]->drop(TVec3F(dif.x(), vy, dif.y()));    //need to calculate what velocity to land in nest
     TNest::getNestObject()->startAssimilateObject(mHeldObjects[i]);
     incFlock(1, mHeldObjects[i]->getObjWeight() / 2.0f);
+    gHud->addScore(1000);
   }
   mHeldNum = 0;
   mCarrySize = 0.0f;
@@ -700,46 +700,6 @@ void TNestArea::onCollide(
   TCollider * const other
 ) {
   mNest->areaCollide(other);
-}
-
-// -------------------------------------------------------------------------- //
-
-void TTimer::start(u32 seconds) {
-  mTime = (float)seconds;
-}
-
-// -------------------------------------------------------------------------- //
-
-bool TTimer::update() {
-  if (mTime == 0.0F) {
-    return true;
-  }
-
-  mTime -= kInterval; // 30 Hz
-
-  if (mTime < 0.0F) {
-    mTime = 0.0F;
-  }
-
-  return false;
-}
-
-// -------------------------------------------------------------------------- //
-
-float TTimer::get(u32 * min, u32 * sec, u32 * ms) const {
-  if (min != nullptr) {
-    *min = (u32)(mTime / SEC_PER_MIN);
-  }
-
-  if (sec != nullptr) {
-    *sec = ((u32)mTime % SEC_PER_MIN);
-  }
-
-  if (ms != nullptr) {
-    *ms = ((u32)(mTime * MS_PER_SEC) % MS_PER_SEC);
-  }
-
-  return mTime;
 }
 
 // -------------------------------------------------------------------------- //
