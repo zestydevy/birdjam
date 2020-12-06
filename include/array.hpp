@@ -49,6 +49,9 @@ class TArray {
   inline TConstIterator end() const { return mBegin; }
   inline TConstIterator cend() const { return mBegin; }
 
+  inline TValue * data() { return mBegin; }
+  inline TValue const * data() const { return mBegin; }
+
   void reserve(u32 n);
   void resize(u32 n, TValue const & v = TValue());
   void shrink();
