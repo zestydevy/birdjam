@@ -147,6 +147,7 @@ void TLogoScene::draw()
 
 void TLogoScene::draw2D()
 {
+#if 0 // please help me fix this zest
     gSPDisplayList(mDynList->pushDL(), rdpinit_spr_dl);
     TSprite::init(mDynList);
 
@@ -158,6 +159,7 @@ void TLogoScene::draw2D()
 
     gSPDisplayList(mDynList->pushDL(), rdpinit_dl);
 	gSPDisplayList(mDynList->pushDL(), rspinit_dl);
+#endif
 }
 
 TScene * TLogoScene::exit()
@@ -192,10 +194,10 @@ void TLogoScene::runLogoTimer()
         mAlpha -= 4;
         if (mAlpha <= 4) {
             mAlpha = 0;
-            
+
             delete mTimer;
             mTimer = nullptr;
-            
+
             mStatus = ESceneState::EXITING;     // exit scene
         }
     }
@@ -227,7 +229,7 @@ void TTestScene::init()
 
     // turn on screen
     nuGfxDisplayOn();
-    
+
     // load bird and world models into memory
     TUtil::toMemory(
         reinterpret_cast<void *>(_codeSegmentEnd), 
@@ -237,6 +239,9 @@ void TTestScene::init()
 
     // create this before any game objects
     TCollider::startup(nullptr, 10, 512.0F);
+
+    gHud = new THud {};
+    gHud->init();
 
     mPad = new TPad(0);
     mCamera = new TCamera(mDynList);
@@ -290,9 +295,10 @@ void TTestScene::init()
     faceStart = vertSize * 3 + 4;
     u16 faceSizeL3 = worldcol_layer3[faceStart - 1];        //layer 3 face count
 
-    vertSize = worldcol_layer4[1];
-    faceStart = vertSize * 3 + 4;
-    u16 faceSizeL4 = worldcol_layer4[faceStart - 1];        //layer 4 face count
+    // @miluaces, add layer 4
+    // vertSize = worldcol_layer4[1];
+    // faceStart = vertSize * 3 + 4;
+    // u16 faceSizeL4 = worldcol_layer4[faceStart - 1];        //layer 4 face count
 
     vertSize = worldcol_layernest[1];
     faceStart = vertSize * 3 + 4;
@@ -349,7 +355,6 @@ void TTestScene::update()
 
     TCollider::frameBegin();
 
-    // ...
     mPad->read();
     mBird->update();
 
@@ -368,6 +373,7 @@ void TTestScene::update()
     }
 
     mFlock->update();
+    gHud->update();
 
     TCollider::frameEnd();
 }
@@ -379,8 +385,8 @@ void TTestScene::draw()
     //gSPDisplayList(mDynList->pushDL(), rdpinit_spr_dl);
 
     //gSPDisplayList(mDynList->pushDL(), rdpinit_dl);
-	//gSPDisplayList(mDynList->pushDL(), rspinit_dl);
-    
+    //gSPDisplayList(mDynList->pushDL(), rspinit_dl);
+
     mCamera->render();
 
     gSPDisplayList(mDynList->pushDL(), world_World_mesh);
@@ -388,7 +394,7 @@ void TTestScene::draw()
 
     //for (int i = 0; i < 4; i++)
         //mObjects[i]->draw();
-    
+
     mSky->draw();
 
     for (int i = 0; i < mObjList.capacity(); ++i) {
@@ -396,35 +402,11 @@ void TTestScene::draw()
     }
 
     mBird->draw();
-
     mFlock->draw();
-
-    /*
-
-    
-    */
 }
 
-void TTestScene::draw2D()
-{
-    TSprite timeSpr = TSprite(&hud_time_sprite, 20, 15);
-    timeSpr.setScale(TVec3F(1.0f,1.0f,1.0f));
-    timeSpr.setColor({255,255,255,255});
-    timeSpr.setAttribute(SP_FASTCOPY);
-    
-    TSprite dig1Spr = TSprite(&hud_digit0_sprite, 40, 45);
-    dig1Spr.setScale(TVec3F(1.0f,1.0f,1.0f));
-    dig1Spr.setColor({255,255,255,255});
-    dig1Spr.setAttribute(SP_FASTCOPY);
-
-    TSprite dig2Spr = TSprite(&hud_digit0_sprite, 58, 45);
-    dig2Spr.setScale(TVec3F(1.0f,1.0f,1.0f));
-    dig2Spr.setColor({255,255,255,255});
-    dig2Spr.setAttribute(SP_FASTCOPY);
-    
-    timeSpr.render();
-    dig1Spr.render();
-    dig2Spr.render();
+void TTestScene::draw2D() {
+    gHud->draw();
 }
 
 // -------------------------------------------------------------------------- //
