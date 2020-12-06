@@ -14,9 +14,25 @@ TDynList2 * TSprite::sDynList { nullptr };
 void TSprite::load(
     Sprite const & sprite
 ) {
-    mSpriteData = sprite;
-    mSpriteGfx.resize((u32)sprite.ndisplist);
-    mSpriteData.rsp_dl = mSpriteGfx.data();
+    mSpriteData.width = sprite.width;
+    mSpriteData.height = sprite.height;
+    mSpriteData.attr = sprite.attr;
+    mSpriteData.zdepth = sprite.zdepth;
+    mSpriteData.startTLUT = sprite.startTLUT;
+    mSpriteData.nTLUT = sprite.nTLUT;
+    mSpriteData.LUT = sprite.LUT;
+    mSpriteData.istart = sprite.istart;
+    mSpriteData.istep = sprite.istep;
+    mSpriteData.nbitmaps = sprite.nbitmaps;
+    mSpriteData.ndisplist = sprite.ndisplist;
+    mSpriteData.bmheight = sprite.bmheight;
+    mSpriteData.bmHreal = sprite.bmHreal;
+    mSpriteData.bmfmt = sprite.bmfmt;
+    mSpriteData.bmsiz = sprite.bmsiz;
+    mSpriteData.bitmap = sprite.bitmap;
+    mSpriteData.frac_s = sprite.frac_s;
+    mSpriteData.frac_t = sprite.frac_t;
+    preload(sprite);
 }
 
 // -------------------------------------------------------------------------- //
@@ -30,6 +46,26 @@ void TSprite::preload(
         mSpriteGfx.resize(size);
         mSpriteData.rsp_dl = mSpriteGfx.data();
     }
+}
+
+// -------------------------------------------------------------------------- //
+
+u32 TSprite::getWidth() const {
+    if (mSpriteData.width <= 0) {
+        return 0;
+    }
+
+    return (u32)mSpriteData.width;
+}
+
+// -------------------------------------------------------------------------- //
+
+u32 TSprite::getHeight() const {
+    if (mSpriteData.height <= 0) {
+        return 0;
+    }
+
+    return (u32)mSpriteData.height;
 }
 
 // -------------------------------------------------------------------------- //

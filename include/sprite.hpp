@@ -30,6 +30,9 @@ class TSprite {
     void load(Sprite const &);
     void preload(Sprite const &);
 
+    u32 getWidth() const;
+    u32 getHeight() const;
+
     TVec2S const & getPosition() const;
     void setPosition(TVec2S const &);
 
