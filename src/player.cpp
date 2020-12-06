@@ -682,11 +682,11 @@ void TPlayer::update()
         mCameraTarget = TNest::getNestObject()->getPosition();
 
         float dy = TNest::getNestObject()->getTopY() - mCameraTarget.y();
-        mCameraTarget.y() += dy * -(TSine::scos(TSine::fromDeg(mEndCameraTimer * 12.0f)) + 1.0f) / 2.0f;
+        mCameraTarget.y() = TNest::getNestObject()->getTopY() + dy * -(TSine::scos(TSine::fromDeg(mEndCameraTimer * 12.0f)) + 1.0f) / 2.0f;
 
         mCamera->setPosition(
             TNest::getNestObject()->getPosition() +
-            TVec3F(0.0f, (dy + (dy * TSine::scos(TSine::fromDeg(mEndCameraTimer * 12.0f)))) / 2.0f, 0.0f) +
+            TVec3F(0.0f, TNest::getNestObject()->getTopY() + (dy + (dy * TSine::scos(TSine::fromDeg(mEndCameraTimer * 12.0f)) / 2.0f)) / 2.0f, 0.0f) +
             (mEndCameraDistance * TVec3F(TSine::scos(TSine::fromDeg(mEndCameraTimer * -12.0f)), 0.0f, TSine::ssin(TSine::fromDeg(mEndCameraTimer * -12.0f))))
             );
 
