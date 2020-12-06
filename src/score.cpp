@@ -151,7 +151,7 @@ bool TFlockObj::dropAllObjects() {
     TNest::getNestObject()->startAssimilateObject(mHeldObjects[i]);
     incFlock(1, mHeldObjects[i]->getObjWeight() / 2.0f);
 
-    gHud->addScore((mHeldObjects[i]->getHalfWidth() * 1.5f));
+    gHud->addScore((mHeldObjects[i]->getHalfWidth() * 25.0f));
   }
   mHeldNum = 0;
   mCarrySize = 0.0f;
@@ -265,8 +265,9 @@ void TNestObj::update() {
       mPosition += mVelocity * kInterval;   //velocity
       mRotation += TVec3S(TSine::fromDeg(mRotVel.x()), TSine::fromDeg(mRotVel.y()), TSine::fromDeg(mRotVel.z()));     //rotational velocity
 
-      if (mVelocity.y() < 0.0f && mPosition.y() < TNest::getTopY()){  //hit the nest
+      if (mVelocity.y() < 0.0f && mPosition.y() - getHalfWidth() < TNest::getTopY()){  //hit the nest
         mState = EState::NESTING;
+        mVelocity.y() = 0.0f;
         setCollision(true);
 
         TNest::getNestObject()->assimilateObject(this);
@@ -642,8 +643,8 @@ void TNest::startAssimilateObject(TNestObj * obj){
 // -------------------------------------------------------------------------- //
 
 void TNest::assimilateObject(TNestObj * obj){
-  setCollideRadius(64.0f + (obj->getHalfWidth() / 2.0f));
-  setCollideHeight(32.0f + (obj->getHalfWidth() * 3.0f));
+  setCollideRadius(getCollideRadius() + (obj->getHalfWidth() / 32.0f));
+  setCollideHeight(getCollideHeight() + (obj->getHalfWidth()) / 8.0f);
   //setCollideCenter(mPosition + TVec3F(0.0f, -9.0f, 0.0f));
 
   mNestArea->updateSize(mSize);
