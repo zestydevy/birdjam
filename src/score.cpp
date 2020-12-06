@@ -150,7 +150,8 @@ bool TFlockObj::dropAllObjects() {
     mHeldObjects[i]->drop(TVec3F(dif.x(), vy, dif.y()));    //need to calculate what velocity to land in nest
     TNest::getNestObject()->startAssimilateObject(mHeldObjects[i]);
     incFlock(1, mHeldObjects[i]->getObjWeight() / 2.0f);
-    gHud->addScore(1000);
+
+    gHud->addScore((mHeldObjects[i]->getHalfWidth() * 1.5f));
   }
   mHeldNum = 0;
   mCarrySize = 0.0f;
@@ -642,7 +643,7 @@ void TNest::startAssimilateObject(TNestObj * obj){
 
 void TNest::assimilateObject(TNestObj * obj){
   setCollideRadius(64.0f + (obj->getHalfWidth() / 2.0f));
-  setCollideHeight(32.0f + (obj->getHalfWidth() * 2.0f));
+  setCollideHeight(32.0f + (obj->getHalfWidth() * 3.0f));
   //setCollideCenter(mPosition + TVec3F(0.0f, -9.0f, 0.0f));
 
   mNestArea->updateSize(mSize);
@@ -688,7 +689,7 @@ void TNestArea::updateSize(float size){
   TVec3F center = mNest->getPosition();
   center.y() = mNest->getTopY() + 2500.0f + 80.0f;
 
-  setCollideRadius(96.0f + (size));
+  setCollideRadius(96.0f + (size / 4.0f));
   setCollideCenter(center);
 
   updateBlkMap();

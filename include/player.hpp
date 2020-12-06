@@ -23,6 +23,14 @@ enum playerstate_t : u16 {
     PLAYERSTATE_STUNNED,     //Hit a wall while flying
 };
 
+enum gameplaystate_t : u16 {
+    PLAYERGAMESTATE_FREEFLIGHT,
+    PLAYERGAMESTATE_COUNTDOWN,
+    PLAYERGAMESTATE_FLIGHT,
+    PLAYERGAMESTATE_FINISHED
+};
+
+
 // -------------------------------------------------------------------------- //
 
 class TPlayer;
@@ -81,11 +89,15 @@ class TPlayer :
     const TVec3<f32> & getHeldPosition(int idx = 0) { return mHeldPos[idx]; }
     TVec3<f32> mHeldPos[32];
 
+    void startFreeFlight() { mGameState = gameplaystate_t::PLAYERGAMESTATE_FREEFLIGHT; }
+
     protected:
     void startFlying();
     void startIdle();
     void checkLateralCollision();
     void checkMeshCollision(const TCollFace * face, float radius);
+
+    bool canMove() { return mGameState == gameplaystate_t::PLAYERGAMESTATE_FLIGHT || mGameState == gameplaystate_t::PLAYERGAMESTATE_FREEFLIGHT; }
 
     /* sfx */
     void playCawSFX();
@@ -147,6 +159,7 @@ class TPlayer :
     s16 mBankAngle;
 
     playerstate_t mState;
+    gameplaystate_t mGameState;
 
     virtual void onCollide(TCollider *) override;
     void moveCameraRelative(TVec3F & move, TVec3F & forward, TVec3F & right, float multiplier = 1.0f);
