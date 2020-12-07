@@ -397,6 +397,7 @@ Gfx mat_revert_sky_sm64_material_004[] = {
 
 
 Gfx sky_Sphere_mesh[] = {
+	gsSPClearGeometryMode(G_LIGHTING),
 	gsSPDisplayList(mat_sky_sm64_material_004),
 	gsSPDisplayList(sky_Sphere_mesh_tri_0),
 	gsSPDisplayList(mat_revert_sky_sm64_material_004),

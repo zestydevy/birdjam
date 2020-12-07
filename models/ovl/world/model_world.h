@@ -22,12 +22,8 @@ extern Vtx world_World_mesh_vtx_10[8];
 extern Gfx world_World_mesh_tri_10[];
 extern Vtx world_World_mesh_vtx_11[12];
 extern Gfx world_World_mesh_tri_11[];
-extern Vtx world_World_mesh_vtx_12[345];
+extern Vtx world_World_mesh_vtx_12[48];
 extern Gfx world_World_mesh_tri_12[];
-extern Vtx world_World_mesh_vtx_13[41];
-extern Gfx world_World_mesh_tri_13[];
-extern Vtx world_World_mesh_vtx_14[48];
-extern Gfx world_World_mesh_tri_14[];
 
 extern Gfx mat_world_leaves_f3d[];
 extern Gfx mat_revert_world_leaves_f3d[];

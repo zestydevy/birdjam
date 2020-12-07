@@ -279,14 +279,14 @@ Gfx distant_Distant_mesh_tri_2[] = {
 	gsSP1Triangle(4, 6, 7, 0),
 	gsSPEndDisplayList(),
 };Vtx distant_Distant_mesh_vtx_3[8] = {
-	{{{-11574, 864, -3692},0, {-16, -16},{0x68, 0x49, 0x1, 0xFF}}},
-	{{{-10974, 9, -3686},0, {-16, 1008},{0x68, 0x49, 0x1, 0xFF}}},
-	{{{-10964, 9, -4731},0, {1008, 1008},{0x68, 0x49, 0x1, 0xFF}}},
-	{{{-11565, 864, -4736},0, {1008, -16},{0x68, 0x49, 0x1, 0xFF}}},
-	{{{-11653, 864, 4795},0, {-16, -16},{0x68, 0x49, 0x1, 0xFF}}},
-	{{{-11053, 9, 4801},0, {-16, 1008},{0x68, 0x49, 0x1, 0xFF}}},
-	{{{-11043, 9, 3756},0, {1008, 1008},{0x68, 0x49, 0x1, 0xFF}}},
-	{{{-11643, 864, 3751},0, {1008, -16},{0x68, 0x49, 0x1, 0xFF}}},
+	{{{-11531, 864, -3692},0, {-16, -16},{0x68, 0x49, 0x1, 0xFF}}},
+	{{{-10931, 9, -3686},0, {-16, 1008},{0x68, 0x49, 0x1, 0xFF}}},
+	{{{-10922, 9, -4731},0, {1008, 1008},{0x68, 0x49, 0x1, 0xFF}}},
+	{{{-11522, 864, -4736},0, {1008, -16},{0x68, 0x49, 0x1, 0xFF}}},
+	{{{-11610, 864, 4795},0, {-16, -16},{0x68, 0x49, 0x1, 0xFF}}},
+	{{{-11010, 9, 4801},0, {-16, 1008},{0x68, 0x49, 0x1, 0xFF}}},
+	{{{-11000, 9, 3756},0, {1008, 1008},{0x68, 0x49, 0x1, 0xFF}}},
+	{{{-11600, 864, 3751},0, {1008, -16},{0x68, 0x49, 0x1, 0xFF}}},
 };
 
 Gfx distant_Distant_mesh_tri_3[] = {
@@ -371,7 +371,7 @@ Gfx mat_revert_distant_asphalt_f3d[] = {
 Gfx mat_distant_tunnel_f3d[] = {
 	gsDPPipeSync(),
 	gsDPSetCombineLERP(0, 0, 0, TEXEL0, TEXEL0, 0, ENVIRONMENT, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, ENVIRONMENT, 0),
-	gsSPClearGeometryMode(G_CULL_BACK),
+	gsSPSetGeometryMode(G_CULL_BACK),
 	gsSPTexture(65535, 65535, 0, 0, 1),
 	gsDPSetTextureLUT(G_TT_RGBA16),
 	gsDPSetTextureImage(G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, distant_tunnel_ci4_pal_rgba16),
@@ -382,11 +382,11 @@ Gfx mat_distant_tunnel_f3d[] = {
 	gsDPPipeSync(),
 	gsDPTileSync(),
 	gsDPSetTextureImage(G_IM_FMT_CI, G_IM_SIZ_8b, 16, distant_tunnel_ci4),
-	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_8b, 2, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0),
+	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_8b, 2, 0, 7, 0, G_TX_CLAMP | G_TX_NOMIRROR, 5, 0, G_TX_CLAMP | G_TX_NOMIRROR, 5, 0),
 	gsDPLoadSync(),
 	gsDPLoadTile(7, 0, 0, 62, 124),
 	gsDPPipeSync(),
-	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_4b, 2, 0, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0),
+	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_4b, 2, 0, 0, 0, G_TX_CLAMP | G_TX_NOMIRROR, 5, 0, G_TX_CLAMP | G_TX_NOMIRROR, 5, 0),
 	gsDPSetTileSize(0, 0, 0, 124, 124),
 	gsSPEndDisplayList(),
 };
