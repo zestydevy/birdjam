@@ -731,12 +731,7 @@ void TPlayer::draw()
         mShadow->draw();
     }
 
-    //No zbuffer version
-    if (TFlockObj::getFlockObj()->getCapacity() > 0.0f && TFlockObj::getFlockObj()->getSize() > 0.5f)
-        setMesh(bird_Bird_mesh_noz);
-    else
-        setMesh(bird_Bird_mesh);
-    
+    setMesh(bird_Bird_mesh);
     
     updateMtx();
     TObject::draw();
