@@ -6,8 +6,9 @@
   	0x80000000  exception vectors, ...
   	0x80000400  zbuffer (size 320*240*2)
   	0x80025c00  codesegment
+	0x80119e40
 	      :  
-  	0x8028F800  Game Heap
+  	0x8020F800  Game Heap
 	0x8030F800  Audio Heap
   	0x8038F800  cfb 16b 3buffer (size 320*240*2*3)
 
