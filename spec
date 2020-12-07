@@ -55,6 +55,7 @@ beginseg
 	include "build/obj/Bird_GlideUTurn.o"
 
 	include "build/obj/shadow.o"
+	include "build/obj/model_window.o"
 	include "build/obj/model_worldstress.o"
 	include "build/obj/model_world.o"
 	include "build/obj/model_world_col.o"
