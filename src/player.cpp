@@ -292,18 +292,27 @@ void TPlayer::update()
     /* Collision check */
     mClosestFace = TCollision::findClosest(mPosition, BIRD_RADIUS);
 
+    // Set up held object positions
     mHeldPos[0] = mPosition + (TVec3F(0.0f, -1.0f, 0.0f) * BIRD_RADIUS);
-    for (int i = 1; i < TFlockObj::getFlockObj()->getNumObjects(); i++){
+    mHeldVel[0] = getVelocity();
+    for (int i = TFlockObj::getFlockObj()->getNumObjects() - 1; i > 0; i--){   //Backwards so there is a 1 frame delay for each held object
         float r = TFlockObj::getFlockObj()->getObjRadius(i);
         TVec3F dif = mHeldPos[i] - mHeldPos[i-1];
         if (dif.getLength() > r){
             dif.normalize();
             dif *= r;
-            mHeldPos[i] = mHeldPos[i-1] + dif;
+            TVec3F next = mHeldPos[i];
+            next.moveTowards(mHeldPos[i-1] + dif, BIRD_FASTSPEED);
+            mHeldVel[i] = (next - mHeldPos[i]);
+            mHeldPos[i] = next;
         }
     }
+    for (int i = TFlockObj::getFlockObj()->getNumObjects(); i < 32; i++){
+        mHeldPos[i] = mPosition + (TVec3F(0.0f, -1.0f, 0.0f) * BIRD_RADIUS);
+        mHeldVel[i] = TVec3F(0.0f, 0.0f, 0.0f);
+    }
 
-    float camDist = TMath<float>::clamp(TFlockObj::getFlockObj()->getSize() / 5.0f, 1.0f, 2.5f);
+    float camDist = TMath<float>::clamp(TFlockObj::getFlockObj()->getChainLength(), 0.0f, 500.0f);
 
     switch (mState){
         
@@ -583,7 +592,7 @@ void TPlayer::update()
 
             if (canMove()){
                 // Configure the camera
-                mCamera->setPosition(mPosition + (fback * 150.0f * camDist));
+                mCamera->setPosition(mPosition + (fback * (150.0f + camDist)));
                 mCameraTarget.lerpTime(mPosition + (up * 30.00f) + (mDirection * mSpeed * 20.0f), 0.1f, kInterval);  //Target slightly above player and slightly in front of player
 
                 //Flight camera controls
@@ -619,7 +628,7 @@ void TPlayer::update()
             mPosition += mDirection * mSpeed;
 
             // Configure the camera
-            mCamera->setPosition(mPosition + (fback * 150.0f * camDist));
+            mCamera->setPosition(mPosition + (fback * (150.0f + camDist)));
             mCameraTarget = mPosition + (up * 60.00f) + (mLastDirection * mSpeed * 20.0f);  //Target slightly above player and slightly in front of player
             break;
     }
@@ -721,6 +730,13 @@ void TPlayer::draw()
     if (mGroundFace != nullptr) {
         mShadow->draw();
     }
+
+    //No zbuffer version
+    if (TFlockObj::getFlockObj()->getCapacity() > 0.0f && TFlockObj::getFlockObj()->getSize() > 0.5f)
+        setMesh(bird_Bird_mesh_noz);
+    else
+        setMesh(bird_Bird_mesh);
+    
     
     updateMtx();
     TObject::draw();

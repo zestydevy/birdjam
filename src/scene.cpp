@@ -20,6 +20,7 @@
 #include "../models/ovl/world/model_distant.h"
 #include "../models/ovl/world/model_sky.h"
 #include "../models/ovl/world/shadow.h"
+#include "../models/ovl/world/model_window.h"
 
 //#include "../models/static/sprites/sprite_time.h"
 #include "../models/static/sprites/sprite_items.h"
@@ -268,6 +269,15 @@ void TTestScene::init()
     mSky->setMesh(sky_Sphere_mesh);
     mSky->init();
 
+    TObject * window = new TObject(mDynList);
+    window->setPosition(mBird->getPosition() + TVec3F(0.0f, 50.0f, 0.0f));
+    window->setScale({0.05f,0.05f,0.05f});
+    window->setRotation({0,0,0});
+    window->setMesh(window_HeldWindow_mesh);
+    window->mAlwaysDraw = true;
+    window->init();
+    mObjList.push(window);
+
     loadObjects(scene_world);
 
     mBird->init();
@@ -413,11 +423,20 @@ void TTestScene::draw()
     mSky->draw();
 
     for (int i = 0; i < mObjList.capacity(); ++i) {
-        mObjList[i]->draw();
+        if (mObjList[i]->mDrawLayer == EDrawLayer::PREWINDOW)
+            mObjList[i]->draw();
     }
 
     mBird->draw();
     mFlock->draw();
+
+    if (TFlockObj::getFlockObj()->getCapacity() > 0.0f)
+        mCamera->drawWindow();
+
+    for (int i = 0; i < mObjList.capacity(); ++i) {
+        if (mObjList[i]->mDrawLayer == EDrawLayer::POSTWINDOW)
+            mObjList[i]->draw();
+    }
 }
 
 void TTestScene::draw2D() {

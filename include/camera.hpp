@@ -6,6 +6,8 @@
 #include "dynlist.hpp"
 #include "pad.hpp"
 
+#include "collision.hpp"
+
 // -------------------------------------------------------------------------- //
 
 class TCamera
@@ -26,6 +28,7 @@ class TCamera
 
     float getFOV() {return mFov;}
     void setFOV(float fovy) {mFov = fovy;}
+    void drawWindow(float scale = 1.0f);
 
     void jumpToTarget();
 
@@ -43,6 +46,7 @@ class TCamera
     TDynList2 * mDynList{nullptr};
 
     static bool checkVisible(const TVec3F & pos, float drawDistance);
+    static bool checkClipping(const TVec3F & pos, float radius, bool ignoreBehind = false);
 
     private:
 
@@ -61,6 +65,16 @@ class TCamera
     Mtx mFRotMtx{};
     Mtx mFScaleMtx{};
 
+
+    /* Window drawing */
+    TMtx44 mWindowPosMtx{};
+    TMtx44 mWindowRotMtx{};
+    TMtx44 mWindowScaleMtx{};
+
+    Mtx mFWindowPosMtx{};
+    Mtx mFWindowRotMtx{};
+    Mtx mFWindowScaleMtx{};
+
     const TVec3<f32> * mTarget{};
 
     TMtx44 mViewMtx{};
@@ -70,6 +84,8 @@ class TCamera
     u16 mPersp{0};
     u16 mAngle{0};
     f32 mDistance{0.0f};
+
+    TCollFace const * mGroundFace { nullptr };
 
     bool mExternallyControlled;
 };

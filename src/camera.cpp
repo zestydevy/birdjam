@@ -5,6 +5,8 @@
 #include "math.hpp"
 #include "util.hpp"
 
+#include "../models/ovl/world/model_window.h"
+
 // -------------------------------------------------------------------------- //
 
 TCamera * TCamera::sCamera { nullptr };
@@ -37,6 +39,12 @@ bool TCamera::checkVisible(const TVec3F & pos, float drawDistance = 100000000.0f
     dif.normalize();
     return dif.dot(sCamera->mForward) > 0.1f;
 }
+bool TCamera::checkClipping(const TVec3F & pos, float radius, bool ignoreBehind){
+    TVec3F dif = pos - sCamera->mOldPos;
+    if (ignoreBehind && dif.dot(sCamera->mForward) < 0.0f)
+        return false;
+    return dif.getLength() <= radius;
+}
 
 void TCamera::jumpToTarget(){
     TVec3F dif = (*mTarget - mPosition);
@@ -57,6 +65,30 @@ void TCamera::jumpToTarget(){
         mPosition.set(x, y, z);
     }
     mOldPos = mPosition;
+}
+
+void TCamera::drawWindow(float scale){
+    TMtx44 temp1, temp2, temp3;
+    
+    mWindowPosMtx.translate(mOldPos + (mForward * 750.0f));
+
+    temp1.rotateAxisX(0);
+    temp2.rotateAxisY(TSine::atan2(-mForward.z(), mForward.x()));
+    temp3.rotateAxisZ(TSine::acos(mForward.xz().getLength()) * (mForward.y() >= 0.0f ? 1.0f : -1.0f));
+    TMtx44::concat(temp2, temp1, mWindowRotMtx);
+    TMtx44::concat(mWindowRotMtx, temp3, mWindowRotMtx);
+
+    TMtx44::floatToFixed(mWindowPosMtx, mFWindowPosMtx);
+    TMtx44::floatToFixed(mWindowRotMtx, mFWindowRotMtx);
+
+    gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFWindowPosMtx),
+	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
+    gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFWindowRotMtx),
+	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
+        
+    gSPDisplayList(mDynList->pushDL(), window_HeldWindow_mesh);
+
+    gSPPopMatrix(mDynList->pushDL(), G_MTX_MODELVIEW);
 }
 
 void TCamera::render()
@@ -109,6 +141,14 @@ void TCamera::render()
         y = mTarget->y() + 20.00f;
         z = mTarget->z() - TSine::scos(mAngle) * pdist;
         mPosition.set(x, y, z);
+    }
+
+    //Don't let the camera clip in the ground
+    mGroundFace = TCollision::findGroundBelow(mOldPos, 50.0f);
+    if (mGroundFace != nullptr){
+        float y = mGroundFace->calcYAt(mOldPos.xz()) + 50.0f;
+        if (mOldPos.y() < y)
+            mOldPos.y() = y;
     }
 
     mOldPos.lerpTime({x, y, z}, 0.0667f, kInterval);

@@ -1,5 +1,6 @@
 #include <ultra64.h>
 
+Gfx window_dither_ci4_aligner[] = {gsSPEndDisplayList()};
 u8 window_dither_ci4[] = {
 	0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 
 	0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 
@@ -253,7 +254,7 @@ Gfx window_HeldWindow_mesh_tri_0[] = {
 
 Gfx mat_window_Dither_f3d[] = {
 	gsDPPipeSync(),
-	gsDPSetCombineLERP(0, 0, 0, 0, TEXEL0, 0, ENVIRONMENT, 0, 0, 0, 0, COMBINED, COMBINED, 0, ENVIRONMENT, 0),
+	gsDPSetCombineLERP(0, 0, 0, TEXEL0, 0, 0, 0, TEXEL0, 0, 0, 0, TEXEL0, 0, 0, 0, TEXEL0),
 	gsSPClearGeometryMode(G_CULL_BACK),
 	gsDPSetTextureFilter(G_TF_POINT),
 	gsSPTexture(65535, 65535, 0, 0, 1),
@@ -283,10 +284,20 @@ Gfx mat_revert_window_Dither_f3d[] = {
 	gsSPEndDisplayList(),
 };
 
+#define	RM_ADD_ZB(clk)					\
+	IM_RD | CVG_DST_SAVE | FORCE_BL | ZMODE_OPA |	\
+	Z_UPD | CVG_X_ALPHA | ALPHA_CVG_SEL | \
+	GBL_c##clk(G_BL_CLR_IN, G_BL_A_FOG, G_BL_CLR_MEM, G_BL_1)
+
+#define	RM_AA_ZB_TEX_EDGE_ZONLY(clk)					\
+	AA_EN | Z_CMP | Z_UPD | IM_RD | CVG_DST_CLAMP |		\
+	CVG_X_ALPHA | ALPHA_CVG_SEL | ZMODE_OPA | TEX_EDGE |	\
+	GBL_c##clk(G_BL_CLR_MEM, G_BL_A_IN, G_BL_CLR_MEM, G_BL_A_MEM)
 
 Gfx window_HeldWindow_mesh[] = {
-	gsDPSetCycleType(G_CYC_2CYCLE),
-	gsDPSetRenderMode(G_RM_NOOP, G_RM_AA_ZB_TEX_EDGE),
+	gsDPSetRenderMode(RM_AA_ZB_TEX_EDGE_ZONLY(1), RM_AA_ZB_TEX_EDGE_ZONLY(2)),
+	gsDPSetFogColor(255, 255, 255, 255),
+	gsDPSetAlphaCompare(G_AC_THRESHOLD),
 	gsDPSetDepthSource(G_ZS_PRIM),
 	gsDPSetPrimDepth(0, 0),
 	gsSPDisplayList(mat_window_Dither_f3d),
@@ -294,6 +305,7 @@ Gfx window_HeldWindow_mesh[] = {
 	gsSPDisplayList(mat_revert_window_Dither_f3d),
 	gsDPSetRenderMode(G_RM_AA_ZB_OPA_SURF, G_RM_AA_ZB_OPA_SURF2),
 	gsDPPipeSync(),
+	gsDPSetAlphaCompare(G_AC_NONE),
 	gsDPSetCycleType(G_CYC_1CYCLE),
 	gsDPSetDepthSource(G_ZS_PIXEL),
 	gsSPSetGeometryMode(G_LIGHTING),

@@ -87,7 +87,10 @@ class TPlayer :
     const TCollFace * mClosestFaceCarry;
 
     const TVec3<f32> & getHeldPosition(int idx = 0) { return mHeldPos[idx]; }
+    const TVec3<f32> & getHeldVelocity(int idx = 0) { return mHeldVel[idx]; }
+    float getHeldChainLength();
     TVec3<f32> mHeldPos[32];
+    TVec3<f32> mHeldVel[32];
 
     void startFreeFlight() { mGameState = gameplaystate_t::PLAYERGAMESTATE_FREEFLIGHT; }
 

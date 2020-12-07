@@ -53,6 +53,18 @@ void TFlockObj::incFlock(u32 n, float strength) {
 
 // -------------------------------------------------------------------------- //
 
+int TFlockObj::getPowerLevel(){
+  if (mStrength < POWER_LEVELS[0])
+    return -1;
+  for (int i = 0; i < sizeof(POWER_LEVELS) / sizeof(float); i++){
+    if (mStrength >= POWER_LEVELS[i])
+      return i;
+  }
+  return sizeof(POWER_LEVELS) / sizeof(float);
+}
+
+// -------------------------------------------------------------------------- //
+
 void TFlockObj::init() {
   TObject::init();
 }
@@ -61,8 +73,10 @@ void TFlockObj::init() {
 
 void TFlockObj::update() {
   TObject::update();
-  for (int i = 0; i < mHeldNum; i++)
+  for (int i = 0; i < mHeldNum; i++){
     mHeldObjects[i]->setPosition(gPlayer->getHeldPosition(i) + mHeldObjects[i]->getMountPoint());
+    mHeldObjects[i]->setVelocity(gPlayer->getHeldVelocity(i));
+  }
 }
 
 // -------------------------------------------------------------------------- //
@@ -89,6 +103,16 @@ float TFlockObj::getRadius(float min){
 float TFlockObj::getObjRadius(int idx){
   return mHeldObjects[idx]->getHalfHeight();
 }
+
+// -------------------------------------------------------------------------- //
+
+float TFlockObj::getChainLength(){
+  float len = 0.0f;
+  for (int i = 0; i < mHeldNum; i++)
+    len += getObjRadius(i);
+  return len;
+}
+
 
 // -------------------------------------------------------------------------- //
 
@@ -225,7 +249,7 @@ void TNestObj::update() {
   float y = 0.0f;
   TVec3S speedRot {0.0f, 0.0f, 0.0f};
   TVec3S rot = getRotation();
-  TVec3F v = gPlayer->getVelocity();
+  TVec3F v = mVelocity;
   switch (mState) {
     case EState::CARRYING: {
       //Calculate hanging angle
@@ -243,6 +267,7 @@ void TNestObj::update() {
       //Set hanging angle
       setRotation(speedRot);
 
+      mDrawLayer = EDrawLayer::POSTWINDOW;
       break;
     }
     case EState::DROPPING: {
@@ -267,6 +292,8 @@ void TNestObj::update() {
         }
       }
       mMtxNeedsUpdate = true;
+
+      mDrawLayer = EDrawLayer::PREWINDOW;
       break;
     }
     case EState::STASHING: {
@@ -283,6 +310,8 @@ void TNestObj::update() {
       }
 
       mMtxNeedsUpdate = true;
+
+      mDrawLayer = EDrawLayer::PREWINDOW;
       break;
     }
   }

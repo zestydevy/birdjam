@@ -28,6 +28,8 @@ class TFlockObj :
   float getSize() const { return mCarrySize; }
   float getCapacity() const { return mCarrySize / 4.0f / mStrength; }
   float maxCarryWeight() const { return mStrength - (mCarrySize / 4.0f); }
+  int getPowerLevel();
+  float getChainLength();
 
   int getNumObjects() const { return mHeldNum; }
   float getRadius(float min = 0.0f);
@@ -90,6 +92,9 @@ class TNestObj :
   virtual float getHalfHeight();
   virtual float getHalfWidth();
   virtual float getScore();
+
+  const TVec3F & getVelocity() { return mVelocity; } 
+  void setVelocity(const TVec3F & vel) { mVelocity = vel; } 
 
   protected:
   virtual void setCollision(bool set);

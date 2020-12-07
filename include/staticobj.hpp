@@ -66,6 +66,12 @@ enum EObjType : s16
     INVALID
 };
 
+enum EDrawLayer : s16
+{
+    PREWINDOW,
+    POSTWINDOW
+};
+
 // -------------------------------------------------------------------------- //
 
 class TObject
@@ -97,6 +103,8 @@ class TObject
     static const TObjectData & getNestObjectInfo(EObjType type);
 
     bool mAlwaysDraw{false};
+
+    int mDrawLayer {EDrawLayer::PREWINDOW};
 
     protected:
     bool mInCamera{false};
