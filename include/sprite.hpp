@@ -62,7 +62,8 @@ class TSprite {
     TColor mColor { 255, 255, 255, 255};
     u32 mAttributes { SP_FASTCOPY };
     Sprite mSpriteData;
-    TArray<Gfx> mSpriteGfx;
+    Gfx * mSpriteDL { nullptr };
+    u32 mNumSpriteDL { 0 };
 
     static TDynList2 * sDynList;
 

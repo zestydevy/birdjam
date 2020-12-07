@@ -42,9 +42,11 @@ void TSprite::preload(
 ) {
     auto size = (u32)sprite.ndisplist;
 
-    if (size > mSpriteGfx.size()) {
-        mSpriteGfx.resize(size);
-        mSpriteData.rsp_dl = mSpriteGfx.data();
+    if (size > mNumSpriteDL) {
+        delete[] mSpriteDL;
+        mSpriteDL = new Gfx[size];
+        mSpriteData.rsp_dl = mSpriteDL;
+        mNumSpriteDL = size;
     }
 }
 
