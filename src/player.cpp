@@ -311,7 +311,7 @@ void TPlayer::update()
         // walk controls
         case playerstate_t::PLAYERSTATE_FALLING:
             mAnim->setTimescale(0.25f);
-            if (mClosestFace == nullptr || mClosestFace->nrm.y() > 0.707f) {
+            if (mClosestFace == nullptr || mClosestFace->nrm.y() <= 0.707f) {
                 mVelocity += BIRD_FALLGRAVITY * kInterval;
                 mPosition -= {0.0f, mVelocity, 0.0f};
             } else {
