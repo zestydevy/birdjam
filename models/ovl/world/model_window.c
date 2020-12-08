@@ -237,17 +237,28 @@ u8 window_dither_ci4_pal_rgba16[] = {
 	0x0, 0x0, 0xFF, 0xFE, 0xFF, 0xFF, 
 };
 
-Vtx window_HeldWindow_mesh_vtx_0[4] = {
-	{{{0, 213, 213},0, {-12, 4080},{0x7F, 0x0, 0x0, 0xFF}}},
-	{{{0, -213, 213},0, {4084, 4080},{0x7F, 0x0, 0x0, 0xFF}}},
-	{{{0, -213, -213},0, {4084, -16},{0x7F, 0x0, 0x0, 0xFF}}},
-	{{{0, 213, -213},0, {-12, -16},{0x7F, 0x0, 0x0, 0xFF}}},
+Vtx window_HeldWindow_mesh_vtx_0[9] = {
+	{{{0, -213, 213},0, {-30, -30},{0x7F, 0x0, 0x0, 0xFF}}},
+	{{{0, -213, 0},0, {-30, 2018},{0x7F, 0x0, 0x0, 0xFF}}},
+	{{{0, 0, 0},0, {2018, 2018},{0x7F, 0x0, 0x0, 0xFF}}},
+	{{{0, -213, -213},0, {-30, -30},{0x7F, 0x0, 0x0, 0xFF}}},
+	{{{0, 0, -213},0, {2018, -30},{0x7F, 0x0, 0x0, 0xFF}}},
+	{{{0, 213, -213},0, {-30, -30},{0x7F, 0x0, 0x0, 0xFF}}},
+	{{{0, 213, 0},0, {-30, 2018},{0x7F, 0x0, 0x0, 0xFF}}},
+	{{{0, 213, 213},0, {-30, -30},{0x7F, 0x0, 0x0, 0xFF}}},
+	{{{0, 0, 213},0, {2018, -30},{0x7F, 0x0, 0x0, 0xFF}}},
 };
 
 Gfx window_HeldWindow_mesh_tri_0[] = {
-	gsSPVertex(window_HeldWindow_mesh_vtx_0 + 0, 4, 0),
+	gsSPVertex(window_HeldWindow_mesh_vtx_0 + 0, 9, 0),
 	gsSP1Triangle(0, 1, 2, 0),
-	gsSP1Triangle(0, 2, 3, 0),
+	gsSP1Triangle(3, 2, 1, 0),
+	gsSP1Triangle(3, 4, 2, 0),
+	gsSP1Triangle(5, 2, 4, 0),
+	gsSP1Triangle(5, 6, 2, 0),
+	gsSP1Triangle(7, 2, 6, 0),
+	gsSP1Triangle(7, 8, 2, 0),
+	gsSP1Triangle(0, 2, 8, 0),
 	gsSPEndDisplayList(),
 };
 
@@ -284,11 +295,6 @@ Gfx mat_revert_window_Dither_f3d[] = {
 	gsSPEndDisplayList(),
 };
 
-#define	RM_ADD_ZB(clk)					\
-	IM_RD | CVG_DST_SAVE | FORCE_BL | ZMODE_OPA |	\
-	Z_UPD | CVG_X_ALPHA | ALPHA_CVG_SEL | \
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_FOG, G_BL_CLR_MEM, G_BL_1)
-
 #define	RM_AA_ZB_TEX_EDGE_ZONLY(clk)					\
 	AA_EN | Z_CMP | Z_UPD | IM_RD | CVG_DST_CLAMP |		\
 	CVG_X_ALPHA | ALPHA_CVG_SEL | ZMODE_OPA | TEX_EDGE |	\
@@ -306,7 +312,6 @@ Gfx window_HeldWindow_mesh[] = {
 	gsDPSetRenderMode(G_RM_AA_ZB_OPA_SURF, G_RM_AA_ZB_OPA_SURF2),
 	gsDPPipeSync(),
 	gsDPSetAlphaCompare(G_AC_NONE),
-	gsDPSetCycleType(G_CYC_1CYCLE),
 	gsDPSetDepthSource(G_ZS_PIXEL),
 	gsSPSetGeometryMode(G_LIGHTING),
 	gsSPClearGeometryMode(G_TEXTURE_GEN),

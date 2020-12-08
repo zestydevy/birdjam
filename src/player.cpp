@@ -678,6 +678,10 @@ void TPlayer::update()
         mEndCameraTimer = 0.0f;
         
         mCamera->setMode(true);
+
+        //Drop everything and don't pick anything new up
+        TFlockObj::getFlockObj()->dropAllObjects();
+        TFlockObj::getFlockObj()->setActive(false);
     }
     if (mGameState == gameplaystate_t::PLAYERGAMESTATE_COUNTDOWN){
         if (gHud->isCountedDown()){

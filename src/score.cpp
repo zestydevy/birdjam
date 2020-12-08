@@ -14,6 +14,7 @@
 #include "util.hpp"
 
 #include "../models/static/dropoff/model_dropoff.h"
+#include "../models/static/highlight/model_highlightring.h"
 
 // -------------------------------------------------------------------------- //
 
@@ -46,6 +47,12 @@ TFlockObj * TFlockObj::getFlockObj(){
 
 // -------------------------------------------------------------------------- //
 
+bool TFlockObj::canDrawHighlightRing(float weight){
+  return sFlockObj->mHighlightTimer > 0.0f && fmod(sFlockObj->mHighlightTimer, 1.0f) > 0.5f && weight > sFlockObj->mPrevLevel && weight < sFlockObj->mStrength;
+}
+
+// -------------------------------------------------------------------------- //
+
 void TFlockObj::incFlock(u32 n, float strength) {
   mFlockSize += n;
   mStrength += strength;
@@ -54,13 +61,17 @@ void TFlockObj::incFlock(u32 n, float strength) {
 // -------------------------------------------------------------------------- //
 
 int TFlockObj::getPowerLevel(){
-  if (mStrength < POWER_LEVELS[0])
-    return -1;
-  for (int i = 0; i < sizeof(POWER_LEVELS) / sizeof(float); i++){
-    if (mStrength >= POWER_LEVELS[i])
+  return getPowerLevel(sFlockObj->mStrength);
+}
+
+// -------------------------------------------------------------------------- //
+
+int TFlockObj::getPowerLevel(float weight){
+  for (int i = sizeof(POWER_LEVELS) / sizeof(float) - 1; i >= 0; i--){
+    if (weight >= POWER_LEVELS[i])
       return i;
   }
-  return sizeof(POWER_LEVELS) / sizeof(float);
+  return -1;
 }
 
 // -------------------------------------------------------------------------- //
@@ -77,6 +88,9 @@ void TFlockObj::update() {
     mHeldObjects[i]->setPosition(gPlayer->getHeldPosition(i) + mHeldObjects[i]->getMountPoint());
     mHeldObjects[i]->setVelocity(gPlayer->getHeldVelocity(i));
   }
+
+  if (mHighlightTimer > 0.0f)
+    mHighlightTimer -= kInterval;
 }
 
 // -------------------------------------------------------------------------- //
@@ -129,7 +143,13 @@ bool TFlockObj::grabObject(TNestObj * obj) {
 // -------------------------------------------------------------------------- //
 
 bool TFlockObj::canGrabObject(float size) {
-  return size <= mStrength && mHeldNum < 32;
+  return mEnabled && size <= mStrength && mHeldNum < 32;
+}
+
+// -------------------------------------------------------------------------- //
+
+void TFlockObj::setActive(bool active) {
+  mEnabled = active;
 }
 
 // -------------------------------------------------------------------------- //
@@ -152,6 +172,16 @@ bool TFlockObj::dropTopObject() {
 // -------------------------------------------------------------------------- //
 
 bool TFlockObj::dropAllObjects() {
+  if (mHeldNum <= 0)
+    return false;
+
+  while (dropTopObject());
+  return true;
+}
+
+// -------------------------------------------------------------------------- //
+
+bool TFlockObj::cacheAllObjects() {
   if (mHeldNum <= 0)
     return false;
 
@@ -179,6 +209,13 @@ bool TFlockObj::dropAllObjects() {
 
     gHud->addScore((mHeldObjects[i]->getScore() * 0.005f));
   }
+
+  int lvl = getPowerLevel();
+  if (lvl >= 1)
+    mPrevLevel = POWER_LEVELS[lvl - 1];
+
+  mHighlightTimer = 3.0f;
+
   mHeldNum = 0;
   mCarrySize = 0.0f;
   return true;
@@ -339,11 +376,16 @@ void TNestObj::draw() {
       gSPDisplayList(mDynList->pushDL(), mMesh);
   }
 
-    gSPPopMatrix(mDynList->pushDL(), G_MTX_MODELVIEW);
+  if (mState == EState::IDLE && TFlockObj::canDrawHighlightRing(mData->mass))
+    drawRing();
 
-  // if (gPlayer->getBlkMap() == getBlkMap()) {
-  //   mDebugCube->draw();
-  // }
+  gSPPopMatrix(mDynList->pushDL(), G_MTX_MODELVIEW);
+}
+
+// -------------------------------------------------------------------------- //
+
+void TNestObj::drawRing() {
+  gSPDisplayList(mDynList->pushDL(), highlightring_HighlightRing_mesh);
 }
 
 // -------------------------------------------------------------------------- //
@@ -719,7 +761,7 @@ void TNest::assimilateObject(TNestObj * obj){
 void TNest::areaCollide(
   TCollider * const other
 ) {
-  TFlockObj::getFlockObj()->dropAllObjects();
+  TFlockObj::getFlockObj()->cacheAllObjects();
 }
 
 // -------------------------------------------------------------------------- //

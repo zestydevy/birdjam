@@ -25,7 +25,7 @@ void TGame::init()
     TAudio::init();
     
     // allocate dynamic display list
-    mDynList = new TDynList2(2048, nullptr);
+    mDynList = new TDynList2(3072, nullptr);
 
     //mCamera = new TCamera(mDynList);
 

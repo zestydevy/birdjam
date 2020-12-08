@@ -30,6 +30,7 @@ class TFlockObj :
   float maxCarryWeight() const { return mStrength - (mCarrySize / 4.0f); }
   int getPowerLevel();
   float getChainLength();
+  void setActive(bool active);
 
   int getNumObjects() const { return mHeldNum; }
   float getRadius(float min = 0.0f);
@@ -38,6 +39,7 @@ class TFlockObj :
   bool grabObject(TNestObj * obj);
   bool dropTopObject();
   bool dropAllObjects();
+  bool cacheAllObjects();
 
   bool canGrabObject(float size);
 
@@ -46,17 +48,25 @@ class TFlockObj :
   virtual void draw() override;
 
   static TFlockObj * getFlockObj();
+  static bool canDrawHighlightRing(float size);
 
   protected:
+
+  int getPowerLevel(float weight);
 
   u32 mFlockSize { 0 };
   float mStrength { 0.25F };
   float mCarrySize { 0.0F };
 
+  float mPrevLevel{0.0f};
+
+  float mHighlightTimer{3.0f};
+
   private:
 
   int mHeldNum { 0 };
   TNestObj * mHeldObjects[32];
+  bool mEnabled{true};
 
   static TFlockObj * sFlockObj;
 
@@ -84,6 +94,7 @@ class TNestObj :
   virtual void init() override;
   virtual void update() override;
   virtual void draw() override;
+  virtual void drawRing();
 
   virtual void increaseRadius(float threshold) override;
 
