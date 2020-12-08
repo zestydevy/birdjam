@@ -367,8 +367,9 @@ void TNestObj::draw() {
       G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
   gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFRotMtx),
       G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
-  gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFMountRotMtx),  //pre-hanging angle
-      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
+  if (mState == EState::CARRYING) //reduce # of dls
+    gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFMountRotMtx),  //pre-hanging angle
+        G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
   gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFScaleMtx),
       G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
       
