@@ -48,7 +48,11 @@ TFlockObj * TFlockObj::getFlockObj(){
 // -------------------------------------------------------------------------- //
 
 bool TFlockObj::canDrawHighlightRing(float weight){
-  return sFlockObj->mHighlightTimer > 0.0f && fmod(sFlockObj->mHighlightTimer, 1.0f) > 0.5f && weight > sFlockObj->mPrevLevel && weight < sFlockObj->mStrength;
+  return sFlockObj->mDoHighlight && weight > sFlockObj->mPrevLevel && weight < sFlockObj->mStrength;
+}
+
+void TFlockObj::startHighlightTimer(){
+  sFlockObj->mHighlightTimer = 3.0f;
 }
 
 // -------------------------------------------------------------------------- //
@@ -88,6 +92,8 @@ void TFlockObj::update() {
     mHeldObjects[i]->setPosition(gPlayer->getHeldPosition(i) + mHeldObjects[i]->getMountPoint());
     mHeldObjects[i]->setVelocity(gPlayer->getHeldVelocity(i));
   }
+
+  mDoHighlight = sFlockObj->mHighlightTimer > 0.0f && fmod(sFlockObj->mHighlightTimer, 1.0f) > 0.5f;
 
   if (mHighlightTimer > 0.0f)
     mHighlightTimer -= kInterval;
@@ -363,15 +369,15 @@ void TNestObj::draw() {
   if (mMtxNeedsUpdate)
       updateMtx();
 
-  gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFPosMtx),
+  gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFMtx),
       G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
-  gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFRotMtx),
-      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
+  //gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFRotMtx),
+  //    G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
   if (mState == EState::CARRYING) //reduce # of dls
     gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFMountRotMtx),  //pre-hanging angle
         G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
-  gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFScaleMtx),
-      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
+  //gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFScaleMtx),
+  //    G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
       
   if (mMesh != nullptr) {
       gSPDisplayList(mDynList->pushDL(), mMesh);
@@ -749,8 +755,8 @@ void TNest::startAssimilateObject(TNestObj * obj){
 // -------------------------------------------------------------------------- //
 
 void TNest::assimilateObject(TNestObj * obj){
-  setCollideRadius(getCollideRadius() + (obj->getScore() * 0.0001f));
-  setCollideHeight(getCollideHeight() + (obj->getScore() * 0.0005f));
+  setCollideRadius(getCollideRadius() + (obj->getScore() * 0.00005f));
+  setCollideHeight(getCollideHeight() + (obj->getScore() * 0.0003f));
   //setCollideCenter(mPosition + TVec3F(0.0f, -9.0f, 0.0f));
 
   mNestArea->updateSize(mSize);

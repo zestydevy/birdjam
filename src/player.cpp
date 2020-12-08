@@ -686,6 +686,7 @@ void TPlayer::update()
     if (mGameState == gameplaystate_t::PLAYERGAMESTATE_COUNTDOWN){
         if (gHud->isCountedDown()){
             mGameState = gameplaystate_t::PLAYERGAMESTATE_FLIGHT;
+            TFlockObj::startHighlightTimer();
             if (mPad->isHeld(A))
                 startFlying();
         }
@@ -724,9 +725,14 @@ void TPlayer::updateMtx()
     TMtx44::concat(temp1, temp3, mRotMtx);
     mScaleMtx.scale(mScale);
 
-    TMtx44::floatToFixed(mPosMtx, mFPosMtx);
+    //Combine mtx
+    TMtx44::concat(mPosMtx, mRotMtx, temp1);
+    TMtx44::concat(temp1, mScaleMtx, temp2);
+
+    TMtx44::floatToFixed(temp2, mFMtx);
     TMtx44::floatToFixed(mRotMtx, mFRotMtx);
-    TMtx44::floatToFixed(mScaleMtx, mFScaleMtx);
+
+    mMtxNeedsUpdate = false;
 }
 
 void TPlayer::draw()

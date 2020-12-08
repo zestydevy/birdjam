@@ -49,6 +49,7 @@ class TFlockObj :
 
   static TFlockObj * getFlockObj();
   static bool canDrawHighlightRing(float size);
+  static void startHighlightTimer();
 
   protected:
 
@@ -60,7 +61,8 @@ class TFlockObj :
 
   float mPrevLevel{0.0f};
 
-  float mHighlightTimer{3.0f};
+  float mHighlightTimer{0.0f};
+  bool mDoHighlight{false};
 
   private:
 

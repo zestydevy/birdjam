@@ -158,9 +158,13 @@ void TObject::updateMtx()
     TMtx44::concat(mRotMtx, temp3, mRotMtx);
     mScaleMtx.scale(mScale);
 
-    TMtx44::floatToFixed(mPosMtx, mFPosMtx);
+    //Combine mtx
+    TMtx44::concat(mPosMtx, mRotMtx, temp1);
+    TMtx44::concat(temp1, mScaleMtx, temp2);
+
+    TMtx44::floatToFixed(temp2, mFMtx);
     TMtx44::floatToFixed(mRotMtx, mFRotMtx);
-    TMtx44::floatToFixed(mScaleMtx, mFScaleMtx);
+
 
     mMtxNeedsUpdate = false;
 }
@@ -178,12 +182,12 @@ void TObject::draw()
     if (mMtxNeedsUpdate)
         updateMtx();
 
-    gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFPosMtx),
+    gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFMtx),
 	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
-    gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFRotMtx),
-	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
-    gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFScaleMtx),
-	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
+    //gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFRotMtx),
+	//      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
+    //gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFScaleMtx),
+	//      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
         
     if (mMesh != nullptr) {
         gSPDisplayList(mDynList->pushDL(), mMesh);
