@@ -24,7 +24,7 @@ TNest * TNest::sNest { nullptr };
 // -------------------------------------------------------------------------- //
 
 TFlockObj::TFlockObj(TDynList2 * dl) :
-  TObject { dl }
+  TObject { dl, EObjType::NONE }
 {
   if (sFlockObj == nullptr) {
     sFlockObj = this;
@@ -232,8 +232,7 @@ bool TFlockObj::cacheAllObjects() {
 TNestObj::TNestObj(
   TDynList2 * dl, EObjType type
 ) :
-  TObject { dl },
-  mObjType { type }
+  TObject { dl, type }
 {
   mData = &TObject::getNestObjectInfo(type);
   mDrawDistanceSquared = mData->drawDist * mData->drawDist;
@@ -383,16 +382,18 @@ void TNestObj::draw() {
       gSPDisplayList(mDynList->pushDL(), mMesh);
   }
 
-  if (mState == EState::IDLE && TFlockObj::canDrawHighlightRing(mData->mass))
-    drawRing();
-
   gSPPopMatrix(mDynList->pushDL(), G_MTX_MODELVIEW);
 }
 
 // -------------------------------------------------------------------------- //
 
 void TNestObj::drawRing() {
-  gSPDisplayList(mDynList->pushDL(), highlightring_HighlightRing_mesh);
+  if (mState != EState::IDLE || !TFlockObj::canDrawHighlightRing(mData->mass))
+    return;
+  gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFMtx),
+      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
+  gSPDisplayList(mDynList->pushDL(), highlightring_HighlightRing_mesh_tri_0);
+  gSPPopMatrix(mDynList->pushDL(), G_MTX_MODELVIEW);
 }
 
 // -------------------------------------------------------------------------- //
@@ -678,7 +679,7 @@ void TNestObjBox::onCollide(
 TNest::TNest(
   TDynList2 * dl
 ) :
-  TObject { dl }
+  TObject { dl, EObjType::NEST }
 {
   initCollider(TAG_NEST, 0, TAG_NESTOBJ, 1);
   setCollideCenter(mPosition + TVec3F(0.0f, -9.0f, 0.0f));
@@ -785,7 +786,7 @@ void TNest::onCollide(
 TNestArea::TNestArea(
   TDynList2 * dl, TNest * nest
 ) :
-  TObject { dl }
+  TObject { dl, EObjType::NONE }
 {
   mNest = nest;
 

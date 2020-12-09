@@ -52,7 +52,7 @@ void TPlayer::init()
     mState = PLAYERSTATE_FALLING;
 
     // shadow
-    mShadow = new TObject(mDynList);
+    mShadow = new TObject(mDynList, EObjType::NONE);
     mShadow->init();
     mShadow->setPosition({0.0f,0.0f,0.0f});
     mShadow->setScale(TVec3F(0.10f, 0.10f, 0.10f));

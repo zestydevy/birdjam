@@ -82,6 +82,16 @@ class TNestObj :
 
   public:
 
+  enum class EState {
+
+    IDLE,
+    CARRYING,
+    DROPPING,
+    STASHING,
+    NESTING,
+
+  };
+
   TNestObj(TDynList2 *, EObjType);
   virtual ~TNestObj() = default;
 
@@ -96,7 +106,7 @@ class TNestObj :
   virtual void init() override;
   virtual void update() override;
   virtual void draw() override;
-  virtual void drawRing();
+  virtual void drawRing() override;
 
   virtual void increaseRadius(float threshold) override;
 
@@ -109,23 +119,14 @@ class TNestObj :
   const TVec3F & getVelocity() { return mVelocity; } 
   void setVelocity(const TVec3F & vel) { mVelocity = vel; } 
 
+  EState getState() {return mState;}
+
   protected:
   virtual void setCollision(bool set);
   virtual void updateCollider();
 
-  enum class EState {
-
-    IDLE,
-    CARRYING,
-    DROPPING,
-    STASHING,
-    NESTING,
-
-  };
-
   float mObjWeight { 0.0F };
   TPlayer * mPlayer { nullptr };
-  EObjType mObjType { EObjType::INVALID };
   EState mState { EState::IDLE };
 
   s16 mMountTimer {0};

@@ -76,7 +76,8 @@ enum EObject
     OBJECT_BUSH,
     OBJECT_LAMP,
     OBJECT_CAR,
-    OBJECT_GOAL
+    OBJECT_GOAL,
+    NUMOBJECTS
 };
 
 #endif

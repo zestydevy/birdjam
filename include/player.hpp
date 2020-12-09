@@ -47,7 +47,7 @@ class TPlayer :
     public:
 
     TPlayer(TDynList2 * dl) :
-        TObject { dl }
+        TObject { dl, EObjType::PLAYERSTART }
     {
         gPlayer = this;
     }

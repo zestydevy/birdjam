@@ -78,8 +78,8 @@ class TObject
 {
     public:
 
-    TObject(TDynList2 * list)
-        : mDynList{list} {}
+    TObject(TDynList2 * list, EObjType type)
+        : mDynList{list}, mObjType{type} {}
     virtual ~TObject() = default;
 
     void setPosition(TVec3<f32> const & pos);
@@ -90,12 +90,14 @@ class TObject
     TVec3<f32> const & getPosition() {return mPosition;}
     TVec3<s16> const & getRotation() {return mRotation;}
     TVec3<f32> const & getScale() {return mScale;}
+    EObjType getType() {return mObjType;}
 
     virtual void updateMtx();
 
     virtual void init();
     virtual void update();
     virtual void draw();
+    virtual void drawRing();
 
     virtual void increaseRadius(float threshold);
 
@@ -109,6 +111,8 @@ class TObject
     protected:
     bool mInCamera{false};
     bool mMtxNeedsUpdate{true};
+
+    EObjType mObjType { EObjType::INVALID };
 
     TVec3<f32> mPosition{};
     TVec3<s16> mRotation{};

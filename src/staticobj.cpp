@@ -196,6 +196,10 @@ void TObject::draw()
     gSPPopMatrix(mDynList->pushDL(), G_MTX_MODELVIEW);
 }
 
+void TObject::drawRing()
+{
+}
+
 // -------------------------------------------------------------------------- //
 
 Gfx * TObject::getMeshGfx(

@@ -88,6 +88,7 @@ Gfx flower_Head_mesh_tri_0[] = {
 
 
 Gfx mat_flower_Flower_f3d[] = {
+	gsDPSetRenderMode(G_RM_AA_ZB_TEX_EDGE, G_RM_AA_ZB_TEX_EDGE2),
 	gsDPPipeSync(),
 	gsDPSetCombineLERP(TEXEL0, 0, SHADE, 0, TEXEL0, 0, ENVIRONMENT, 0, TEXEL0, 0, SHADE, 0, TEXEL0, 0, ENVIRONMENT, 0),
 	//gsSPClearGeometryMode(G_CULL_BACK),
@@ -115,16 +116,15 @@ Gfx mat_revert_flower_Flower_f3d[] = {
 	gsDPPipeSync(),
 	gsSPSetGeometryMode(G_CULL_BACK),
 	gsDPSetTextureLUT(G_TT_NONE),
+	gsDPSetRenderMode(G_RM_AA_ZB_OPA_SURF, G_RM_AA_ZB_OPA_SURF2),
 	gsSPEndDisplayList(),
 };
 
 
 Gfx flower_Head_mesh[] = {
-	gsDPSetRenderMode(G_RM_AA_ZB_TEX_EDGE, G_RM_AA_ZB_TEX_EDGE2),
 	gsSPDisplayList(mat_flower_Flower_f3d),
 	gsSPDisplayList(flower_Head_mesh_tri_0),
 	gsSPDisplayList(mat_revert_flower_Flower_f3d),
-	gsDPSetRenderMode(G_RM_AA_ZB_OPA_SURF, G_RM_AA_ZB_OPA_SURF2),
 	gsDPPipeSync(),
 	gsSPSetGeometryMode(G_LIGHTING),
 	gsSPClearGeometryMode(G_TEXTURE_GEN),

@@ -28,6 +28,8 @@
 #include "../models/ovl/sprites/sprite_numfont.h"
 #include "../models/ovl/sprites/sp_hud.h"
 
+#include "../models/static/highlight/model_highlightring.h"
+
 // -------------------------------------------------------------------------- //
 
 extern Gfx rdpinit_spr_dl[];
@@ -64,7 +66,7 @@ void TScene::loadObjects(TSceneEntry const list[])
                 gPlayer->setPosition({list[i].positionX, list[i].positionY, list[i].positionZ});
                 break;
             case EObjType::DEBUG_CUBE:
-                obj = new TObject(mDynList);
+                obj = new TObject(mDynList, type);
                 obj->setMesh(TObject::getMeshGfx(type));
                 break;
             case EObjType::NEST:
@@ -72,7 +74,7 @@ void TScene::loadObjects(TSceneEntry const list[])
                 obj->setMesh(TObject::getMeshGfx(type));
                 break;
             default: 
-                switch (TObject::getNestObjectInfo((EObjType)list[i].id).colType){
+                switch (TObject::getNestObjectInfo(type).colType){
                     case 0:
                         obj = new TNestObjSphere(mDynList, type);
                         break;
@@ -91,7 +93,7 @@ void TScene::loadObjects(TSceneEntry const list[])
         obj->setRotation({TSine::fromDeg(list[i].rotationX), TSine::fromDeg(list[i].rotationY), TSine::fromDeg(list[i].rotationZ)});
         obj->setScale({list[i].scaleX, list[i].scaleY, list[i].scaleZ});
         obj->init();
-
+        
         mObjList.push(obj);
     }
 }
@@ -248,7 +250,7 @@ void TTestScene::init()
     mCamera = new TCamera(mDynList);
     mBird = new TPlayer(mDynList);
     mFlock = new TFlockObj(mDynList);
-    mSky = new TObject(mDynList);
+    mSky = new TObject(mDynList, EObjType::NONE);
     mSky->mAlwaysDraw = true;
     mObjList.setHeap(THeap::getCurrentHeap());
 
@@ -268,15 +270,6 @@ void TTestScene::init()
     mSky->setScale(TVec3F(80.0f, 80.0f, 80.0f));
     mSky->setMesh(sky_Sphere_mesh);
     mSky->init();
-
-    TObject * window = new TObject(mDynList);
-    window->setPosition(mBird->getPosition() + TVec3F(0.0f, 50.0f, 0.0f));
-    window->setScale({0.05f,0.05f,0.05f});
-    window->setRotation({0,0,0});
-    window->setMesh(window_HeldWindow_mesh);
-    window->mAlwaysDraw = true;
-    window->init();
-    mObjList.push(window);
 
     loadObjects(scene_world);
 
@@ -405,6 +398,35 @@ void TTestScene::update()
 
 // -------------------------------------------------------------------------- //
 
+void TTestScene::drawObjects(EDrawLayer layer){
+    EObjType last = EObjType::NONE;
+    for (int i = 0; i < mObjList.capacity(); ++i) {
+        //Check if this object is to be drawn on this layer
+        if (mObjList[i]->mDrawLayer == layer){
+            EObjType type = mObjList[i]->getType();
+            //Check if we are drawing the same object as the previous iteration
+            if (type != last){
+                //Check if the previous object needs to be deinitialized first
+                if (gObjectDataList[last].initializer != nullptr)
+                    gSPDisplayList(mDynList->pushDL(), dpCleanup);
+
+                //Check if we need to initialize the new one
+                if (gObjectDataList[type].initializer != nullptr)      
+                    gSPDisplayList(mDynList->pushDL(), gObjectDataList[type].initializer);
+
+                last = type;
+            }
+
+            //Draw like normal
+            mObjList[i]->draw();
+        }
+    }
+    if (gObjectDataList[last].initializer != nullptr)   //Deinitialize last object if needed
+        gSPDisplayList(mDynList->pushDL(), dpCleanup);
+}
+
+// -------------------------------------------------------------------------- //
+
 void TTestScene::draw()
 {
     //gSPDisplayList(mDynList->pushDL(), rdpinit_spr_dl);
@@ -422,10 +444,13 @@ void TTestScene::draw()
 
     mSky->draw();
 
-    for (int i = 0; i < mObjList.capacity(); ++i) {
-        if (mObjList[i]->mDrawLayer == EDrawLayer::PREWINDOW)
-            mObjList[i]->draw();
-    }
+    drawObjects(EDrawLayer::PREWINDOW);
+
+    //draw highlight rings
+    gSPDisplayList(mDynList->pushDL(), highlightring_HighlightRing_init);
+    for (int i = 0; i < mObjList.capacity(); ++i)
+        mObjList[i]->drawRing();
+    gSPDisplayList(mDynList->pushDL(), highlightring_HighlightRing_cleanup);
 
     mBird->draw();
     mFlock->draw();
@@ -433,10 +458,7 @@ void TTestScene::draw()
     if (TFlockObj::getFlockObj()->getCapacity() > 0.0f)
         mCamera->drawWindow();
 
-    for (int i = 0; i < mObjList.capacity(); ++i) {
-        if (mObjList[i]->mDrawLayer == EDrawLayer::POSTWINDOW)
-            mObjList[i]->draw();
-    }
+    drawObjects(EDrawLayer::POSTWINDOW);
 }
 
 void TTestScene::draw2D() {

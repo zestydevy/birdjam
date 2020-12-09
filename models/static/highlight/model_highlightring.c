@@ -380,5 +380,20 @@ Gfx highlightring_HighlightRing_mesh[] = {
 	gsSPEndDisplayList(),
 };
 
+Gfx highlightring_HighlightRing_init[] = {
+	gsDPSetRenderMode(G_RM_AA_ZB_TEX_EDGE, G_RM_AA_ZB_TEX_EDGE2),
+	gsDPSetDepthSource(G_ZS_PRIM),
+	gsDPSetPrimDepth(0, 0),
+	gsSPDisplayList(mat_highlightring_Dither_f3d),
+	gsSPEndDisplayList(),
+};
 
-
+Gfx highlightring_HighlightRing_cleanup[] = {
+	gsDPPipeSync(),
+	gsDPSetDepthSource(G_ZS_PIXEL),
+	gsSPSetGeometryMode(G_LIGHTING),
+	gsSPClearGeometryMode(G_TEXTURE_GEN),
+	gsDPSetCombineLERP(0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT, 0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT),
+	gsSPTexture(65535, 65535, 0, 0, 0),
+	gsSPEndDisplayList(),
+};

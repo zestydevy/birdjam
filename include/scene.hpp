@@ -30,7 +30,6 @@ class TScene
 
     inline TScene(char const * name, TDynList2 * list)
         : mName{name}, mDynList{list} {};
-
     ~TScene() = default;
     
     virtual void init() = 0;
@@ -88,6 +87,18 @@ class TLogoScene final
 };
 // -------------------------------------------------------------------------- //
 
+const Gfx dpCleanup[] = {
+    gsDPPipeSync(),
+    gsDPSetRenderMode(G_RM_AA_ZB_OPA_SURF, G_RM_AA_ZB_OPA_SURF2),
+    gsDPSetTextureLUT(G_TT_NONE),
+    gsSPSetGeometryMode(G_CULL_BACK),
+	gsSPSetGeometryMode(G_LIGHTING),
+	gsSPClearGeometryMode(G_TEXTURE_GEN),
+	gsDPSetCombineLERP(0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT, 0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT),
+	gsSPTexture(65535, 65535, 0, 0, 0),
+	gsSPEndDisplayList(),
+};
+
 class TTestScene final
     : public TScene
 {
@@ -95,6 +106,7 @@ class TTestScene final
 
     TTestScene(char const * name, TDynList2 * list)
         : TScene(name, list) {};
+    ~TTestScene();
 
     virtual void init() override;
     virtual void update() override;
@@ -107,6 +119,7 @@ class TTestScene final
 
     private:
     void loadCollision(const s16 collision[], TCollFace * dest, int offset = 0);
+    void drawObjects(EDrawLayer layer);
 
     TCamera * mCamera{nullptr};
     TPad * mPad{nullptr};
