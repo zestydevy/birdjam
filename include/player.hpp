@@ -159,13 +159,13 @@ class TPlayer :
     float mCawTimer {0.0f};
     float mFlapTimer{0};
 
-    s16 mBankAngle;
+    s16 mBankAngle {0};
 
-    s16 mEndCameraAngle;
-    float mEndCameraDistance;
-    float mEndCameraTimer;
-    playerstate_t mState;
-    gameplaystate_t mGameState;
+    s16 mEndCameraAngle {0};
+    float mEndCameraDistance {0.0f};
+    float mEndCameraTimer {0.0f};
+    playerstate_t mState{playerstate_t::PLAYERSTATE_IDLE};
+    gameplaystate_t mGameState{gameplaystate_t::PLAYERGAMESTATE_COUNTDOWN};
 
     virtual void onCollide(TCollider *) override;
     void moveCameraRelative(TVec3F & move, TVec3F & forward, TVec3F & right, float multiplier = 1.0f);

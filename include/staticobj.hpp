@@ -116,9 +116,9 @@ class TObject
     
     TMtx44 mRotMtx{};
 
-    Mtx mFPosMtx{};
-    Mtx mFRotMtx{};
-    Mtx mFScaleMtx{};
+    // 1 matrix push call per object. 2 when the object is being carried.
+    Mtx mFMtx{};
+    Mtx mFRotMtx{}; //Only used for storing rotation matrix when carrying an object
     
     u32 mTag{0};
     Gfx * mMesh{nullptr};
