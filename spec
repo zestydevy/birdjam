@@ -47,7 +47,6 @@ beginseg
 	include "build/obj/Bird_GlideFlap.o"
 	include "build/obj/Bird_GlideFast.o"
 	include "build/obj/Bird_GlideCrash.o"
-	include "build/obj/Bird_GlideCaw.o"
 	include "build/obj/Bird_Glide.o"
 	include "build/obj/Bird_FlyStart.o"
 	include "build/obj/Bird_FlyFlap.o"
@@ -56,7 +55,6 @@ beginseg
 
 	include "build/obj/shadow.o"
 	include "build/obj/model_window.o"
-	include "build/obj/model_worldstress.o"
 	include "build/obj/model_world.o"
 	include "build/obj/model_world_col.o"
 	include "build/obj/model_world_col2.o"
@@ -65,10 +63,65 @@ beginseg
 	include "build/obj/model_world_col_nest.o"
 	include "build/obj/model_sky.o"
 	include "build/obj/model_distant.o"
-	include "build/obj/col_worldstress.o"
 
 	include "build/obj/sprite_numfont.o"
 	include "build/obj/sp_hud.o"
+endseg
+
+beginseg
+	name "countdown_ovl"
+	after "bird_ovl"
+	flags OBJECT
+
+	include "build/obj/sp_countdown.o"
+endseg
+
+beginseg
+	name "result_ovl"
+	after "bird_ovl"
+	flags OBJECT
+
+	include "build/obj/sp_result.o"
+endseg
+
+beginseg
+	name "ranka_ovl"
+	after "result_ovl"
+	flags OBJECT
+
+	include "build/obj/sp_ranka.o"
+endseg
+
+beginseg
+	name "rankb_ovl"
+	after "result_ovl"
+	flags OBJECT
+
+	include "build/obj/sp_rankb.o"
+endseg
+
+beginseg
+	name "rankc_ovl"
+	after "result_ovl"
+	flags OBJECT
+
+	include "build/obj/sp_rankc.o"
+endseg
+
+beginseg
+	name "rankd_ovl"
+	after "result_ovl"
+	flags OBJECT
+
+	include "build/obj/sp_rankd.o"
+endseg
+
+beginseg
+	name "rankf_ovl"
+	after "result_ovl"
+	flags OBJECT
+
+	include "build/obj/sp_rankf.o"
 endseg
 
 beginseg
@@ -93,13 +146,13 @@ endseg
 beginseg
 	name "seq"
 	flags RAW
-	include "sound/N64ST1.bin"  
+	include "sound/N64ST1.bin"
 endseg
 
 beginseg
 	name "sfx"
 	flags RAW
-	include "sound/N64ST1.bfx"  
+	include "sound/N64ST1.bfx"
 endseg
 
 
@@ -107,6 +160,13 @@ beginwave
 	name	"bird"
 	include	"code"
 	include "bird_ovl"
+	include "countdown_ovl"
+	include "result_ovl"
+	include "ranka_ovl"
+	include "rankb_ovl"
+	include "rankc_ovl"
+	include "rankd_ovl"
+	include "rankf_ovl"
 	include "logo_ovl"
 	include "miditable"
 	include "midibank"

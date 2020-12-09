@@ -116,6 +116,7 @@ class THudTime {
   void lower();
   void raise();
   void flash(u32 min);
+  void scram();
 
   void init();
   void update(TTimer const *);
@@ -131,7 +132,8 @@ class THudTime {
     ST_UP,
     ST_DOWN,
     ST_LOWER,
-    ST_RAISE
+    ST_RAISE,
+    ST_SCRAM
 
   };
 
@@ -215,6 +217,90 @@ class THudCountDown {
 
 // -------------------------------------------------------------------------- //
 
+class THudResults {
+
+  public:
+
+  THudResults() = default;
+  ~THudResults() = default;
+
+  void hide();
+  void show();
+
+  void init();
+  void update();
+  void draw();
+
+  private:
+
+  enum {
+
+    ST_HIDE,
+    ST_RESULTS_IN,
+    ST_RESULTS_WAIT,
+    ST_TALLY,
+    ST_TALLY_WAIT,
+    ST_RANK_IN,
+    ST_RANK_WAIT
+
+  };
+
+  enum : u32 {
+
+    SPR_RESULTS,
+    SPR_BIRD,
+    SPR_RANK,
+    SPR_RANK_0,
+
+    SPR_TALLY0_TITLE,
+    SPR_TALLY0_DIGIT0,
+    SPR_TALLY0_DIGIT1,
+
+    SPR_TALLY1_TITLE,
+    SPR_TALLY1_DIGIT0,
+    SPR_TALLY1_DIGIT1,
+
+    SPR_TALLY2_TITLE,
+    SPR_TALLY2_DIGIT0,
+    SPR_TALLY2_DIGIT1,
+
+    SPR_TALLY3_TITLE,
+    SPR_TALLY3_DIGIT0,
+    SPR_TALLY3_DIGIT1,
+
+    SPR_TALLY4_TITLE,
+    SPR_TALLY4_DIGIT0,
+    SPR_TALLY4_DIGIT1,
+
+    SPR_TALLY5_TITLE,
+    SPR_TALLY5_DIGIT0,
+    SPR_TALLY5_DIGIT1,
+
+    NUM_SPRITES,
+
+    NUM_DISP_TALLY = 6
+
+  };
+
+  int mState { ST_HIDE };
+  THudAlarm mStateTimer;
+  TSprite mSprite[NUM_SPRITES];
+  u32 mSpriteMask { 0 };
+  u32 mNumTally { 0 };
+
+  void setOffSprite(u32 i) { mSpriteMask |= (1U << i); }
+  void setOnSprite(u32 i) { mSpriteMask &= ~(1U << i); }
+
+  static TVec2S getBirdOffset();
+  static Sprite const & getBirdSprite();
+
+  static Sprite const & getTallySprite(u32);
+  static Sprite const & getDigitSprite(u32);
+
+};
+
+// -------------------------------------------------------------------------- //
+
 class THud {
 
   public:
@@ -255,10 +341,12 @@ class THud {
   THudAlarm mStateTimer;
   u32 mTimeLimit { 0 };
   TTimer mClock;
+  THudResults * mResults { nullptr };
   THudCountDown mCountDown;
   THudScore mScore;
   THudTime mTime;
   bool mScoreDown { false };
+  bool mTimeUp { false };
 
 };
 
