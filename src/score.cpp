@@ -471,7 +471,7 @@ bool TNestObj::onPickup(
     point *= getHalfWidth();
 
     if ((point - modifiedCenter).getSqrLength() > (mPlayer->getPosition() - modifiedCenter).getSqrLength())
-      point = modifiedCenter;   //keep player from getting stuck inside of objects while flying
+      point = TVec3F(0.0f,0.0f,0.0f);   //keep player from getting stuck inside of objects while flying
 
     mPlayer->hitObject(modifiedCenter + point, mObjType);
   }
