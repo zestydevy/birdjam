@@ -62,7 +62,7 @@ void TSpriteEx::draw() {
 // -------------------------------------------------------------------------- //
 
 void TSpriteEx::init(TDynList2 * dl) {
-    gSPDisplayList(dl->pushDL(), sGfx2dInit)
+    gSPDisplayList(dl->pushDL(), sGfx2dInit);
 }
 
 // -------------------------------------------------------------------------- //

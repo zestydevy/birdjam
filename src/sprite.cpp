@@ -150,7 +150,14 @@ void TSprite::setOffAttributes(
 void TSprite::draw() {
     mSpriteData.rsp_dl_next = mSpriteData.rsp_dl;
     spMove(&mSpriteData, mPosition.x(), mPosition.y());
-    spScale(&mSpriteData, mScale.x(), mScale.y());
+    
+    // why doesn't sp already do this....
+    if (mScale.x() <= 0.0f && mScale.y() <= 0.0f) {
+        // ...
+    } else {
+        spScale(&mSpriteData, mScale.x(), mScale.y());
+    }
+
     spColor(&mSpriteData, mColor.r, mColor.g, mColor.b, mColor.a);
     spSetAttribute(&mSpriteData, mAttributes);
     gSPDisplayList(sDynList->pushDL(), spDraw(&mSpriteData));
