@@ -12,11 +12,27 @@
 
 extern char _codeSegmentStart[];         /* code segment start */
 extern char _codeSegmentEnd[];           /* code segment end */
+extern char _countdown_ovlSegmentStart[];
+extern char _ranka_ovlSegmentStart[];
 
 extern u8 _logo_ovlSegmentRomStart[];
 extern u8 _logo_ovlSegmentRomEnd[];
 extern u8 _bird_ovlSegmentRomStart[];
 extern u8 _bird_ovlSegmentRomEnd[];
+extern u8 _countdown_ovlSegmentRomStart[];
+extern u8 _countdown_ovlSegmentRomEnd[];
+extern u8 _result_ovlSegmentRomStart[];
+extern u8 _result_ovlSegmentRomEnd[];
+extern u8 _ranka_ovlSegmentRomStart[];
+extern u8 _ranka_ovlSegmentRomEnd[];
+extern u8 _rankb_ovlSegmentRomStart[];
+extern u8 _rankb_ovlSegmentRomEnd[];
+extern u8 _rankc_ovlSegmentRomStart[];
+extern u8 _rankc_ovlSegmentRomEnd[];
+extern u8 _rankd_ovlSegmentRomStart[];
+extern u8 _rankd_ovlSegmentRomEnd[];
+extern u8 _rankf_ovlSegmentRomStart[];
+extern u8 _rankf_ovlSegmentRomEnd[];
 extern u8 _seqSegmentRomStart[];
 extern u8 _seqSegmentRomEnd[];
 extern u8 _midibankSegmentRomStart[];

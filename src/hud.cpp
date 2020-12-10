@@ -2,10 +2,19 @@
 #include <nusys.h>
 
 #include "hud.hpp"
+#include "rank.hpp"
+#include "segment.h"
 #include "sprite.hpp"
 #include "util.hpp"
 
+#include "../models/ovl/sprites/sp_countdown.h"
 #include "../models/ovl/sprites/sp_hud.h"
+#include "../models/ovl/sprites/sp_ranka.h"
+#include "../models/ovl/sprites/sp_rankb.h"
+#include "../models/ovl/sprites/sp_rankc.h"
+#include "../models/ovl/sprites/sp_rankd.h"
+#include "../models/ovl/sprites/sp_rankf.h"
+#include "../models/ovl/sprites/sp_result.h"
 
 // -------------------------------------------------------------------------- //
 
@@ -397,6 +406,13 @@ void THudTime::flash(u32 min) {
 
 // -------------------------------------------------------------------------- //
 
+void THudTime::scram() {
+  mState = ST_SCRAM;
+  mStateTimer.set(1.0F);
+}
+
+// -------------------------------------------------------------------------- //
+
 void THudTime::init() {
   mSprite[SPR_TIME].load(hud_time_sprite);
   mSprite[SPR_COLON].load(hud_colon_sprite);
@@ -504,6 +520,25 @@ void THudTime::update(
 
       break;
     }
+    case ST_SCRAM: {
+      setOffSprite(SPR_TIME);
+      time_y = 0;
+
+      for (u32 i = 0; i < 4; ++i) {
+        float a = (0.0F + 0.1F * (float)i);
+        float b = (a + 0.5F);
+
+        digit_y[i] = Lagrange<s16>(
+          5, 50, -90, mStateTimer.get(a, b)
+        );
+      }
+
+      if (mStateTimer.update()) {
+        mState = ST_HIDE;
+      }
+
+      break;
+    }
   }
 
   mSprite[SPR_TIME].setPosition({ (s16)x, time_y });
@@ -598,19 +633,24 @@ void THudCountDown::hide() {
 // -------------------------------------------------------------------------- //
 
 void THudCountDown::show() {
-  mState = ST_READY_IN;
-  mStateTimer.set(1.0F);
-
   for (u32 i = 0; i < NUM_SPRITES; ++i) {
     setOffSprite(i);
   }
+
+  mSprite[SPR_HEADER].load(hud_ready_sprite);
+
+  mState = ST_READY_IN;
+  mStateTimer.set(1.0F);
 }
 
 // -------------------------------------------------------------------------- //
 
 void THudCountDown::timeup() {
+  for (u32 i = 0; i < NUM_SPRITES; ++i) {
+    setOffSprite(i);
+  }
+
   mSprite[SPR_HEADER].load(hud_timeup_sprite);
-  setOffSprite(SPR_HEADER);
 
   mState = ST_TIMEUP_IN;
   mStateTimer.set(0.3F);
@@ -635,7 +675,6 @@ void THudCountDown::update() {
     case ST_READY_IN: {
       setOnSprite(SPR_HEADER);
       setOffSprite(SPR_DIGIT);
-      mSprite[SPR_HEADER].load(hud_ready_sprite);
 
       header_x = Lagrange<s16>(
         -320, 190, 55, mStateTimer.get()
@@ -663,7 +702,6 @@ void THudCountDown::update() {
     }
     case ST_READY_3: {
       setOnSprite(SPR_DIGIT);
-      mSprite[SPR_DIGIT].load(hud_count3_sprite);
       header_x = 55;
 
       float t = mStateTimer.get(0.0F, 0.2F);
@@ -673,6 +711,8 @@ void THudCountDown::update() {
       mSprite[SPR_DIGIT].setScale({ s, s });
 
       if (mStateTimer.update()) {
+        mSprite[SPR_DIGIT].load(hud_count2_sprite);
+
         mState = ST_READY_2;
         mStateTimer.set(0.66F);
       }
@@ -681,7 +721,6 @@ void THudCountDown::update() {
     }
     case ST_READY_2: {
       setOnSprite(SPR_DIGIT);
-      mSprite[SPR_DIGIT].load(hud_count2_sprite);
       header_x = 55;
 
       float t = mStateTimer.get(0.0F, 0.2F);
@@ -691,6 +730,8 @@ void THudCountDown::update() {
       mSprite[SPR_DIGIT].setScale({ s, s });
 
       if (mStateTimer.update()) {
+        mSprite[SPR_DIGIT].load(hud_count1_sprite);
+
         mState = ST_READY_1;
         mStateTimer.set(0.66F);
       }
@@ -699,7 +740,6 @@ void THudCountDown::update() {
     }
     case ST_READY_1: {
       setOnSprite(SPR_DIGIT);
-      mSprite[SPR_DIGIT].load(hud_count1_sprite);
       header_x = 55;
 
       float t = mStateTimer.get(0.0F, 0.2F);
@@ -709,6 +749,9 @@ void THudCountDown::update() {
       mSprite[SPR_DIGIT].setScale({ s, s });
 
       if (mStateTimer.update()) {
+        setOffSprite(SPR_HEADER);
+        mSprite[SPR_HEADER].load(hud_fly_sprite);
+
         mState = ST_FLY;
         mStateTimer.set(0.4F);
       }
@@ -716,8 +759,8 @@ void THudCountDown::update() {
       break;
     }
     case ST_FLY: {
+      setOnSprite(SPR_HEADER);
       setOffSprite(SPR_DIGIT);
-      mSprite[SPR_HEADER].load(hud_fly_sprite);
       header_x = 100;
 
       float t = mStateTimer.get(0.0F, 0.3F);
@@ -770,7 +813,7 @@ void THudCountDown::update() {
 
       if (mStateTimer.update()) {
         mState = ST_TIMEUP_OUT;
-        mStateTimer.set(1.0F);
+        mStateTimer.set(0.75F);
       }
 
       break;
@@ -812,6 +855,237 @@ void THudCountDown::draw() {
 
 // -------------------------------------------------------------------------- //
 
+void THudResults::hide() {
+  mState = ST_HIDE;
+}
+
+// -------------------------------------------------------------------------- //
+
+void THudResults::show() {
+  mState = ST_RESULTS_IN;
+  mStateTimer.set(0.85F);
+
+  for (u32 i = 0; i < NUM_SPRITES; ++i) {
+    setOffSprite(i);
+  }
+
+  mSprite[SPR_RESULTS].load(result_text_sprite);
+  mSprite[SPR_BIRD].load(result_bird_sprite);
+  mNumTally = 0;
+
+  for (u32 i = 0; i < NUM_DISP_TALLY; ++i) {
+    auto y = (s16)(72 + 20 * i);
+
+    mSprite[SPR_TALLY0_TITLE + 3 * i].load(result_balloon_sprite);
+    mSprite[SPR_TALLY0_TITLE + 3 * i].setPosition({ (s16)42, y });
+
+    mSprite[SPR_TALLY0_DIGIT0 + 3 * i].load(result_digit0_sprite);
+    mSprite[SPR_TALLY0_DIGIT0 + 3 * i].setPosition({ (s16)198, y });
+
+    mSprite[SPR_TALLY0_DIGIT1 + 3 * i].load(result_digit0_sprite);
+    mSprite[SPR_TALLY0_DIGIT1 + 3 * i].setPosition({ (s16)209, y });
+  }
+}
+
+// -------------------------------------------------------------------------- //
+
+void THudResults::init() {
+  mSprite[SPR_RESULTS].load(result_text_sprite);
+  mSprite[SPR_BIRD].load(result_bird_sprite);
+}
+
+// -------------------------------------------------------------------------- //
+
+void THudResults::update() {
+  s16 result_x = 143;
+  TVec2S bird_ofs { 0, 0 };
+
+  if (mState != ST_HIDE) {
+    u32 count = TMath<u32>::min(8, mNumTally);
+    u32 tally, value;
+    u32 digits[2];
+
+    for (u32 i = 0; i < count; ++i) {
+      tally = (mNumTally - i - 1);
+      value = 69; // gRank->get(tally);
+
+      THud::splitDigits(value, digits, 2);
+
+      setOnSprite(SPR_TALLY0_TITLE + 3 * i);
+      setOnSprite(SPR_TALLY0_DIGIT1 + 3 * i);
+
+      mSprite[SPR_TALLY0_TITLE + 3 * i].load(
+        getTallySprite(tally)
+      );
+
+      mSprite[SPR_TALLY0_DIGIT1 + 3 * i].load(
+        getDigitSprite(digits[1])
+      );
+
+      if (digits[0] != 0) {
+        setOnSprite(SPR_TALLY0_DIGIT0 + 3 * i);
+
+        mSprite[SPR_TALLY0_DIGIT0 + 3 * i].load(
+          getDigitSprite(digits[0])
+        );
+      } else {
+        setOffSprite(SPR_TALLY0_DIGIT0 + 3 * i);
+      }
+    }
+  }
+
+  switch (mState) {
+    case ST_RESULTS_IN: {
+      setOnSprite(SPR_RESULTS);
+      setOnSprite(SPR_BIRD);
+      result_x = Sinerp<s16>(350, 143, mStateTimer.get());
+
+      if (mStateTimer.update()) {
+        mState = ST_RESULTS_WAIT;
+        mStateTimer.set(0.5F);
+      }
+
+      break;
+    }
+    case ST_RESULTS_WAIT: {
+      if (mStateTimer.update()) {
+        ++mNumTally;
+
+        mState = ST_TALLY;
+        mStateTimer.set(0.5F);
+      }
+
+      break;
+    }
+    case ST_TALLY: {
+      s16 x = Sinerp<s16>(-200, 42, mStateTimer.get(0.0F, 0.5F));
+      s16 y = mSprite[SPR_TALLY0_TITLE].getPosition().y();
+      mSprite[SPR_TALLY0_TITLE].setPosition({ x, y });
+
+      if (mStateTimer.update()) {
+        ++mNumTally;
+
+        if (mNumTally < NUM_TALLY) {
+          mStateTimer.set(0.5F);
+        } else {
+          mState = ST_TALLY_WAIT;
+          mStateTimer.set(0.5F);
+        }
+      }
+
+      break;
+    }
+    case ST_TALLY_WAIT: {
+      s16 x = Sinerp<s16>(-200, 42, mStateTimer.get(0.0F, 0.5F));
+      s16 y = mSprite[SPR_TALLY0_TITLE].getPosition().y();
+      mSprite[SPR_TALLY0_TITLE].setPosition({ x, y });
+
+      if (mStateTimer.update()) {
+        mState = ST_RANK_IN;
+        mStateTimer.set(1.0F);
+      }
+
+      break;
+    }
+    case ST_RANK_IN: {
+      mSprite[SPR_BIRD].load(getBirdSprite());
+      bird_ofs = getBirdOffset();
+      break;
+    }
+  }
+
+  mSprite[SPR_BIRD].setPosition({
+    (s16)(result_x + 84 + bird_ofs.x()),
+    (s16)(104 + bird_ofs.y())
+  });
+
+  mSprite[SPR_RESULTS].setPosition(
+    { result_x, (s16)196 }
+  );
+}
+
+// -------------------------------------------------------------------------- //
+
+void THudResults::draw() {
+  if (mState == ST_HIDE) {
+    return;
+  }
+
+  for (u32 i = 0; i < NUM_SPRITES; ++i) {
+    if (mSpriteMask & (1U << i)) {
+      continue;
+    }
+
+    mSprite[i].draw();
+  }
+}
+
+// -------------------------------------------------------------------------- //
+
+TVec2S THudResults::getBirdOffset() {
+  return TVec2S { (s16)-13, (s16)2 };
+}
+
+// -------------------------------------------------------------------------- //
+
+Sprite const &
+THudResults::getBirdSprite() {
+  return result_birda_sprite;
+}
+
+// -------------------------------------------------------------------------- //
+
+Sprite const &
+THudResults::getTallySprite(u32 tally) {
+  static Sprite const * SPRITES[NUM_TALLY] = {
+    &result_balloon_sprite,   // TALLY_BALLOONS
+    &result_food_sprite,      // TALLY_FOOD
+    &result_cards_sprite,     // TALLY_CARDS
+    &result_sticks_sprite,    // TALLY_STICKS
+    &result_tables_sprite,    // TALLY_TABLES
+    &result_chairs_sprite,    // TALLY_CHAIRS
+    &result_noodles_sprite,   // TALLY_NOODLES
+    &result_jewelry_sprite,   // TALLY_JEWELRY
+    &result_pots_sprite,      // TALLY_POTS
+    &result_toasters_sprite,  // TALLY_TOASTERS
+    &result_stones_sprite,    // TALLY_STONES
+    &result_trash_sprite,     // TALLY_TRASH
+    &result_mailboxes_sprite, // TALLY_MAILBOXES
+    &result_lamps_sprite,     // TALLY_LAMPS
+    &result_boards_sprite,    // TALLY_BOARDS
+    &result_balls_sprite,     // TALLY_BALLS
+    &result_goals_sprite,     // TALLY_GOALS
+    &result_plants_sprite,    // TALLY_PLANTS
+    &result_beehives_sprite,  // TALLY_BEEHIVES
+    &result_chickens_sprite,  // TALLY_CHICKENS
+    &result_cats_sprite,      // TALLY_CATS
+    &result_fences_sprite,    // TALLY_FENCES
+    &result_tires_sprite,     // TALLY_TIRES
+    &result_vehicles_sprite,  // TALLY_VEHICLES
+    &result_logos_sprite,     // TALLY_STORE_LOGOS
+    &result_citizens_sprite   // TALLY_CITIZENS
+  };
+
+  return *SPRITES[tally % NUM_TALLY];
+}
+
+// -------------------------------------------------------------------------- //
+
+Sprite const &
+THudResults::getDigitSprite(u32 digit) {
+  static Sprite const * SPRITES[10] = {
+    &result_digit0_sprite, &result_digit1_sprite,
+    &result_digit2_sprite, &result_digit3_sprite,
+    &result_digit4_sprite, &result_digit5_sprite,
+    &result_digit6_sprite, &result_digit7_sprite,
+    &result_digit8_sprite, &result_digit9_sprite
+  };
+
+  return *SPRITES[digit % 10];
+}
+
+// -------------------------------------------------------------------------- //
+
 void THud::init() {
   mCountDown.init();
   mScore.init();
@@ -824,6 +1098,10 @@ void THud::update() {
   mCountDown.update();
   mScore.update();
   mTime.update(&mClock);
+
+  if (mResults != nullptr) {
+    mResults->update();
+  }
 
   switch (mState) {
     case ST_COUNTDOWN: {
@@ -867,14 +1145,26 @@ void THud::update() {
           mScore.show();
         }
 
-        mTime.lower();
+        mTime.scram();
+        mResults = new THudResults {};
+        mResults->init();
+
+        mState = ST_RESULTS;
+        mStateTimer.set(1.5F);
+      }
+
+      break;
+    }
+    case ST_RESULTS: {
+      if (mStateTimer.update()) {
+        mResults->show();
       }
 
       break;
     }
   }
 
-  if (mState != ST_HIDE && mState != ST_COUNTDOWN) {
+  if (mState >= ST_SHOW) {
     float t;
     u32 before, after;
 
@@ -882,8 +1172,25 @@ void THud::update() {
     mClock.update();
     t = mClock.get(&after);
 
-    if (t == 0.0F && mState != ST_TIME_UP) {
+    if (t == 0.0F && !mTimeUp) {
+      TUtil::toMemory(
+        _countdown_ovlSegmentStart,
+        _result_ovlSegmentRomStart, (s32)(
+          _result_ovlSegmentRomEnd -
+          _result_ovlSegmentRomStart
+        )
+      );
+
+      TUtil::toMemory(
+        _ranka_ovlSegmentStart,
+        _ranka_ovlSegmentRomStart, (s32)(
+          _ranka_ovlSegmentRomEnd -
+          _ranka_ovlSegmentRomStart
+        )
+      );
+
       mCountDown.timeup();
+      mTimeUp = true;
 
       mState = ST_TIME_UP;
       mStateTimer.set(1.0F);
@@ -906,6 +1213,10 @@ void THud::draw() {
   mScore.draw();
   mTime.draw();
   mCountDown.draw();
+
+  if (mResults != nullptr) {
+    mResults->draw();
+  }
 }
 
 // -------------------------------------------------------------------------- //
@@ -961,6 +1272,14 @@ void THud::subScore(u32 pts) {
 // -------------------------------------------------------------------------- //
 
 void THud::startCountDown(u32 minutes) {
+  TUtil::toMemory(
+    _countdown_ovlSegmentStart,
+    _countdown_ovlSegmentRomStart, (s32)(
+      _countdown_ovlSegmentRomEnd -
+      _countdown_ovlSegmentRomStart
+    )
+  );
+
   mTimeLimit = minutes;
   mCountDown.show();
   mScore.hide();
