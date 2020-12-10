@@ -322,6 +322,7 @@ void TPlayer::update()
             mAnim->setTimescale(0.25f);
             if (mClosestFace == nullptr || mClosestFace->nrm.y() <= 0.707f) {
                 mVelocity += BIRD_FALLGRAVITY * kInterval;
+                mVelocity = TMath<float>::clamp(mVelocity, -BIRD_FASTSPEED, BIRD_FASTSPEED);
                 mPosition -= {0.0f, mVelocity, 0.0f};
             } else {
                 // we touched the ground, idle
