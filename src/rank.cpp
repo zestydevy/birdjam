@@ -68,7 +68,16 @@ u8 TRank::get(u32 tally) const {
 // -------------------------------------------------------------------------- //
 
 u32 TRank::calcRank(u32 score) {
-  return RANK_A; // @miluaces: return [RANK_A-RANK_F] here
+  if (score >= 450)
+    return RANK_A;
+  else if (score >= 350)
+    return RANK_B;
+  else if (score >= 200)
+    return RANK_C;
+  else if (score >= 100)
+    return RANK_D;
+  else
+    return RANK_F;
 }
 
 // -------------------------------------------------------------------------- //
