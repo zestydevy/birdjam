@@ -173,7 +173,7 @@ void THudScore::init() {
   }
 
   for (u32 i = 0; i < NUM_SPRITES; ++i) {
-    mSprite[i].setAttributes(SP_FASTCOPY);
+    mSprite[i].setAttributes(SP_TRANSPARENT | SP_FRACPOS);
   }
 }
 
@@ -421,7 +421,7 @@ void THudTime::init() {
   mSprite[SPR_SEC_1].load(THud::getDigitSprite(0));
 
   for (u32 i = 0; i < NUM_SPRITES; ++i) {
-    mSprite[i].setAttributes(SP_FASTCOPY);
+    mSprite[i].setAttributes(SP_TRANSPARENT | SP_FRACPOS);
   }
 }
 
@@ -660,7 +660,7 @@ void THudCountDown::timeup() {
 
 void THudCountDown::init() {
   for (u32 i = 0; i < NUM_SPRITES; ++i) {
-    mSprite[i].setAttributes(SP_FASTCOPY);
+    mSprite[i].setAttributes(SP_TRANSPARENT | SP_FRACPOS);
   }
 }
 
@@ -892,6 +892,10 @@ void THudResults::show() {
 void THudResults::init() {
   mSprite[SPR_RESULTS].load(result_text_sprite);
   mSprite[SPR_BIRD].load(result_bird_sprite);
+
+  for (u32 i = 0; i < NUM_SPRITES; ++i) {
+    mSprite[i].setAttributes(SP_TRANSPARENT | SP_FRACPOS);
+  }
 }
 
 // -------------------------------------------------------------------------- //
