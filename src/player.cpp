@@ -12,11 +12,12 @@
 #include "../models//ovl/world/shadow.h"
 
 const float BIRD_FLYGRAVITY = 1.2f * kInterval;
+const float BIRD_FLYGRAVITY2 = 2.0f * kInterval;
 const float BIRD_MAXSPEED = 600.0f * kInterval;
 const float BIRD_INITSPEED = 420.0f * kInterval;
 const float BIRD_FASTSPEED = 450.0f * kInterval; //When you start fast animation
 const float BIRD_SLOWSPEED = 300.0f * kInterval; //When you start slow animation and speed up
-const float BIRD_ACCEL = 0.6f * kInterval;    //Acceleration when below slowspeed
+const float BIRD_ACCEL = 0.7f * kInterval;    //Acceleration when below slowspeed
 const float BIRD_SLOWACCEL = 1.2f * kInterval; //Acceleration when slowing down
 const float BIRD_MINSPEED = 240.0f * kInterval;
 const float BIRD_FLAPSPEED = 240.0f * kInterval;
@@ -506,8 +507,8 @@ void TPlayer::update()
 
             // Flight controls
             if (canMove()){
-                temp1.rotateAxis(fright, TSine::fromDeg(1.0f * -mPad->getAnalogY() / 80.0f));
-                temp2.rotateAxisY(TSine::fromDeg(1.0f * -mPad->getAnalogX() / 80.0f));
+                temp1.rotateAxis(fright, TSine::fromDeg(60.0f * -mPad->getAnalogY() / 80.0f * kInterval));
+                temp2.rotateAxisY(TSine::fromDeg(60.0f * -mPad->getAnalogX() / 80.0f * kInterval));
                 TMtx44::concat(temp1, temp2, temp3);
                 mDirection = temp3.mul(mDirection);
             }
@@ -525,7 +526,7 @@ void TPlayer::update()
             mCamera->setAngle(mRotation.y());
 
             // Apply gravity
-            mSpeed -= mDirection.dot(TVec3F(0.0f, 1.0f, 0.0f)) * BIRD_FLYGRAVITY; // Going down Gravity
+            mSpeed -= mDirection.dot(TVec3F(0.0f, 1.0f, 0.0f)) * (mDirection.y() < 0.0f ? BIRD_FLYGRAVITY2 : BIRD_FLYGRAVITY); // Going down Gravity
             mSpeed -= BIRD_WINDRES;
             if (mSpeed < BIRD_MINSPEED)
                 mSpeed = BIRD_MINSPEED; // Min Speed

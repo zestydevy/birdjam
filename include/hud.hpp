@@ -97,7 +97,7 @@ class THudScore {
     NUM_FRAC_PLACES = 2,
     NUM_INT_PLACES = (NUM_SCORE_DIGITS - NUM_FRAC_PLACES),
 
-    SCORE_SPEED = 50 // pts per sec
+    SCORE_SPEED = 1000 // pts per sec
 
   };
 

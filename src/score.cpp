@@ -324,7 +324,7 @@ void TNestObj::update() {
 
       mVelocity.y() -= 196.0f * kInterval;  //gravity
       mPosition += mVelocity * kInterval;   //velocity
-      mRotation += mRotVel * kInterval;     //rotational velocity
+      mRotation += TVec3S(TSine::fromDeg(mRotVel.x()), TSine::fromDeg(mRotVel.y()), TSine::fromDeg(mRotVel.z()));     //rotational velocity
 
       gr = TCollision::findGroundBelow(
         mPosition, getHalfHeight()
@@ -460,7 +460,7 @@ void TNestObj::drop(TVec3F v)
 
 TVec3F TNestObj::getMountPoint()
 {
-  return mRotMtx.mul(TVec3F(0.0f, -mMountDist, 0.0f));
+  return mRotVel;
 }
 
 // -------------------------------------------------------------------------- //
@@ -468,8 +468,13 @@ TVec3F TNestObj::getMountPoint()
 bool TNestObj::onPickup(
   TCollider * const other
 ) {
-  if (mState == EState::NESTING)
-  { //hit the player
+  if (mState != EState::IDLE && mState != EState::NESTING)
+    return false;
+
+  // we can assume this is the player due to collision masks
+  mPlayer = static_cast<TPlayer *>(other);
+
+  if (mState == EState::NESTING || !TFlockObj::getFlockObj()->grabObject(this)){
     TVec3F modifiedCenter = mPosition;
     modifiedCenter.y() = mPlayer->getPosition().y();
     TVec3F point = mPlayer->getPosition() - modifiedCenter;
@@ -478,21 +483,6 @@ bool TNestObj::onPickup(
 
     if ((point - modifiedCenter).getSqrLength() > (mPlayer->getPosition() - modifiedCenter).getSqrLength())
       point = TVec3F(0.0f,0.0f,0.0f);   //keep player from getting stuck inside of objects while flying
-
-    mPlayer->hitObject(modifiedCenter + point, mObjType);
-  }
-  if (mState != EState::IDLE)
-    return false;
-
-  // we can assume this is the player due to collision masks
-  mPlayer = static_cast<TPlayer *>(other);
-
-  if (!TFlockObj::getFlockObj()->grabObject(this)){
-    TVec3F modifiedCenter = mPosition;
-    modifiedCenter.y() = mPlayer->getPosition().y();
-    TVec3F point = mPlayer->getPosition() - modifiedCenter;
-    point.normalize();
-    point *= getHalfWidth();
 
     if (!mData->hasMeshCol)
       mPlayer->hitObject(modifiedCenter + point, mObjType);
@@ -509,6 +499,7 @@ bool TNestObj::onPickup(
   mFMountRotMtx = mFRotMtx;
   mMountRot = getRotation();
   mMountRotY = getRotation().y() - mPlayer->getRotation().y();
+  mRotVel = mRotMtx.mul(TVec3F(0.0f, -mMountDist, 0.0f));
   setRotation(TVec3S((s16)0, (s16)0, (s16)0));
 
   mPlayer->collectObject(mObjType);

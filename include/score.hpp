@@ -134,7 +134,7 @@ class TNestObj :
   float mMountDist {0.0f};
 
   TVec3F mVelocity{0.0f, 0.0f, 0.0f};
-  TVec3F mRotVel{0.0f, 0.0f, 0.0f};
+  TVec3F mRotVel{0.0f, 0.0f, 0.0f}; // doubles as mount point cache to save space and improve framerate when carrying stuff
 
   TVec3S mMountRot{0, 0, 0};
   Mtx mFMountRotMtx{};

@@ -15,13 +15,13 @@ extern "C"{
 #define SIZE_MED 1.25f
 #define SIZE_ANIMAL 3.5f
 #define SIZE_LARGE 5.0f
-#define SIZE_MAN 15.0f
+#define SIZE_MAN 25.0f
 #define SIZE_LAYER1 10.0f
-#define SIZE_MASSIVE 25.0f
-#define SIZE_GIANT 40.0f
-#define SIZE_LAYER2 60.0f
-#define SIZE_LAYER3 200.0f
-#define SIZE_IMPOSSIBLE 10000.0f
+#define SIZE_MASSIVE 50.0f
+#define SIZE_GIANT 100.0f
+#define SIZE_LAYER2 500.0f
+#define SIZE_LAYER3 1000.0f
+#define SIZE_IMPOSSIBLE 5000.0f
 
 const float POWER_LEVELS[] = {
     SIZE_TINY,
