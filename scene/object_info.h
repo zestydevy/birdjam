@@ -21,7 +21,7 @@ extern "C"{
 #define SIZE_GIANT 100.0f
 #define SIZE_LAYER2 500.0f
 #define SIZE_LAYER3 1000.0f
-#define SIZE_IMPOSSIBLE 5000.0f
+#define SIZE_IMPOSSIBLE 999999.0f
 
 const float POWER_LEVELS[] = {
     SIZE_TINY,
