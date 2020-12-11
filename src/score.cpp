@@ -16,6 +16,7 @@
 
 #include "../models/static/dropoff/model_dropoff.h"
 #include "../models/static/highlight/model_highlightring.h"
+#include "../models/static/objects/burger/model_burger.h"
 
 // -------------------------------------------------------------------------- //
 
@@ -275,7 +276,10 @@ void TNestObj::increaseRadius(float threshold){
 void TNestObj::init() {
   TObject::init();
 
-  setMesh(mData->mesh);
+  if (sFreedomMode)
+    setMesh(burger_Burger_mesh);
+  else
+    setMesh(mData->mesh);
   mObjWeight = mData->mass;
 
   // mDebugCube = new TObject { mDynList };

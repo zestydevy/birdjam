@@ -5,6 +5,7 @@
 #include "animator.hpp"
 #include "util.hpp"
 #include "hud.hpp"
+#include "segment.h"
 
 #include "score.hpp"
 
@@ -46,9 +47,28 @@ void TPlayer::init()
     mRotation = TVec3<f32>(0.0f, 0.0f, 0.0f);
     mSpeed = 1.0f;
 
+    //Load model from ROM
+    if (sFreedomMode){
+        TUtil::toMemory(
+            reinterpret_cast<void *>(_eagle_ovlSegmentStart), 
+            _eagle_ovlSegmentRomStart, 
+            _eagle_ovlSegmentRomEnd-_eagle_ovlSegmentRomStart
+        );
+        setMesh(bird_eagle_Bird_mesh);
+        mAnim = new TAnimator(sizeof(mMeshesEagle) / sizeof(Vtx*), mMeshesEagle, mMeshSizesEagle);
+    }
+    else{
+        TUtil::toMemory(
+            reinterpret_cast<void *>(_bird_ovlSegmentStart), 
+            _bird_ovlSegmentRomStart, 
+            _bird_ovlSegmentRomEnd-_bird_ovlSegmentRomStart
+        );
+        setMesh(bird_Bird_mesh);
+        mAnim = new TAnimator(sizeof(mMeshes) / sizeof(Vtx*), mMeshes, mMeshSizes);
+    }
+
     //Set up model animator
-    mAnim = new TAnimator(sizeof(mMeshes) / sizeof(Vtx*), mMeshes, mMeshSizes);
-    mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, true, 0.0f);
+    setAnimation(1, ANIM_IDLE);
     mState = PLAYERSTATE_FALLING;
 
     // shadow
@@ -58,7 +78,6 @@ void TPlayer::init()
     mShadow->setScale(TVec3F(0.10f, 0.10f, 0.10f));
     mShadow->setMesh(shadow_Plane_mesh);
 
-    setMesh(bird_Bird_mesh);
     initCollider(TAG_PLAYER, TAG_PLAYER, 0, 1);
     setCollideRadius(BIRD_RADIUS);
     setCollideCenter(mPosition);
@@ -69,10 +88,17 @@ void TPlayer::init()
     mGameState = gameplaystate_t::PLAYERGAMESTATE_COUNTDOWN;
 }
 
+void TPlayer::setAnimation(int length, playeranim_t anim, bool loop, float timescale){
+    if (sFreedomMode)
+    mAnim->setAnimation(*(mAnimLength_Eagle[anim]), mAnimSet_Eagle[anim], loop, timescale);
+        else
+    mAnim->setAnimation(*(mAnimLength_Normal[anim]), mAnimSet_Normal[anim], loop, timescale);
+}
+
 void TPlayer::startFlying(){
     // Set state and animation
     mState = PLAYERSTATE_FLYING;
-    mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, false, 0.25f);
+    setAnimation(bird_Bird_GlideFlap_Length, ANIM_GLIDEFLAP, false, 0.25f);
 
     mPosition += TVec3F(0.0f, BIRD_RADIUS, 0.0f);
 
@@ -92,7 +118,7 @@ void TPlayer::startFlying(){
 
 void TPlayer::startIdle(){
     mState = PLAYERSTATE_FALLING;
-    mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, true, 0.0f);
+    setAnimation(bird_Bird_GlideFlap_Length, ANIM_GLIDEFLAP, true, 0.0f);
     mRotation = TVec3<s16>((s16)0, mRotation.y(), (s16)0);
 
     mCamera->setMode(false);
@@ -131,12 +157,12 @@ void TPlayer::checkLateralCollision(){
             mClosestFace = TCollision::findClosest(mPosition + nrmm , BIRD_RADIUS / 2.0f); //use closest face in front of player
         }
         else{
-            mAnim->setAnimation(bird_Bird_IdleFall_Length, mAnim_IdleFall, false, 0.25f);    //honestly the sonic fall walk looks better
+            setAnimation(bird_Bird_IdleFall_Length, ANIM_IDLEFALL, false, 0.25f);    //honestly the sonic fall walk looks better
             mState = PLAYERSTATE_FALLING;
         }
     }
     else{
-        mAnim->setAnimation(bird_Bird_IdleFall_Length, mAnim_IdleFall, false, 0.0f);
+        setAnimation(bird_Bird_IdleFall_Length, ANIM_IDLEFALL, false, 0.0f);
         mState = PLAYERSTATE_FALLING;
     }
 }
@@ -149,7 +175,7 @@ void TPlayer::checkMeshCollision(const TCollFace * face, float radius){
             if (mSlowingDown && mSpeed < BIRD_SLOWSPEED && TFlockObj::getFlockObj()->getSize() <= 0)
             {
                 mState = PLAYERSTATE_FALLING;
-                mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, true, 0.0f);
+                setAnimation(bird_Bird_GlideFlap_Length, ANIM_GLIDEFLAP, true, 0.0f);
                 mRotation = TVec3<s16>((s16)0, mRotation.y(), (s16)0);
 
                 mCamera->setMode(false);
@@ -163,7 +189,7 @@ void TPlayer::checkMeshCollision(const TCollFace * face, float radius){
                     mLastDirection = mDirection;
                     mDirection += d * face->nrm * 2.0f;
                     mState = PLAYERSTATE_STUNNED;
-                    mAnim->setAnimation(bird_Bird_GlideCrash_Length, mAnim_GlideCrash, false, 0.4f);
+                    setAnimation(bird_Bird_GlideCrash_Length, ANIM_GLIDECRASH, false, 0.4f);
                     mCamera->setMode(true);
                     playCrashSFX();
                 }
@@ -201,7 +227,7 @@ void TPlayer::hitObject(TVec3F point, EObjType type){
             mLastDirection = mDirection;
             mDirection += d * nrm * 2.0f;
             mState = PLAYERSTATE_STUNNED;
-            mAnim->setAnimation(bird_Bird_GlideCrash_Length, mAnim_GlideCrash, false, 0.4f);
+            setAnimation(bird_Bird_GlideCrash_Length, ANIM_GLIDECRASH, false, 0.4f);
             playCrashSFX();
         }
         else{   //Bounce
@@ -328,7 +354,7 @@ void TPlayer::update()
                 // we touched the ground, idle
                 mState = playerstate_t::PLAYERSTATE_IDLE;
                 mVelocity = 0.0f;
-                mAnim->setAnimation(bird_Bird_Idle_Length, mAnim_Idle);
+                setAnimation(bird_Bird_Idle_Length, ANIM_IDLE);
                 mIdleTimer = 0;
             }
 
@@ -353,15 +379,15 @@ void TPlayer::update()
 
             if (!mCawing){
                 if (mIdleTimer >= 5.0f && mIdleTimer <= 5.1f)
-                    mAnim->setAnimation(bird_Bird_IdlePreen_Length, mAnim_IdlePreen, false, 0.3f);
+                    setAnimation(bird_Bird_IdlePreen_Length, ANIM_IDLEPREEN, false, 0.3f);
                 else if (mIdleTimer > 5.1f && mAnim->isAnimationCompleted())
-                    mAnim->setAnimation(bird_Bird_Idle_Length, mAnim_Idle);
+                    setAnimation(bird_Bird_Idle_Length, ANIM_IDLE);
                 mIdleTimer += kInterval;
             }
 
             if (mPad->isPressed(L) && !mCawing && mCawTimer <= 0.0f){
                 mCawing = true;
-                mAnim->setAnimation(bird_Bird_IdleCaw_Length, mAnim_IdleCaw, false, 0.4f);
+                setAnimation(bird_Bird_IdleCaw_Length, ANIM_IDLECAW, false, 0.4f);
                 playCawSFX();
             }
             
@@ -369,7 +395,7 @@ void TPlayer::update()
             if (!mCawing){
                 if (mPad->getAnalogX() != 0 || mPad->getAnalogY() != 0) {
                     mState = playerstate_t::PLAYERSTATE_WALKING;
-                    mAnim->setAnimation(bird_Bird_Walk_Length, mAnim_Walk, true, 0.3f);
+                    setAnimation(bird_Bird_Walk_Length, ANIM_WALK, true, 0.3f);
                 }
 
                 if (canMove() && (mPad->isPressed(A) || mPad->isPressed(Z)))    //Start flying
@@ -377,7 +403,7 @@ void TPlayer::update()
             }
             else if (mAnim->isAnimationCompleted() && mCawTimer < 0.0f){
                 mCawing = false;
-                mAnim->setAnimation(bird_Bird_IdleCaw_Length, mAnim_IdleCaw, false, -0.25f);
+                setAnimation(bird_Bird_IdleCaw_Length, ANIM_IDLECAW, false, -0.25f);
             }
         
         break;
@@ -395,7 +421,7 @@ void TPlayer::update()
             if (mPad->getAnalogX() == 0 && mPad->getAnalogY() == 0) {
                 // back to idle
                 mState = playerstate_t::PLAYERSTATE_IDLE;
-                mAnim->setAnimation(bird_Bird_Idle_Length, mAnim_Idle);
+                setAnimation(bird_Bird_Idle_Length, ANIM_IDLE);
                 mIdleTimer = 0.0f;
             }
 
@@ -403,7 +429,7 @@ void TPlayer::update()
 
             if (mPad->isPressed(L) && !mCawing && mCawTimer <= 0.0f){
                 mCawing = true;
-                mAnim->setAnimation(bird_Bird_IdleCaw_Length, mAnim_IdleCaw, false, 0.4f);
+                setAnimation(bird_Bird_IdleCaw_Length, ANIM_IDLECAW, false, 0.4f);
                 mState = playerstate_t::PLAYERSTATE_IDLE;
                 playCawSFX();
             }
@@ -439,7 +465,7 @@ void TPlayer::update()
             if (mPad->isPressed(Z)){    //Start flying
                 // Set state and animation
                 mState = PLAYERSTATE_FLYING;
-                mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, false, 0.25f);
+                setAnimation(bird_Bird_GlideFlap_Length, ANIM_GLIDEFLAP, false, 0.25f);
 
                 mFlappingWings = true;
 
@@ -460,7 +486,7 @@ void TPlayer::update()
                 // we touched the ground, idle
                 mState = playerstate_t::PLAYERSTATE_IDLE;
                 mVelocity = 0.0f;
-                mAnim->setAnimation(bird_Bird_Idle_Length, mAnim_Idle);
+                setAnimation(bird_Bird_Idle_Length, ANIM_IDLE);
                 mIdleTimer = 0.0f;
                 mCawing = false;
             }
@@ -511,7 +537,7 @@ void TPlayer::update()
             if (((canMove() && mPad->isHeld(A)) || mSpeed < BIRD_SLOWSPEED) && !mSlowingDown && mSpeed < BIRD_FASTSPEED){ // Flapping speed - when you hold A, or when going too slow. Can't do this when going too fast.
                 mGoingFast = false;
                 if (mFlapTimer < 0.0f && mFlappingWings == false){
-                    mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, false, 0.25f);
+                    setAnimation(bird_Bird_GlideFlap_Length, ANIM_GLIDEFLAP, false, 0.25f);
                     mFlappingWings = true;
                 }
                 mSpeed += BIRD_ACCEL;
@@ -519,7 +545,7 @@ void TPlayer::update()
             if (canMove() && mPad->isHeld(B)){
                 animRate = 0.25f;
                 if (!mSlowingDown){
-                    mAnim->setAnimation(bird_Bird_FlyFlap_Length, mAnim_Flap, true, 0.25f);
+                    setAnimation(bird_Bird_FlyFlap_Length, ANIM_FLAP, true, 0.25f);
                     mPitchModifier = -30.0f;
                 }
                 if (mPitchModifier < 15.0f){            //Move bird's pitch to make it look like its fighting against wind.
@@ -534,7 +560,7 @@ void TPlayer::update()
             {
                 mGoingFast = false;
                 mSlowingDown = false;
-                mAnim->setAnimation(bird_Bird_GlideFlap_Length, mAnim_GlideFlap, false, 0.25f);
+                setAnimation(bird_Bird_GlideFlap_Length, ANIM_GLIDEFLAP, false, 0.25f);
                 mFlappingWings = true;
             }
             else
@@ -547,7 +573,7 @@ void TPlayer::update()
 
             if (mPad->isPressed(L) && !mCawing && mCawTimer <= 0.0f){
                 //mCawing = true;
-                //mAnim->setAnimation(bird_Bird_GlideCaw_Length, mAnim_GlideCaw, false, 0.25f);
+                //setAnimation(bird_Bird_GlideCaw_Length, ANIM_GLIDECAW, false, 0.25f);
                 playCawSFX();
             }
             //if (mCawing)
@@ -560,20 +586,20 @@ void TPlayer::update()
             if (!mCawing){
                 if (mSpeed > BIRD_FASTSPEED && !mFlappingWings && !mSlowingDown){
                     if (!mGoingFast){
-                        mAnim->setAnimation(bird_Bird_GlideFast_Length, mAnim_GlideFast, true, 0.0f);
+                        setAnimation(bird_Bird_GlideFast_Length, ANIM_GLIDEFAST, true, 0.0f);
                         mGoingFast = true;
                     }
                     mAnim->setFrame((mSpeed - BIRD_FASTSPEED) / (BIRD_MAXSPEED - BIRD_FASTSPEED));
                 }
                 else if (mGoingFast && !mSlowingDown) {
-                    mAnim->setAnimation(bird_Bird_Glide_Length, mAnim_Glide, true, animRate);
+                    setAnimation(bird_Bird_Glide_Length, ANIM_GLIDE, true, animRate);
                     mGoingFast = false;
                 }
 
                 // Stop flapping wings
                 if (mFlappingWings && mAnim->isAnimationCompleted() && !mSlowingDown){
                     mFlappingWings = false;
-                    mAnim->setAnimation(bird_Bird_Glide_Length, mAnim_Glide, true, animRate);
+                    setAnimation(bird_Bird_Glide_Length, ANIM_GLIDE, true, animRate);
                     mFlapTimer = 0.133f;
                 }
 
@@ -582,7 +608,7 @@ void TPlayer::update()
             }
             //else if (mAnim->isAnimationCompleted()){
                 //mCawing = false;
-                //mAnim->setAnimation(bird_Bird_GlideCaw_Length, mAnim_GlideCaw, false, -0.25f);
+                //setAnimation(bird_Bird_GlideCaw_Length, ANIM_GLIDECAW, false, -0.25f);
            // }
 
             //if (mPad->isPressed(Z))    //Return back to flapping
@@ -742,7 +768,7 @@ void TPlayer::draw()
         mShadow->draw();
     }
 
-    setMesh(bird_Bird_mesh);
+    //setMesh(bird_Bird_mesh);
     
     updateMtx();
     TObject::draw();

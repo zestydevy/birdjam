@@ -234,9 +234,9 @@ void TTestScene::init()
 
     // load bird and world models into memory
     TUtil::toMemory(
-        reinterpret_cast<void *>(_codeSegmentEnd), 
-        _bird_ovlSegmentRomStart, 
-        _bird_ovlSegmentRomEnd-_bird_ovlSegmentRomStart
+        reinterpret_cast<void *>(_world_ovlSegmentStart), 
+        _world_ovlSegmentRomStart, 
+        _world_ovlSegmentRomEnd-_world_ovlSegmentRomStart
     );
 
     // create this before any game objects

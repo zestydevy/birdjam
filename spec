@@ -36,23 +36,9 @@ beginseg
 endseg
 
 beginseg
-	name "bird_ovl"
+	name "world_ovl"
 	after "code"
 	flags OBJECT
-	include "build/obj/model_bird.o"
-	include "build/obj/Bird_Walk.o"
-	include "build/obj/Bird_IdlePreen.o"
-	include "build/obj/Bird_IdleCaw.o"
-	include "build/obj/Bird_Idle.o"
-	include "build/obj/Bird_GlideFlap.o"
-	include "build/obj/Bird_GlideFast.o"
-	include "build/obj/Bird_GlideCrash.o"
-	include "build/obj/Bird_Glide.o"
-	include "build/obj/Bird_FlyStart.o"
-	include "build/obj/Bird_FlyFlap.o"
-	include "build/obj/Bird_IdleFall.o"
-	include "build/obj/Bird_GlideUTurn.o"
-
 	include "build/obj/shadow.o"
 	include "build/obj/model_window.o"
 	include "build/obj/model_world.o"
@@ -66,6 +52,44 @@ beginseg
 
 	include "build/obj/sprite_numfont.o"
 	include "build/obj/sp_hud.o"
+endseg
+
+beginseg
+	name "bird_ovl"
+	after "world_ovl"
+	flags OBJECT
+	include "build/obj/Bird_Walk.o"
+	include "build/obj/Bird_IdlePreen.o"
+	include "build/obj/Bird_IdleCaw.o"
+	include "build/obj/Bird_Idle.o"
+	include "build/obj/Bird_GlideFlap.o"
+	include "build/obj/Bird_GlideFast.o"
+	include "build/obj/Bird_GlideCrash.o"
+	include "build/obj/Bird_Glide.o"
+	include "build/obj/Bird_FlyStart.o"
+	include "build/obj/Bird_FlyFlap.o"
+	include "build/obj/Bird_IdleFall.o"
+	include "build/obj/Bird_GlideUTurn.o"
+	include "build/obj/model_bird.o"
+endseg
+
+beginseg
+	name "eagle_ovl"
+	after "world_ovl"
+	flags OBJECT
+	include "build/obj/Eagle_Walk.o"
+	include "build/obj/Eagle_IdlePreen.o"
+	include "build/obj/Eagle_IdleCaw.o"
+	include "build/obj/Eagle_Idle.o"
+	include "build/obj/Eagle_GlideFlap.o"
+	include "build/obj/Eagle_GlideFast.o"
+	include "build/obj/Eagle_GlideCrash.o"
+	include "build/obj/Eagle_Glide.o"
+	include "build/obj/Eagle_FlyStart.o"
+	include "build/obj/Eagle_FlyFlap.o"
+	include "build/obj/Eagle_IdleFall.o"
+	include "build/obj/Eagle_GlideUTurn.o"
+	include "build/obj/model_eagle.o"
 endseg
 
 beginseg
@@ -159,7 +183,9 @@ endseg
 beginwave
 	name	"bird"
 	include	"code"
+	include "world_ovl"
 	include "bird_ovl"
+	include "eagle_ovl"
 	include "countdown_ovl"
 	include "result_ovl"
 	include "ranka_ovl"

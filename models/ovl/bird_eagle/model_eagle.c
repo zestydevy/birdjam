@@ -1129,16 +1129,16 @@ Gfx bird_eagle_Bird_mesh[] = {
 	gsSPDisplayList(mat_bird_eagle_WingsC_f3d),
 	gsSPDisplayList(bird_eagle_Bird_mesh_tri_2),
 	gsSPDisplayList(mat_revert_bird_eagle_WingsC_f3d),
+	gsDPPipeSync(),
+	gsDPSetRenderMode(G_RM_AA_ZB_TEX_EDGE, G_RM_AA_ZB_TEX_EDGE2),
 	gsSPDisplayList(mat_bird_eagle_Eyes_f3d),
 	gsSPDisplayList(bird_eagle_Bird_mesh_tri_3),
 	gsSPDisplayList(mat_revert_bird_eagle_Eyes_f3d),
 	gsDPPipeSync(),
+	gsDPSetRenderMode(G_RM_AA_ZB_OPA_SURF, G_RM_AA_ZB_OPA_SURF2),
 	gsSPSetGeometryMode(G_LIGHTING),
 	gsSPClearGeometryMode(G_TEXTURE_GEN),
 	gsDPSetCombineLERP(0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT, 0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT),
 	gsSPTexture(65535, 65535, 0, 0, 0),
 	gsSPEndDisplayList(),
 };
-
-
-
