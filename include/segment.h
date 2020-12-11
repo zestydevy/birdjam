@@ -14,11 +14,18 @@ extern char _codeSegmentStart[];         /* code segment start */
 extern char _codeSegmentEnd[];           /* code segment end */
 extern char _countdown_ovlSegmentStart[];
 extern char _ranka_ovlSegmentStart[];
+extern char _world_ovlSegmentStart[];
+extern char _bird_ovlSegmentStart[];
+extern char _eagle_ovlSegmentStart[];
 
 extern u8 _logo_ovlSegmentRomStart[];
 extern u8 _logo_ovlSegmentRomEnd[];
+extern u8 _world_ovlSegmentRomStart[];
+extern u8 _world_ovlSegmentRomEnd[];
 extern u8 _bird_ovlSegmentRomStart[];
 extern u8 _bird_ovlSegmentRomEnd[];
+extern u8 _eagle_ovlSegmentRomStart[];
+extern u8 _eagle_ovlSegmentRomEnd[];
 extern u8 _countdown_ovlSegmentRomStart[];
 extern u8 _countdown_ovlSegmentRomEnd[];
 extern u8 _result_ovlSegmentRomStart[];
