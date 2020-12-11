@@ -148,6 +148,14 @@ void TSprite::setOffAttributes(
 // -------------------------------------------------------------------------- //
 
 void TSprite::draw() {
+    if (mScale.x() <= 0.0F || mScale.y() <= 0.0F) {
+        return;
+    }
+
+    if (mColor.a == 0) {
+        return;
+    }
+
     mSpriteData.rsp_dl_next = mSpriteData.rsp_dl;
     spMove(&mSpriteData, mPosition.x(), mPosition.y());
     spScale(&mSpriteData, mScale.x(), mScale.y());
