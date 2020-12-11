@@ -95,7 +95,6 @@ endseg
 beginseg
 	name "countdown_ovl"
 	after "bird_ovl"
-	after "eagle_ovl"
 	flags OBJECT
 
 	include "build/obj/sp_countdown.o"
@@ -104,7 +103,6 @@ endseg
 beginseg
 	name "result_ovl"
 	after "bird_ovl"
-	after "eagle_ovl"
 	flags OBJECT
 
 	include "build/obj/sp_result.o"
