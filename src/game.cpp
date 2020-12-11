@@ -342,5 +342,5 @@ void TGame::testRender(u32 taskNum)
     game->draw();
 
     // 30 fps
-    //nuGfxRetraceWait(2);
+    nuGfxRetraceWait(2);
 }

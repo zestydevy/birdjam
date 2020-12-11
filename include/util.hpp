@@ -5,7 +5,7 @@
 
 // -------------------------------------------------------------------------- //
 
-float constexpr kFrameRate = 60.0f;
+float constexpr kFrameRate = 30.0f;
 float constexpr kInterval = 1.0f / kFrameRate;
 
 // -------------------------------------------------------------------------- //
