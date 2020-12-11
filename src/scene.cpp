@@ -3,6 +3,7 @@
 #include "scene.hpp"
 #include "heap.hpp"
 #include "player.hpp"
+#include "rank.hpp"
 #include "sprite.hpp"
 #include "staticobj.hpp"
 #include "collision.h"
@@ -240,6 +241,8 @@ void TTestScene::init()
 
     // create this before any game objects
     TCollider::startup(nullptr, 10, 512.0F);
+
+    gRank.reset();
 
     gHud = new THud {};
     gHud->init();

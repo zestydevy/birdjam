@@ -785,5 +785,25 @@ extern Gfx result_vehicles_dl[];
 extern Sprite result_vehicles_sprite;
 
 // -------------------------------------------------------------------------- //
+// @result_rank
+
+#define result_rankTRUEIMAGEH	38
+#define result_rankTRUEIMAGEW	113
+#define result_rankIMAGEH	64
+#define result_rankIMAGEW	128
+#define result_rankBLOCKSIZEW	32
+#define result_rankBLOCKSIZEH	32
+#define result_rankSCALEX	1.0
+#define result_rankSCALEY	1.0
+#define result_rankMODE	SP_Z | SP_OVERLAP | SP_TRANSPARENT
+
+extern Bitmap result_rank_bitmaps[];
+extern Gfx result_rank_dl[];
+
+#define NUM_result_rank_BMS  (sizeof(result_rank_bitmaps)/sizeof(Bitmap))
+
+extern Sprite result_rank_sprite;
+
+// -------------------------------------------------------------------------- //
 
 #endif

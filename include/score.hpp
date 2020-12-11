@@ -85,6 +85,7 @@ class TNestObj :
   TNestObj(TDynList2 *, EObjType);
   virtual ~TNestObj() = default;
 
+  EObjType getObjType() const { return mObjType; }
   float getObjWeight() const { return mObjWeight; }
   float getObjScale() const { return (mScale.x() + mScale.y() + mScale.z()) / 3.0f; }
 
