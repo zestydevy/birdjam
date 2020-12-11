@@ -4,6 +4,7 @@
 
 #include <nusys.h>
 
+#include "rank.hpp"
 #include "score.hpp"
 #include "sprite.hpp"
 #include "util.hpp"
@@ -40,6 +41,18 @@ class THudScore {
   THudScore() = default;
   ~THudScore() = default;
 
+  bool isLower() const {
+    switch (mState) {
+      case ST_DOWN:
+      case ST_LOWER:
+      case ST_SHOW: {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   void hide();
   void show();
   void lower();
@@ -75,17 +88,16 @@ class THudScore {
     SPR_SCORE_2,
     SPR_SCORE_3,
     SPR_SCORE_4,
-    SPR_SCORE_5,
     SPR_DOT,
     SPR_METRIC,
 
     NUM_SPRITES,
 
-    NUM_SCORE_DIGITS = 6,
+    NUM_SCORE_DIGITS = 5,
     NUM_FRAC_PLACES = 2,
     NUM_INT_PLACES = (NUM_SCORE_DIGITS - NUM_FRAC_PLACES),
 
-    SCORE_SPEED = 1000 // pts per sec
+    SCORE_SPEED = 50 // pts per sec
 
   };
 
@@ -227,7 +239,7 @@ class THudResults {
   void hide();
   void show();
 
-  void init();
+  void init(u32 rank);
   void update();
   void draw();
 
@@ -241,6 +253,7 @@ class THudResults {
     ST_TALLY,
     ST_TALLY_WAIT,
     ST_RANK_IN,
+    ST_RANK_STAR,
     ST_RANK_WAIT
 
   };
@@ -249,6 +262,8 @@ class THudResults {
 
     SPR_RESULTS,
     SPR_BIRD,
+
+    SPR_STAR,
     SPR_RANK,
     SPR_RANK_0,
 
@@ -282,17 +297,38 @@ class THudResults {
 
   };
 
+  struct TRankInfo {
+
+    Sprite const * bird_spr;
+    TVec2S bird_ofs;
+
+    Sprite const * rank_spr;
+    TVec2S rank_pos;
+    TVec2S rank_sz;
+
+    Sprite const * star_spr;
+    TVec2S star_pos;
+    TVec2S star_sz;
+
+    void * rom_src;
+    s32 rom_sz;
+
+  };
+
   int mState { ST_HIDE };
   THudAlarm mStateTimer;
   TSprite mSprite[NUM_SPRITES];
   u32 mSpriteMask { 0 };
-  u32 mNumTally { 0 };
+  u8 mTally[NUM_TALLY];
+  u8 mMaxNumTally { 0 };
+  u8 mNumTally { 0 };
+  float mWaveTimer { 0.0F };
+  u32 mRank { 0 };
+
+  static TRankInfo sRankInfo[NUM_RANKS];
 
   void setOffSprite(u32 i) { mSpriteMask |= (1U << i); }
   void setOnSprite(u32 i) { mSpriteMask &= ~(1U << i); }
-
-  static TVec2S getBirdOffset();
-  static Sprite const & getBirdSprite();
 
   static Sprite const & getTallySprite(u32);
   static Sprite const & getDigitSprite(u32);

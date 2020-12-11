@@ -8,6 +8,7 @@
 #include "game.hpp"
 #include "math.hpp"
 #include "player.hpp"
+#include "rank.hpp"
 #include "scene.hpp"
 #include "score.hpp"
 #include "staticobj.hpp"
@@ -213,6 +214,7 @@ bool TFlockObj::cacheAllObjects() {
     TNest::getNestObject()->startAssimilateObject(mHeldObjects[i]);
     incFlock(1, mHeldObjects[i]->getObjWeight() / 2.0f);
 
+    gRank.record(mHeldObjects[i]->getObjType());
     gHud->addScore((mHeldObjects[i]->getScore() * 0.005f));
   }
 

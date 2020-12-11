@@ -18,11 +18,14 @@
 
 // -------------------------------------------------------------------------- //
 
-#define MAX_SCORE 999999
+#define MAX_SCORE 99999
 
 // -------------------------------------------------------------------------- //
 
 THud * gHud { nullptr };
+
+THudResults::TRankInfo
+THudResults::sRankInfo[NUM_RANKS];
 
 // -------------------------------------------------------------------------- //
 
@@ -633,6 +636,14 @@ void THudCountDown::hide() {
 // -------------------------------------------------------------------------- //
 
 void THudCountDown::show() {
+  TUtil::toMemory(
+    _countdown_ovlSegmentStart,
+    _countdown_ovlSegmentRomStart, (s32)(
+      _countdown_ovlSegmentRomEnd -
+      _countdown_ovlSegmentRomStart
+    )
+  );
+
   for (u32 i = 0; i < NUM_SPRITES; ++i) {
     setOffSprite(i);
   }
@@ -646,6 +657,14 @@ void THudCountDown::show() {
 // -------------------------------------------------------------------------- //
 
 void THudCountDown::timeup() {
+  TUtil::toMemory(
+    _countdown_ovlSegmentStart,
+    _result_ovlSegmentRomStart, (s32)(
+      _result_ovlSegmentRomEnd -
+      _result_ovlSegmentRomStart
+    )
+  );
+
   for (u32 i = 0; i < NUM_SPRITES; ++i) {
     setOffSprite(i);
   }
@@ -889,16 +908,92 @@ void THudResults::show() {
 
 // -------------------------------------------------------------------------- //
 
-void THudResults::init() {
+void THudResults::init(u32 rank) {
+  mRank = rank;
+
+  sRankInfo[RANK_A] = {
+    &result_birda_sprite, { -13, 2 },
+    &result_ranka_sprite, { 265, 11 },
+    { result_rankaTRUEIMAGEW, result_rankaTRUEIMAGEH },
+    &result_stara_sprite, { 245, -13 },
+    { result_staraTRUEIMAGEW, result_staraTRUEIMAGEH },
+    _ranka_ovlSegmentRomStart,
+    (s32)(_ranka_ovlSegmentRomEnd - _ranka_ovlSegmentRomStart),
+  };
+
+  sRankInfo[RANK_B] = {
+    &result_birdb_sprite, { -19, -1 },
+    &result_rankb_sprite, { 267, 11 },
+    { result_rankbTRUEIMAGEW, result_rankbTRUEIMAGEH },
+    &result_starb_sprite, { 244, -10 },
+    { result_starbTRUEIMAGEW, result_starbTRUEIMAGEH },
+    _rankb_ovlSegmentRomStart,
+    (s32)(_rankb_ovlSegmentRomEnd - _rankb_ovlSegmentRomStart),
+  };
+
+  sRankInfo[RANK_C] = {
+    &result_birdc_sprite, { -14, 2 },
+    &result_rankc_sprite, { 267, 11 },
+    { result_rankcTRUEIMAGEW, result_rankcTRUEIMAGEH },
+    &result_starc_sprite, { 244, -6 },
+    { result_starcTRUEIMAGEW, result_starcTRUEIMAGEH },
+    _rankc_ovlSegmentRomStart,
+    (s32)(_rankc_ovlSegmentRomEnd - _rankc_ovlSegmentRomStart),
+  };
+
+  sRankInfo[RANK_D] = {
+    &result_birdd_sprite, { 3, 0 },
+    &result_rankd_sprite, { 267, 11 },
+    { result_rankdTRUEIMAGEW, result_rankdTRUEIMAGEH },
+    &result_stard_sprite, { 254, 5 },
+    { result_stardTRUEIMAGEW, result_stardTRUEIMAGEH },
+    _rankd_ovlSegmentRomStart,
+    (s32)(_rankd_ovlSegmentRomEnd - _rankd_ovlSegmentRomStart),
+  };
+
+  sRankInfo[RANK_F] = {
+    &result_birdf_sprite, { 0, 0 },
+    &result_rankf_sprite, { 271, 11 },
+    { result_rankfTRUEIMAGEW, result_rankfTRUEIMAGEH },
+    nullptr, { 0, 0 }, { 0, 0 },
+    _rankf_ovlSegmentRomStart,
+    (s32)(_rankf_ovlSegmentRomEnd - _rankf_ovlSegmentRomStart),
+  };
+
+  TUtil::toMemory(
+    _ranka_ovlSegmentStart,
+    sRankInfo[rank].rom_src,
+    sRankInfo[rank].rom_sz
+  );
+
   mSprite[SPR_RESULTS].load(result_text_sprite);
   mSprite[SPR_BIRD].load(result_bird_sprite);
+  mSprite[SPR_RANK].load(result_rank_sprite);
+  mSprite[SPR_RANK_0].load(*sRankInfo[rank].rank_spr);
+
+  if (sRankInfo[rank].star_spr != nullptr) {
+    mSprite[SPR_STAR].load(*sRankInfo[rank].star_spr);
+  }
+
+  mMaxNumTally = 0;
+  mNumTally = 0;
+
+  for (u8 i = 0; i < NUM_TALLY; ++i) {
+    if (gRank.get(i) == 0) {
+      continue;
+    }
+
+    mTally[mMaxNumTally++] = i;
+  }
 }
 
 // -------------------------------------------------------------------------- //
 
 void THudResults::update() {
-  s16 result_x = 143;
+  s16 result_x = 143, rank_x = 0;
   TVec2S bird_ofs { 0, 0 };
+  TVec2S rank0_pos { 0, 0 };
+  TVec2S star_pos { 0, 0 };
 
   if (mState != ST_HIDE) {
     u32 count = TMath<u32>::min(8, mNumTally);
@@ -906,8 +1001,8 @@ void THudResults::update() {
     u32 digits[2];
 
     for (u32 i = 0; i < count; ++i) {
-      tally = (mNumTally - i - 1);
-      value = 69; // gRank->get(tally);
+      tally = mTally[mNumTally - i - 1];
+      value = gRank.get(tally);
 
       THud::splitDigits(value, digits, 2);
 
@@ -949,26 +1044,23 @@ void THudResults::update() {
     }
     case ST_RESULTS_WAIT: {
       if (mStateTimer.update()) {
-        ++mNumTally;
-
         mState = ST_TALLY;
-        mStateTimer.set(0.5F);
       }
 
       break;
     }
     case ST_TALLY: {
-      s16 x = Sinerp<s16>(-200, 42, mStateTimer.get(0.0F, 0.5F));
+      s16 x = Sinerp<s16>(-200, 42, mStateTimer.get(0.0F, 0.65F));
       s16 y = mSprite[SPR_TALLY0_TITLE].getPosition().y();
       mSprite[SPR_TALLY0_TITLE].setPosition({ x, y });
+      mStateTimer.update();
 
-      if (mStateTimer.update()) {
-        ++mNumTally;
-
-        if (mNumTally < NUM_TALLY) {
-          mStateTimer.set(0.5F);
-        } else {
+      if (mStateTimer.off()) {
+        if (mNumTally == mMaxNumTally) {
           mState = ST_TALLY_WAIT;
+          mStateTimer.set(0.1F);
+        } else {
+          ++mNumTally;
           mStateTimer.set(0.5F);
         }
       }
@@ -976,21 +1068,112 @@ void THudResults::update() {
       break;
     }
     case ST_TALLY_WAIT: {
-      s16 x = Sinerp<s16>(-200, 42, mStateTimer.get(0.0F, 0.5F));
-      s16 y = mSprite[SPR_TALLY0_TITLE].getPosition().y();
-      mSprite[SPR_TALLY0_TITLE].setPosition({ x, y });
-
       if (mStateTimer.update()) {
         mState = ST_RANK_IN;
-        mStateTimer.set(1.0F);
+        mStateTimer.set(0.8F);
       }
 
       break;
     }
     case ST_RANK_IN: {
-      mSprite[SPR_BIRD].load(getBirdSprite());
-      bird_ofs = getBirdOffset();
+      setOnSprite(SPR_RANK);
+      rank_x = Sinerp<s16>(480, 145, mStateTimer.get());
+
+      if (mStateTimer.update()) {
+        mState = ST_RANK_STAR;
+        mStateTimer.set(0.5F);
+      }
+
       break;
+    }
+    case ST_RANK_STAR: {
+      if (sRankInfo[mRank].star_spr != nullptr) {
+        setOnSprite(SPR_STAR);
+      }
+
+      setOnSprite(SPR_RANK_0);
+      rank_x = 145;
+
+      star_pos = sRankInfo[mRank].star_pos;
+      rank0_pos = sRankInfo[mRank].rank_pos;
+
+      float t0 = mStateTimer.get(0.0F, 0.5F);
+
+      float t1 = Lagrange<float>(0.0F, 2.5F, 1.0F,
+        mStateTimer.get(0.2F, 1.0F)
+      );
+
+      star_pos.x() += (s16)(
+        (float)sRankInfo[mRank].star_sz.x() * (1.0F - t0) * 0.5F
+      );
+
+      star_pos.y() += (s16)(
+        (float)sRankInfo[mRank].star_sz.y() * (1.0F - t0) * 0.5F
+      );
+
+      rank0_pos.x() += (s16)(
+        (float)sRankInfo[mRank].rank_sz.x() * (1.0F - t1) * 0.5F
+      );
+
+      rank0_pos.y() += (s16)(
+        (float)sRankInfo[mRank].rank_sz.y() * (1.0F - t1) * 0.5F
+      );
+
+      mSprite[SPR_STAR].setScale({ t0, t0 });
+      mSprite[SPR_RANK_0].setScale({ t1, t1 });
+
+      if (mStateTimer.update()) {
+        mState = ST_RANK_WAIT;
+      }
+
+      break;
+    }
+    case ST_RANK_WAIT: {
+      mSprite[SPR_BIRD].load(*sRankInfo[mRank].bird_spr);
+      bird_ofs = sRankInfo[mRank].bird_ofs;
+      star_pos = sRankInfo[mRank].star_pos;
+      rank0_pos = sRankInfo[mRank].rank_pos;
+      rank_x = 145;
+
+      mWaveTimer += kInterval;
+
+      float t0 = (1.0F + TSine::ssin(TSine::fromDeg(
+        mWaveTimer * 400.0F
+      )) * 0.15F);
+
+      float t1 = (1.0F + TSine::ssin(TSine::fromDeg(
+        mWaveTimer * 400.0F + 90.0F
+      )) * 0.15F);
+
+      star_pos.x() += (s16)(
+        (float)sRankInfo[mRank].star_sz.x() * (1.0F - t0) * 0.5F
+      );
+
+      star_pos.y() += (s16)(
+        (float)sRankInfo[mRank].star_sz.y() * (1.0F - t0) * 0.5F
+      );
+
+      rank0_pos.x() += (s16)(
+        (float)sRankInfo[mRank].rank_sz.x() * (1.0F - t1) * 0.5F
+      );
+
+      rank0_pos.y() += (s16)(
+        (float)sRankInfo[mRank].rank_sz.y() * (1.0F - t1) * 0.5F
+      );
+
+      mSprite[SPR_STAR].setScale({ t0, t0 });
+      mSprite[SPR_RANK_0].setScale({ t1, t1 });
+      mStateTimer.update();
+      break;
+    }
+  }
+
+  if (mState != ST_HIDE) {
+    mSprite[SPR_RANK].setPosition({ rank_x, (s16)15 });
+    mSprite[SPR_RANK_0].setPosition(rank0_pos);
+
+    if (sRankInfo[mRank].star_spr != nullptr) {
+      mSprite[SPR_STAR].setPosition(star_pos);
     }
   }
 
@@ -1018,19 +1201,6 @@ void THudResults::draw() {
 
     mSprite[i].draw();
   }
-}
-
-// -------------------------------------------------------------------------- //
-
-TVec2S THudResults::getBirdOffset() {
-  return TVec2S { (s16)-13, (s16)2 };
-}
-
-// -------------------------------------------------------------------------- //
-
-Sprite const &
-THudResults::getBirdSprite() {
-  return result_birda_sprite;
 }
 
 // -------------------------------------------------------------------------- //
@@ -1138,6 +1308,8 @@ void THud::update() {
     }
     case ST_TIME_UP: {
       if (mStateTimer.update()) {
+        u32 rank;
+
         if (mScoreDown) {
           mScore.lower();
         } else {
@@ -1147,7 +1319,8 @@ void THud::update() {
 
         mTime.scram();
         mResults = new THudResults {};
-        mResults->init();
+        rank = TRank::calcRank(getScore());
+        mResults->init(rank);
 
         mState = ST_RESULTS;
         mStateTimer.set(1.5F);
@@ -1173,22 +1346,6 @@ void THud::update() {
     t = mClock.get(&after);
 
     if (t == 0.0F && !mTimeUp) {
-      TUtil::toMemory(
-        _countdown_ovlSegmentStart,
-        _result_ovlSegmentRomStart, (s32)(
-          _result_ovlSegmentRomEnd -
-          _result_ovlSegmentRomStart
-        )
-      );
-
-      TUtil::toMemory(
-        _ranka_ovlSegmentStart,
-        _ranka_ovlSegmentRomStart, (s32)(
-          _ranka_ovlSegmentRomEnd -
-          _ranka_ovlSegmentRomStart
-        )
-      );
-
       mCountDown.timeup();
       mTimeUp = true;
 
@@ -1272,14 +1429,6 @@ void THud::subScore(u32 pts) {
 // -------------------------------------------------------------------------- //
 
 void THud::startCountDown(u32 minutes) {
-  TUtil::toMemory(
-    _countdown_ovlSegmentStart,
-    _countdown_ovlSegmentRomStart, (s32)(
-      _countdown_ovlSegmentRomEnd -
-      _countdown_ovlSegmentRomStart
-    )
-  );
-
   mTimeLimit = minutes;
   mCountDown.show();
   mScore.hide();

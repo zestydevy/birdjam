@@ -44,11 +44,25 @@ enum : u32 {
 
 // -------------------------------------------------------------------------- //
 
+enum : u32 {
+
+  RANK_A,
+  RANK_B,
+  RANK_C,
+  RANK_D,
+  RANK_F,
+
+  NUM_RANKS
+
+};
+
+// -------------------------------------------------------------------------- //
+
 class TRank {
 
   public:
 
-  TRank();
+  TRank() = default;
   ~TRank() = default;
 
   void reset();
@@ -56,6 +70,8 @@ class TRank {
 
   bool set(u32 tally, u8 value);
   u8 get(u32 tally) const;
+
+  static u32 calcRank(u32 score);
 
   private:
 
@@ -67,7 +83,7 @@ class TRank {
 
 // -------------------------------------------------------------------------- //
 
-extern TRank * gRank;
+extern TRank gRank;
 
 // -------------------------------------------------------------------------- //
 
