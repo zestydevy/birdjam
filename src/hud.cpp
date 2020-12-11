@@ -1188,6 +1188,9 @@ void THudResults::update() {
   mSprite[SPR_RESULTS].setPosition(
     { result_x, (s16)196 }
   );
+
+  for (u32 i = 0; i < NUM_SPRITES; ++i)
+    mSprite[i].setAttributes(SP_TRANSPARENT | SP_FRACPOS);
 }
 
 // -------------------------------------------------------------------------- //
