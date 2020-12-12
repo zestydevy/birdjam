@@ -702,7 +702,7 @@ void TPlayer::update()
         mGameState = gameplaystate_t::PLAYERGAMESTATE_FINISHED;
 
         mEndCameraAngle = 0;
-        mEndCameraDistance = 300.0f + TNest::getNestObject()->getSize() / 1.5f;
+        mEndCameraDistance = 300.0f + TNest::getNestObject()->getSize() / 8.0f;
         mEndCameraTimer = 0.0f;
         
         mCamera->setMode(true);
@@ -728,7 +728,7 @@ void TPlayer::update()
 
         mCamera->setPosition(
             TNest::getNestObject()->getPosition() +
-            TVec3F(0.0f, TNest::getNestObject()->getTopY() + (dy + (dy * TSine::scos(TSine::fromDeg(mEndCameraTimer * 12.0f)) / 2.0f)) / 2.0f, 0.0f) +
+            TVec3F(0.0f, TNest::getNestObject()->getTopY() + (dy * ((TSine::scos(TSine::fromDeg(mEndCameraTimer * 12.0f)) + 1.0f) / 4.0f)), 0.0f) + 
             (mEndCameraDistance * TVec3F(TSine::scos(TSine::fromDeg(mEndCameraTimer * -12.0f)), 0.0f, TSine::ssin(TSine::fromDeg(mEndCameraTimer * -12.0f))))
             );
 

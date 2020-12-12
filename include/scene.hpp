@@ -123,6 +123,8 @@ class TTestScene final
     int mColL4Start;
     int mColL4End;
 
+    int mCheatState{0};
+
 //    TObject * mObjects[4];
     TObject * mSky{nullptr};
     

@@ -57,7 +57,7 @@ struct TObjectData{
     float sizez;
 
     float mass;
-    float volume;
+    s16 score;
 
     float drawDist;
 };

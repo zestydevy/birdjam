@@ -105,7 +105,7 @@ class TNestObj :
 
   virtual float getHalfHeight();
   virtual float getHalfWidth();
-  virtual float getScore();
+  virtual int getScore();
 
   const TVec3F & getVelocity() { return mVelocity; } 
   void setVelocity(const TVec3F & vel) { mVelocity = vel; } 
@@ -219,7 +219,7 @@ class TNestObjSphere :
 
   virtual float getHalfHeight() override;
   virtual float getHalfWidth() override;
-  virtual float getScore() override;
+  virtual int getScore() override;
 
   virtual void increaseRadius(float threshold) override;
 
@@ -248,7 +248,7 @@ class TNestObjBox :
 
   virtual float getHalfHeight() override;
   virtual float getHalfWidth() override;
-  virtual float getScore() override;
+  virtual int getScore() override;
 
   virtual void increaseRadius(float threshold) override;
 

@@ -29,6 +29,7 @@
 #include "../models/ovl/sprites/sprite_numfont.h"
 #include "../models/ovl/sprites/sp_hud.h"
 
+
 // -------------------------------------------------------------------------- //
 
 extern Gfx rdpinit_spr_dl[];
@@ -225,6 +226,8 @@ void TTestScene::loadCollision(const s16 collision[], TCollFace * dest, int offs
 
 // -------------------------------------------------------------------------- //
 
+const EButton CACHE_CODE[] = {UP, UP, DOWN, DOWN, LEFT, RIGHT, LEFT, RIGHT, B, A};
+
 void TTestScene::init()
 {
     mStatus = ESceneState::RUNNING;
@@ -402,6 +405,18 @@ void TTestScene::update()
 
     mFlock->update();
     gHud->update();
+
+
+    if (mPad->isPressed(CACHE_CODE[mCheatState])){
+        mCheatState++;
+
+        if (mCheatState == sizeof(CACHE_CODE) / sizeof(EButton)){
+            TFlockObj::getFlockObj()->incFlock(0, SIZE_LAYER3);
+            mCheatState = 0;
+        }
+    }
+    else if (mPad->isPressed((EButton)(A | B | UP | LEFT | RIGHT | DOWN)))
+        mCheatState = 0;
 
     TCollider::frameEnd();
 }

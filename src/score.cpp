@@ -216,7 +216,7 @@ bool TFlockObj::cacheAllObjects() {
     incFlock(1, mHeldObjects[i]->getObjWeight() / 2.0f);
 
     gRank.record(mHeldObjects[i]->getObjType());
-    gHud->addScore((mHeldObjects[i]->getScore() * 0.005f));
+    gHud->addScore((mHeldObjects[i]->getScore()));
   }
 
   int lvl = getPowerLevel();
@@ -260,9 +260,9 @@ float TNestObj::getHalfWidth() {
 
 // -------------------------------------------------------------------------- //
 
-float TNestObj::getScore() {
-  if (mData->volume > 0)
-    return mData->volume;
+int TNestObj::getScore() {
+  if (mData->score > 0)
+    return mData->score;
   return 0.0f;
 }
 
@@ -571,10 +571,10 @@ float TNestObjSphere::getHalfWidth() {
 
 // -------------------------------------------------------------------------- //
 
-float TNestObjSphere::getScore() {
-  if (mData->volume > 0)
-    return mData->volume;
-  return 4 * 3.14f * getCollideRadius() * getCollideRadius();
+int TNestObjSphere::getScore() {
+  if (mData->score > 0)
+    return mData->score;
+  return (int)(4 * 3.14f * getCollideRadius() * getCollideRadius() * 0.005f);
 }
 
 // -------------------------------------------------------------------------- //
@@ -653,10 +653,10 @@ float TNestObjBox::getHalfWidth() {
 
 // -------------------------------------------------------------------------- //
 
-float TNestObjBox::getScore() {
-  if (mData->volume > 0)
-    return mData->volume;
-  return getCollideSize().x() * getCollideSize().y() / 8.0f;
+int TNestObjBox::getScore() {
+  if (mData->score > 0)
+    return mData->score;
+  return (int)(getCollideSize().x() * getCollideSize().y() * getCollideSize().z() * 0.005f);
 }
 
 // -------------------------------------------------------------------------- //
@@ -752,8 +752,8 @@ void TNest::startAssimilateObject(TNestObj * obj){
 // -------------------------------------------------------------------------- //
 
 void TNest::assimilateObject(TNestObj * obj){
-  setCollideRadius(getCollideRadius() + (obj->getScore() * 0.00005f));
-  setCollideHeight(getCollideHeight() + (obj->getScore() * 0.0003f));
+  setCollideRadius(getCollideRadius() + (obj->getScore() / 128.0f));
+  setCollideHeight(getCollideHeight() + (obj->getScore() / 24.0f));
   //setCollideCenter(mPosition + TVec3F(0.0f, -9.0f, 0.0f));
 
   mNestArea->updateSize(mSize);
@@ -808,7 +808,7 @@ void TNestArea::updateSize(float size){
   TVec3F center = mNest->getPosition();
   center.y() = mNest->getTopY() + 2500.0f;
 
-  setCollideRadius(96.0f + (size / 4.0f));
+  setCollideRadius(mNest->getCollideRadius());
   setCollideCenter(center);
 
   updateBlkMap();
