@@ -5,6 +5,7 @@
 #include "animator.hpp"
 #include "util.hpp"
 #include "hud.hpp"
+#include "menu.hpp"
 #include "segment.h"
 
 #include "score.hpp"
@@ -49,7 +50,7 @@ void TPlayer::init()
     mSpeed = 1.0f;
 
     //Load model from ROM
-    if (sFreedomMode){
+    if (TMenuScene::isFreedomMode()) {
         TUtil::toMemory(
             reinterpret_cast<void *>(_eagle_ovlSegmentStart), 
             _eagle_ovlSegmentRomStart, 
@@ -85,12 +86,12 @@ void TPlayer::init()
 
     mCameraTarget = mPosition;
 
-    gHud->startCountDown(5);
+    gHud->startCountDown();
     mGameState = gameplaystate_t::PLAYERGAMESTATE_COUNTDOWN;
 }
 
 void TPlayer::setAnimation(int length, playeranim_t anim, bool loop, float timescale){
-    if (sFreedomMode)
+    if (TMenuScene::isFreedomMode())
     mAnim->setAnimation(*(mAnimLength_Eagle[anim]), mAnimSet_Eagle[anim], loop, timescale);
         else
     mAnim->setAnimation(*(mAnimLength_Normal[anim]), mAnimSet_Normal[anim], loop, timescale);

@@ -348,7 +348,9 @@ class THud {
   void addScore(u32 pts);
   void subScore(u32 pts);
 
-  void startCountDown(u32 minutes);
+  void startCountDown();
+  void stopTimer();
+
   bool isCountedDown() const;
   bool isTimeUp() const;
 

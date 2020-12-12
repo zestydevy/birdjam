@@ -7,6 +7,7 @@
 #include "dynlist.hpp"
 #include "game.hpp"
 #include "math.hpp"
+#include "menu.hpp"
 #include "player.hpp"
 #include "rank.hpp"
 #include "scene.hpp"
@@ -276,7 +277,7 @@ void TNestObj::increaseRadius(float threshold){
 void TNestObj::init() {
   TObject::init();
 
-  if (sFreedomMode)
+  if (TMenuScene::isFreedomMode())
     setMesh(burger_Burger_mesh);
   else
     setMesh(mData->mesh);

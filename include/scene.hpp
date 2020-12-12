@@ -31,7 +31,7 @@ class TScene
     inline TScene(char const * name, TDynList2 * list)
         : mName{name}, mDynList{list} {};
 
-    ~TScene() = default;
+    virtual ~TScene() = default;
     
     virtual void init() = 0;
     virtual void update() = 0;
@@ -75,7 +75,7 @@ class TLogoScene final
     virtual TScene * exit() override;
 
     private:
-    
+
     void runBootTimer();
     void runLogoTimer();
 

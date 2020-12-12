@@ -1,17 +1,18 @@
+
 #include <nusys.h>
 
-#include "scene.hpp"
+#include "audio.hpp"
+#include "collision.h"
+#include "graphic.h"
 #include "heap.hpp"
 #include "player.hpp"
 #include "rank.hpp"
-#include "sprite.hpp"
-#include "staticobj.hpp"
-#include "collision.h"
-#include "util.hpp"
-#include "audio.hpp"
-
+#include "scene.hpp"
 #include "scenedata.h"
 #include "segment.h"
+#include "sprite.hpp"
+#include "staticobj.hpp"
+#include "util.hpp"
 
 #include "../scene/object_info.h"
 
@@ -35,6 +36,28 @@
 extern Gfx rdpinit_spr_dl[];
 extern Gfx rdpinit_dl[];
 extern Gfx rspinit_dl[];
+
+// -------------------------------------------------------------------------- //
+
+Lights2 litc2 = gdSPDefLights2(
+    0x5, 0x5, 0x5, /* ambient color */
+    100, 100, 0,   /* light color */
+    -32, -64, -32, /* normal */
+    50, 50, 0,     /* light color */
+    15, 30, 120    /* normal */
+);
+
+Gfx letters_setup_dl[] = {
+    gsDPPipeSync(),
+    gsDPSetCycleType(G_CYC_1CYCLE),
+    gsSPSetGeometryMode(
+        G_ZBUFFER | G_SHADE | G_SHADING_SMOOTH |
+        G_CULL_BACK | G_LIGHTING
+    ), gsSPSetLights2(litc2),
+    gsDPSetCombineMode (G_CC_SHADE, G_CC_SHADE),
+    gsDPSetRenderMode(G_RM_AA_ZB_OPA_SURF, G_RM_AA_ZB_OPA_SURF2),
+    gsSPEndDisplayList(),
+};
 
 // -------------------------------------------------------------------------- //
 
@@ -425,6 +448,7 @@ void TTestScene::update()
 
 void TTestScene::draw()
 {
+    gSPDisplayList(mDynList->pushDL(), letters_setup_dl);
     //gSPDisplayList(mDynList->pushDL(), rdpinit_spr_dl);
 
     //gSPDisplayList(mDynList->pushDL(), rdpinit_dl);
