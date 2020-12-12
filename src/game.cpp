@@ -320,23 +320,22 @@ void TGame::testRender(u32 taskNum)
     auto game = TGame::getInstance();
     auto scene = game->getCurrentScene();
     
-    switch(scene->getState())
-    {
-        case ESceneState::IDLE:
-            scene->init();
-            break;
-        case ESceneState::RUNNING:
-            scene->update();
-            break;
-        case ESceneState::EXITING:
-            game->setCurrentScene(scene->exit());
-            
-            break;
-    }
-    
     if(taskNum < 3)
     {
         game->update();
+    } if (taskNum == 0) { 
+        switch(scene->getState())
+        {
+            case ESceneState::IDLE:
+                scene->init();
+                break;
+            case ESceneState::RUNNING:
+                scene->update();
+                break;
+            case ESceneState::EXITING:
+                game->setCurrentScene(scene->exit());
+                break;
+        }
     }
 
     game->draw();
