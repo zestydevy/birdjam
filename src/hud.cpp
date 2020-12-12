@@ -192,7 +192,7 @@ void THudScore::update() {
       setOnSprite(SPR_SCORE);
 
       score_y = Lerp<s16>(
-        -95, 5, mStateTimer.get(0.0F, 0.6F)
+        -95, 16, mStateTimer.get(0.0F, 0.6F)
       );
 
       for (u32 i = 0; i < NUM_SCORE_DIGITS; ++i) {
@@ -200,7 +200,7 @@ void THudScore::update() {
         float b = (a + 0.5F);
 
         digit_y[i] = Lagrange<s16>(
-          -40, 70, 34, mStateTimer.get(a, b)
+          -40, 81, 45, mStateTimer.get(a, b)
         );
       }
 
@@ -214,7 +214,7 @@ void THudScore::update() {
       setOnSprite(SPR_SCORE);
 
       score_y = Lerp<s16>(
-        -40, 5, mStateTimer.get(0.0F, 0.75F)
+        -40, 16, mStateTimer.get(0.0F, 0.75F)
       );
 
       for (u32 i = 0; i < NUM_SCORE_DIGITS; ++i) {
@@ -222,7 +222,7 @@ void THudScore::update() {
         float b = (a + 0.6F);
 
         digit_y[i] = Lagrange<s16>(
-          5, 70, 34, mStateTimer.get(a, b)
+          5, 81, 45, mStateTimer.get(a, b)
         );
       }
 
@@ -234,10 +234,10 @@ void THudScore::update() {
     }
     case ST_RAISE: {
       setOnSprite(SPR_SCORE);
-      score_y = Lerp<s16>(5, -25, mStateTimer.get());
+      score_y = Lerp<s16>(16, -25, mStateTimer.get());
 
       for (u32 i = 0; i < NUM_SCORE_DIGITS; ++i) {
-        digit_y[i] = Lerp<s16>(35, 5, mStateTimer.get());
+        digit_y[i] = Lerp<s16>(46, 16, mStateTimer.get());
       }
 
       if (mStateTimer.update()) {
@@ -248,10 +248,10 @@ void THudScore::update() {
     }
     case ST_DOWN: {
       setOnSprite(SPR_SCORE);
-      score_y = 5;
+      score_y = 16;
 
       for (u32 i = 0; i < NUM_SCORE_DIGITS; ++i) {
-        digit_y[i] = 34;
+        digit_y[i] = 45;
       }
 
       break;
@@ -261,7 +261,7 @@ void THudScore::update() {
       score_y = 0;
 
       for (u32 i = 0; i < NUM_SCORE_DIGITS; ++i) {
-        digit_y[i] = 5;
+        digit_y[i] = 16;
       }
 
       break;
@@ -274,10 +274,10 @@ void THudScore::update() {
     }
   }
 
-  mSprite[SPR_SCORE].setPosition({ (s16)9, score_y });
+  mSprite[SPR_SCORE].setPosition({ (s16)16, score_y });
 
   for (u32 i = 0; i < NUM_SCORE_DIGITS; ++i) {
-    s16 x = (s16)(9 + 20 * i);
+    s16 x = (s16)(16 + 20 * i);
 
     if (i >= NUM_INT_PLACES) {
       x += 9;
@@ -289,12 +289,12 @@ void THudScore::update() {
   }
 
   mSprite[SPR_DOT].setPosition({
-    (s16)(9 + 20 * NUM_INT_PLACES),
+    (s16)(16 + 20 * NUM_INT_PLACES),
     (s16)(13 + (digit_y[NUM_INT_PLACES - 1] + digit_y[NUM_INT_PLACES]) / 2),
   });
 
   mSprite[SPR_METRIC].setPosition({
-    (s16)(18 + 20 * NUM_SCORE_DIGITS),
+    (s16)(25 + 20 * NUM_SCORE_DIGITS),
     (s16)(10 + digit_y[NUM_SCORE_DIGITS - 1]),
   });
 
@@ -893,16 +893,16 @@ void THudResults::show() {
   mNumTally = 0;
 
   for (u32 i = 0; i < NUM_DISP_TALLY; ++i) {
-    auto y = (s16)(72 + 20 * i);
+    auto y = (s16)(80 + 20 * i);
 
     mSprite[SPR_TALLY0_TITLE + 3 * i].load(result_balloon_sprite);
     mSprite[SPR_TALLY0_TITLE + 3 * i].setPosition({ (s16)42, y });
 
     mSprite[SPR_TALLY0_DIGIT0 + 3 * i].load(result_digit0_sprite);
-    mSprite[SPR_TALLY0_DIGIT0 + 3 * i].setPosition({ (s16)198, y });
+    mSprite[SPR_TALLY0_DIGIT0 + 3 * i].setPosition({ (s16)190, y });
 
     mSprite[SPR_TALLY0_DIGIT1 + 3 * i].load(result_digit0_sprite);
-    mSprite[SPR_TALLY0_DIGIT1 + 3 * i].setPosition({ (s16)209, y });
+    mSprite[SPR_TALLY0_DIGIT1 + 3 * i].setPosition({ (s16)201, y });
   }
 }
 
@@ -912,7 +912,7 @@ void THudResults::init(u32 rank) {
   mRank = rank;
 
   sRankInfo[RANK_A] = {
-    &result_birda_sprite, { -13, 2 },
+    &result_birda_sprite, { 85, -78 },
     &result_ranka_sprite, { 265, 11 },
     { result_rankaTRUEIMAGEW, result_rankaTRUEIMAGEH },
     &result_stara_sprite, { 245, -13 },
@@ -952,7 +952,7 @@ void THudResults::init(u32 rank) {
   };
 
   sRankInfo[RANK_F] = {
-    &result_birdf_sprite, { 0, 0 },
+    &result_birdf_sprite, { 66, -24 },
     &result_rankf_sprite, { 271, 11 },
     { result_rankfTRUEIMAGEW, result_rankfTRUEIMAGEH },
     nullptr, { 0, 0 }, { 0, 0 },
@@ -985,13 +985,17 @@ void THudResults::init(u32 rank) {
 
     mTally[mMaxNumTally++] = i;
   }
+
+  for (u32 i = 0; i < NUM_SPRITES; ++i) {
+    mSprite[i].setAttributes(SP_TRANSPARENT | SP_FRACPOS);
+  }
 }
 
 // -------------------------------------------------------------------------- //
 
 void THudResults::update() {
-  s16 result_x = 143, rank_x = 0;
-  TVec2S bird_ofs { 0, 0 };
+  s16 result_x = 134, rank_x = 0;
+  TVec2S bird_ofs { 92, -73 };
   TVec2S rank0_pos { 0, 0 };
   TVec2S star_pos { 0, 0 };
 
@@ -1033,7 +1037,7 @@ void THudResults::update() {
     case ST_RESULTS_IN: {
       setOnSprite(SPR_RESULTS);
       setOnSprite(SPR_BIRD);
-      result_x = Sinerp<s16>(350, 143, mStateTimer.get());
+      result_x = Sinerp<s16>(350, 134, mStateTimer.get());
 
       if (mStateTimer.update()) {
         mState = ST_RESULTS_WAIT;
@@ -1050,12 +1054,40 @@ void THudResults::update() {
       break;
     }
     case ST_TALLY: {
-      s16 x = Sinerp<s16>(-200, 42, mStateTimer.get(0.0F, 0.65F));
-      s16 y = mSprite[SPR_TALLY0_TITLE].getPosition().y();
+      s16 x, y;
+      float t;
+
+      x = Sinerp<s16>(-200, 42, mStateTimer.get(0.0F, 0.65F));
+      y = mSprite[SPR_TALLY0_TITLE].getPosition().y();
       mSprite[SPR_TALLY0_TITLE].setPosition({ x, y });
+
+      t = Lagrange<float>(0.0F, 3.0F, 1.0F, mStateTimer.get(0.0F, 0.65F));
+      x = (s16)(190 + (float)result_digit0TRUEIMAGEW * (1.0F - t) * 0.5F);
+      y = (s16)( 80 + (float)result_digit0TRUEIMAGEH * (1.0F - t) * 0.5F);
+
+      mSprite[SPR_TALLY0_DIGIT0].setPosition({ x, y });
+      mSprite[SPR_TALLY0_DIGIT1].setPosition({ (s16)(x + 11), y });
+      mSprite[SPR_TALLY0_DIGIT0].setScale({ t, t });
+      mSprite[SPR_TALLY0_DIGIT1].setScale({ t, t });
+
+      for (u32 i = 1; i < NUM_DISP_TALLY; ++i) {
+        auto y0 = (s16)(80 + 20 * (i - 1));
+        auto y1 = (s16)(80 + 20 * i);
+        y = Sinerp<s16>(y0, y1, mStateTimer.get(0.0F, 0.3F));
+
+        mSprite[SPR_TALLY0_TITLE  + 3 * i].setPosition({ (s16)42,  y });
+        mSprite[SPR_TALLY0_DIGIT0 + 3 * i].setPosition({ (s16)190, y });
+        mSprite[SPR_TALLY0_DIGIT1 + 3 * i].setPosition({ (s16)201, y });
+      }
+
       mStateTimer.update();
 
       if (mStateTimer.off()) {
+        mSprite[SPR_TALLY0_DIGIT0].setPosition({ 190, 80 });
+        mSprite[SPR_TALLY0_DIGIT1].setPosition({ 201, 80 });
+        mSprite[SPR_TALLY0_DIGIT0].setScale({ 1.0F, 1.0F });
+        mSprite[SPR_TALLY0_DIGIT1].setScale({ 1.0F, 1.0F });
+
         if (mNumTally == mMaxNumTally) {
           mState = ST_TALLY_WAIT;
           mStateTimer.set(0.1F);
@@ -1077,7 +1109,7 @@ void THudResults::update() {
     }
     case ST_RANK_IN: {
       setOnSprite(SPR_RANK);
-      rank_x = Sinerp<s16>(480, 145, mStateTimer.get());
+      rank_x = Sinerp<s16>(480, 147, mStateTimer.get());
 
       if (mStateTimer.update()) {
         mState = ST_RANK_STAR;
@@ -1092,7 +1124,7 @@ void THudResults::update() {
       }
 
       setOnSprite(SPR_RANK_0);
-      rank_x = 145;
+      rank_x = 147;
 
       star_pos = sRankInfo[mRank].star_pos;
       rank0_pos = sRankInfo[mRank].rank_pos;
@@ -1133,7 +1165,7 @@ void THudResults::update() {
       bird_ofs = sRankInfo[mRank].bird_ofs;
       star_pos = sRankInfo[mRank].star_pos;
       rank0_pos = sRankInfo[mRank].rank_pos;
-      rank_x = 145;
+      rank_x = 147;
 
       mWaveTimer += kInterval;
 
@@ -1178,12 +1210,12 @@ void THudResults::update() {
   }
 
   mSprite[SPR_BIRD].setPosition({
-    (s16)(result_x + 84 + bird_ofs.x()),
-    (s16)(104 + bird_ofs.y())
+    (s16)(result_x + bird_ofs.x()),
+    (s16)(186 + bird_ofs.y())
   });
 
   mSprite[SPR_RESULTS].setPosition(
-    { result_x, (s16)196 }
+    { result_x, (s16)186 }
   );
 }
 
@@ -1276,7 +1308,7 @@ void THud::update() {
   switch (mState) {
     case ST_COUNTDOWN: {
       if (mStateTimer.update()) {
-        mClock.start((float)(mTimeLimit * 60));
+        mClock.start((float)(mTimeLimit));
         mTime.show(mTimeLimit);
 
         mState = ST_TIME_FLASH;

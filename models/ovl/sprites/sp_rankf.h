@@ -27,9 +27,9 @@ extern Sprite result_rankf_sprite;
 // -------------------------------------------------------------------------- //
 // @result_birdf
 
-#define result_birdfTRUEIMAGEH	100
+#define result_birdfTRUEIMAGEH	31
 #define result_birdfTRUEIMAGEW	100
-#define result_birdfIMAGEH	128
+#define result_birdfIMAGEH	32
 #define result_birdfIMAGEW	128
 #define result_birdfBLOCKSIZEW	32
 #define result_birdfBLOCKSIZEH	32
