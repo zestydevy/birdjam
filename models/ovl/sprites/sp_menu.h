@@ -125,3 +125,5 @@ extern Gfx menu_freedom_dl[];
 extern Sprite menu_freedom_sprite;
 
 // -------------------------------------------------------------------------- //
+
+#endif
