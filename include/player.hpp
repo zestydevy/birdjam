@@ -56,8 +56,6 @@ extern TPlayer * gPlayer;
 
 // -------------------------------------------------------------------------- //
 
-static bool sFreedomMode = false;
-
 class TPlayer :
     public TObject,
     public TSphereCollider

@@ -149,6 +149,14 @@ beginseg
 endseg
 
 beginseg
+	name "menu_ovl"
+	after "code"
+	flags OBJECT
+
+	include "build/obj/sp_menu.o"
+endseg
+
+beginseg
 	name "logo_ovl"
 	after "code"
 	flags OBJECT
@@ -193,6 +201,7 @@ beginwave
 	include "rankc_ovl"
 	include "rankd_ovl"
 	include "rankf_ovl"
+	include "menu_ovl"
 	include "logo_ovl"
 	include "miditable"
 	include "midibank"

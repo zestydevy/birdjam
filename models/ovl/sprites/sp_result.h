@@ -27,10 +27,10 @@ extern Sprite hud_timeup_sprite;
 // -------------------------------------------------------------------------- //
 // @result_bird
 
-#define result_birdTRUEIMAGEH	100
-#define result_birdTRUEIMAGEW	100
-#define result_birdIMAGEH	128
-#define result_birdIMAGEW	128
+#define result_birdTRUEIMAGEH	79
+#define result_birdTRUEIMAGEW	87
+#define result_birdIMAGEH	96
+#define result_birdIMAGEW	96
 #define result_birdBLOCKSIZEW	32
 #define result_birdBLOCKSIZEH	32
 #define result_birdSCALEX	1.0

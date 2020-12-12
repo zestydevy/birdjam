@@ -47,10 +47,10 @@ extern Sprite result_starc_sprite;
 // -------------------------------------------------------------------------- //
 // @result_birdc
 
-#define result_birdcTRUEIMAGEH	100
-#define result_birdcTRUEIMAGEW	100
-#define result_birdcIMAGEH	128
-#define result_birdcIMAGEW	128
+#define result_birdcTRUEIMAGEH	79
+#define result_birdcTRUEIMAGEW	69
+#define result_birdcIMAGEH	96
+#define result_birdcIMAGEW	96
 #define result_birdcBLOCKSIZEW	32
 #define result_birdcBLOCKSIZEH	32
 #define result_birdcSCALEX	1.0

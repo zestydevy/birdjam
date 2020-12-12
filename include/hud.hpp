@@ -287,13 +287,9 @@ class THudResults {
     SPR_TALLY4_DIGIT0,
     SPR_TALLY4_DIGIT1,
 
-    SPR_TALLY5_TITLE,
-    SPR_TALLY5_DIGIT0,
-    SPR_TALLY5_DIGIT1,
-
     NUM_SPRITES,
 
-    NUM_DISP_TALLY = 6
+    NUM_DISP_TALLY = 5
 
   };
 
@@ -352,7 +348,9 @@ class THud {
   void addScore(u32 pts);
   void subScore(u32 pts);
 
-  void startCountDown(u32 minutes);
+  void startCountDown();
+  void stopTimer();
+
   bool isCountedDown() const;
   bool isTimeUp() const;
 

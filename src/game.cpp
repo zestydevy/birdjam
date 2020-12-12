@@ -5,6 +5,7 @@
 #include "pad.hpp"
 #include "animator.hpp"
 #include "math.h"
+#include "menu.hpp"
 #include "graphic.h"
 #include "audio.hpp"
 
@@ -29,7 +30,8 @@ void TGame::init()
 
     //mCamera = new TCamera(mDynList);
 
-    setCurrentScene(new TTestScene("world", mDynList));
+    // setCurrentScene(new TTestScene("world", mDynList));
+    setCurrentScene(new TMenuScene(mDynList));
 
     //initAudio();
 
@@ -97,24 +99,6 @@ Gfx rdpinit_dl[] = {
     gsSPEndDisplayList(),
 };
 
-Lights2 litc2 = gdSPDefLights2(0x5, 0x5, 0x5,		/* ambient color */
-			       100, 100, 0,		/* light color */
-			       -32, -64, -32, 			/* normal */
-			       50, 50, 0,		/* light color */
-			       15, 30, 120); 			/* normal */
-
-
-Gfx letters_setup_dl[] = {
-    gsDPPipeSync(),
-    gsDPSetCycleType(G_CYC_1CYCLE),
-    gsSPSetGeometryMode(G_ZBUFFER | G_SHADE | G_SHADING_SMOOTH | 
-			G_CULL_BACK | G_LIGHTING),
-    gsSPSetLights2(litc2),
-    gsDPSetCombineMode (G_CC_SHADE, G_CC_SHADE),
-    gsDPSetRenderMode(G_RM_AA_ZB_OPA_SURF, G_RM_AA_ZB_OPA_SURF2),
-    gsSPEndDisplayList(),
-};
-
 void TGame::update()
 {   
     mDynList->reset();
@@ -122,11 +106,9 @@ void TGame::update()
     initRcpSegment();
     initZBuffer();
     initFrameBuffer();
-    
-    gSPDisplayList(mDynList->pushDL(), letters_setup_dl);
 
     auto scene = getCurrentScene();
-    
+
     // check for null scene or scene that has not yet been initialized
     if (scene != nullptr && scene->isInitialized()) {
         scene->draw();

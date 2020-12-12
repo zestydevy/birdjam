@@ -5,6 +5,7 @@
 #include "animator.hpp"
 #include "util.hpp"
 #include "hud.hpp"
+#include "menu.hpp"
 #include "segment.h"
 
 #include "score.hpp"
@@ -49,7 +50,7 @@ void TPlayer::init()
     mSpeed = 1.0f;
 
     //Load model from ROM
-    if (sFreedomMode){
+    if (TMenuScene::isFreedomMode()) {
         TUtil::toMemory(
             reinterpret_cast<void *>(_eagle_ovlSegmentStart), 
             _eagle_ovlSegmentRomStart, 
@@ -85,12 +86,12 @@ void TPlayer::init()
 
     mCameraTarget = mPosition;
 
-    gHud->startCountDown(5);
+    gHud->startCountDown();
     mGameState = gameplaystate_t::PLAYERGAMESTATE_COUNTDOWN;
 }
 
 void TPlayer::setAnimation(int length, playeranim_t anim, bool loop, float timescale){
-    if (sFreedomMode)
+    if (TMenuScene::isFreedomMode())
     mAnim->setAnimation(*(mAnimLength_Eagle[anim]), mAnimSet_Eagle[anim], loop, timescale);
         else
     mAnim->setAnimation(*(mAnimLength_Normal[anim]), mAnimSet_Normal[anim], loop, timescale);
@@ -702,7 +703,7 @@ void TPlayer::update()
         mGameState = gameplaystate_t::PLAYERGAMESTATE_FINISHED;
 
         mEndCameraAngle = 0;
-        mEndCameraDistance = 300.0f + TNest::getNestObject()->getSize() / 1.5f;
+        mEndCameraDistance = 300.0f + TNest::getNestObject()->getSize() / 8.0f;
         mEndCameraTimer = 0.0f;
         
         mCamera->setMode(true);
@@ -728,7 +729,7 @@ void TPlayer::update()
 
         mCamera->setPosition(
             TNest::getNestObject()->getPosition() +
-            TVec3F(0.0f, TNest::getNestObject()->getTopY() + (dy + (dy * TSine::scos(TSine::fromDeg(mEndCameraTimer * 12.0f)) / 2.0f)) / 2.0f, 0.0f) +
+            TVec3F(0.0f, TNest::getNestObject()->getTopY() + (dy * ((TSine::scos(TSine::fromDeg(mEndCameraTimer * 12.0f)) + 1.0f) / 4.0f)), 0.0f) + 
             (mEndCameraDistance * TVec3F(TSine::scos(TSine::fromDeg(mEndCameraTimer * -12.0f)), 0.0f, TSine::ssin(TSine::fromDeg(mEndCameraTimer * -12.0f))))
             );
 
