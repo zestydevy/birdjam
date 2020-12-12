@@ -47,10 +47,10 @@ extern Sprite result_ranka_sprite;
 // -------------------------------------------------------------------------- //
 // @result_birda
 
-#define result_birdaTRUEIMAGEH	100
-#define result_birdaTRUEIMAGEW	100
-#define result_birdaIMAGEH	128
-#define result_birdaIMAGEW	128
+#define result_birdaTRUEIMAGEH	83
+#define result_birdaTRUEIMAGEW	81
+#define result_birdaIMAGEH	96
+#define result_birdaIMAGEW	96
 #define result_birdaBLOCKSIZEW	32
 #define result_birdaBLOCKSIZEH	32
 #define result_birdaSCALEX	1.0
