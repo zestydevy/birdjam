@@ -504,7 +504,7 @@ void TTestScene::drawObjects(EDrawLayer layer){
         }
     }
     if (last != nullptr)   //Deinitialize last object if needed
-        gSPDisplayList(mDynList->pushDL(), dlCleanup);
+        gSPDisplayList(mDynList->pushDL(), dlCleanup2);
 }
 
 // -------------------------------------------------------------------------- //
