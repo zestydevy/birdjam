@@ -263,6 +263,7 @@ bool TBlockHeap::init(
   mFreeList->init(kBlockFree, (size - sizeof(TBlock)));
   mAllocHead = mAllocTail = nullptr;
   mNumAllocTail = 0;
+  mGroupID = 255;
   return true;
 }
 
@@ -324,13 +325,15 @@ bool TBlockHeap::free(void * ptr) {
   TBlock * blk = getPtrBlock(ptr);
   TBlock * prev;
 
-  switch (blk->type) {
+  switch (blk->getTypeID()) {
     case kBlockHead: {
       removeBlock(blk, &mAllocHead);
+      --mNumAlloc;
       break;
     }
     case kBlockTail: {
       removeBlock(blk, &mAllocTail);
+      --mNumAllocTail;
       break;
     }
     default: {
@@ -381,6 +384,72 @@ void TBlockHeap::freeAll() {
   mFreeList->init(kBlockFree, (mHeapSize - sizeof(TBlock)));
   mAllocHead = mAllocTail = nullptr;
   mNumAlloc = mNumAllocTail = 0;
+}
+
+// -------------------------------------------------------------------------- //
+
+void TBlockHeap::freeGroup(u8 id) {
+  TBlock * b = mAllocHead;
+  void * ptr;
+
+  while (b != nullptr) {
+    ptr = getBlockPtr(b);
+
+    if (b->getGroupID() != id) {
+      b = b->next;
+      continue;
+    }
+
+    b = b->next;
+    free(ptr);
+  }
+
+  b = mAllocTail;
+
+  while (b != nullptr) {
+    ptr = getBlockPtr(b);
+
+    if (b->getGroupID() != id) {
+      b = b->next;
+      continue;
+    }
+
+    b = b->next;
+    free(ptr);
+  }
+}
+
+// -------------------------------------------------------------------------- //
+
+void TBlockHeap::freeLevel(u8 id) {
+  TBlock * b = mAllocHead;
+  void * ptr;
+
+  while (b != nullptr) {
+    ptr = getBlockPtr(b);
+
+    if (b->getGroupID() < id) {
+      b = b->next;
+      continue;
+    }
+
+    b = b->next;
+    free(ptr);
+  }
+
+  b = mAllocTail;
+
+  while (b != nullptr) {
+    ptr = getBlockPtr(b);
+
+    if (b->getGroupID() < id) {
+      b = b->next;
+      continue;
+    }
+
+    b = b->next;
+    free(ptr);
+  }
 }
 
 // -------------------------------------------------------------------------- //
@@ -534,7 +603,7 @@ bool TBlockHeap::splitBlockHead(
     blk = addPtr(blk, ofs);
   }
 
-  blk->init(kBlockHead, size, ofs);
+  blk->init((kBlockHead | mGroupID), size, ofs);
   insertBlock(blk, &mAllocHead);
 
   if (a != nullptr) {
@@ -588,7 +657,7 @@ bool TBlockHeap::splitBlockTail(
     blk = addPtr(blk, ofs);
   }
 
-  blk->init(kBlockTail, size, ofs);
+  blk->init((kBlockTail | mGroupID), size, ofs);
   insertBlock(blk, &mAllocTail);
 
   if (a != nullptr) {
@@ -610,7 +679,7 @@ bool TBlockHeap::joinBlock(TBlock * blk) {
     return false;
   }
 
-  if (blk->next->type != kBlockFree) {
+  if (blk->next->getTypeID() != kBlockFree) {
     return false;
   }
 
@@ -641,7 +710,7 @@ bool TBlockHeap::isPtrBlock(void * ptr) const {
     return false;
   }
 
-  switch (blk->type) {
+  switch (blk->getTypeID()) {
     case kBlockHead:
     case kBlockTail:
     case kBlockFree: {

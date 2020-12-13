@@ -5,6 +5,7 @@
 #include "collision.h"
 #include "graphic.h"
 #include "heap.hpp"
+#include "menu.hpp"
 #include "player.hpp"
 #include "rank.hpp"
 #include "scene.hpp"
@@ -384,6 +385,10 @@ void TTestScene::update()
     //    mCurrentLayer--;
     //}
 
+    if (mPad->isPressed(EButton::START)) {
+        mStatus = ESceneState::EXITING;
+    }
+
     //Remove layers
     if (mCurrentLayer == 0 && TFlockObj::getFlockObj()->canGrabObject(SIZE_LAYER1)){
         clearCollisions(mColL2Start, mColL2End);
@@ -488,10 +493,9 @@ void TTestScene::draw2D() {
 
 // -------------------------------------------------------------------------- //
 
-TScene * TTestScene::exit()
-{
-    // ...
-    return nullptr;
+TScene *
+TTestScene::exit() {
+    return new TMenuScene { mDynList };
 }
 
 // -------------------------------------------------------------------------- //

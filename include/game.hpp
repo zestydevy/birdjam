@@ -27,21 +27,23 @@ class TGame
     void init();
     void update();
     void draw();
-    
+    void exit();
+
     void initRcpSegment();
     void initZBuffer();
     void initFrameBuffer();
 
-    void setCurrentScene(TScene * scene);
-    TScene * getCurrentScene() {return mSceneList[0];}
+    void setCurrentScene(TScene * scene) { mScene = scene; }
+    TScene * getCurrentScene() {return mScene; }
 
     static void testRender(u32 taskNum);
 
     private:
 
     float mTheta{0.0f};
-    
-    TArray<TScene *> mSceneList{};
+
+    TBlockHeap * mBlockHeap { nullptr };
+    TScene * mScene { nullptr };
     TDynList2 * mDynList{nullptr};
     TDynList2 * mClearDL{nullptr};
     TCamera * mCamera{nullptr};

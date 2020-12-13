@@ -10,41 +10,13 @@
 #include "audio.hpp"
 
 // -------------------------------------------------------------------------- //
+
 TGame * TGame::sGameInstance{nullptr};
 
 extern Gfx setup_rdpstate[];
 extern Gfx setup_rspstate[];
+
 // -------------------------------------------------------------------------- //
-
-TGame::TGame()
-{
-    sGameInstance = this;
-}
-
-void TGame::init()
-{
-    TAudio::init();
-    
-    // allocate dynamic display list
-    mDynList = new TDynList2(2048, nullptr);
-
-    //mCamera = new TCamera(mDynList);
-
-    // setCurrentScene(new TTestScene("world", mDynList));
-    setCurrentScene(new TMenuScene(mDynList));
-
-    //initAudio();
-
-    //TTask::build(ETaskCode::F3DEX2, true);
-
-    //Set up model animator
-    //Vtx* birdMeshes[] = {bird_Bird_mesh_vtx_0, bird_Bird_mesh_vtx_1, bird_Bird_mesh_vtx_2, bird_Bird_mesh_vtx_3};
-    //Vtx** birdAnims[] = {bird_Bird_Walk_0, bird_Bird_Walk_1, bird_Bird_Walk_2, bird_Bird_Walk_3};
-    //int meshSizes[] = {265, 75, 59, 8};
-
-    //mBirdAnim = new TAnimator(4, birdMeshes, meshSizes);
-    //mBirdAnim->setAnimation(bird_Bird_Walk_Length, birdAnims);
-}
 
 static Vp vp = {
 	SCREEN_WD*2, SCREEN_HT*2, G_MAXZ/2, 0,	/* scale */
@@ -98,6 +70,41 @@ Gfx rdpinit_dl[] = {
     gsDPPipeSync(),
     gsSPEndDisplayList(),
 };
+
+// -------------------------------------------------------------------------- //
+
+TGame::TGame()
+{
+    sGameInstance = this;
+}
+
+void TGame::init()
+{
+    TAudio::init();
+
+    // allocate dynamic display list
+    mDynList = new TDynList2(2048, nullptr);
+
+    //mCamera = new TCamera(mDynList);
+
+    mBlockHeap = (TBlockHeap *)THeap::getCurrentHeap();
+    mScene = new TMenuScene(mDynList);
+    mBlockHeap->setGroupID(69);
+
+    //initAudio();
+
+    //TTask::build(ETaskCode::F3DEX2, true);
+
+    //Set up model animator
+    //Vtx* birdMeshes[] = {bird_Bird_mesh_vtx_0, bird_Bird_mesh_vtx_1, bird_Bird_mesh_vtx_2, bird_Bird_mesh_vtx_3};
+    //Vtx** birdAnims[] = {bird_Bird_Walk_0, bird_Bird_Walk_1, bird_Bird_Walk_2, bird_Bird_Walk_3};
+    //int meshSizes[] = {265, 75, 59, 8};
+
+    //mBirdAnim = new TAnimator(4, birdMeshes, meshSizes);
+    //mBirdAnim->setAnimation(bird_Bird_Walk_Length, birdAnims);
+}
+
+// -------------------------------------------------------------------------- //
 
 void TGame::update()
 {   
@@ -162,8 +169,9 @@ void TGame::update()
     nuDebConDisp(NU_SC_SWAPBUFFER);
 
     mDynList->flip();
-
 }
+
+// -------------------------------------------------------------------------- //
 
 void TGame::draw()
 {
@@ -244,6 +252,25 @@ void TGame::draw()
     */
 }
 
+// -------------------------------------------------------------------------- //
+
+void TGame::exit() {
+    TScene * next;
+
+    // make sure the next TScene pointer is allocated in group 255
+    mBlockHeap->setGroupID(255);
+    next = mScene->exit();
+
+    // free all objects from the old scene (group 69)
+    mBlockHeap->setGroupID(69);
+    mBlockHeap->freeGroup(69);
+
+    delete mScene;
+    mScene = next;
+}
+
+// -------------------------------------------------------------------------- //
+
 // tell the RCP where each segment is
 void TGame::initRcpSegment()
 {
@@ -265,6 +292,8 @@ void TGame::initRcpSegment()
     */
 }
 
+// -------------------------------------------------------------------------- //
+
 void TGame::initZBuffer()
 {
     gDPSetDepthImage(mDynList->pushDL(), OS_K0_TO_PHYSICAL(nuGfxZBuffer));
@@ -277,6 +306,8 @@ void TGame::initZBuffer()
     gDPPipeSync(mDynList->pushDL());
 }
 
+// -------------------------------------------------------------------------- //
+
 void TGame::initFrameBuffer()
 {
     gDPSetColorImage(mDynList->pushDL(), G_IM_FMT_RGBA, G_IM_SIZ_16b, kResWidth,
@@ -286,27 +317,16 @@ void TGame::initFrameBuffer()
     gDPFillRectangle(mDynList->pushDL(), 0, 0, kResWidth-1, kResHeight-1);
 }
 
-void TGame::setCurrentScene(TScene * scene)
-{
-    // for now we're only handling one scene at a time
-    if (mSceneList.capacity() == 0) {
-        // set scene array's heap for TArray
-        mSceneList.setHeap(THeap::getCurrentHeap());
-        mSceneList.push(scene);
-    } else {
-        //mSceneList.pop();
-        //mSceneList.push(scene);
-        mSceneList[0] = scene;
-    }
-}
+// -------------------------------------------------------------------------- //
 
 void TGame::testRender(u32 taskNum)
 {
-    
     auto game = TGame::getInstance();
     auto scene = game->getCurrentScene();
-    if (taskNum > 1)
-        return; 
+
+    if (taskNum > 1) {
+        return;
+    }
 
     switch(scene->getState())
     {
@@ -317,14 +337,15 @@ void TGame::testRender(u32 taskNum)
             scene->update();
             break;
         case ESceneState::EXITING:
-            game->setCurrentScene(scene->exit());
+            game->exit();
             break;
     }
 
     game->update();
-
     game->draw();
 
     // 30 fps
     nuGfxRetraceWait(2);
 }
+
+// -------------------------------------------------------------------------- //

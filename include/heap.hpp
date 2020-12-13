@@ -140,11 +140,16 @@ class TBlockHeap final :
   virtual void freeTail() override;
   virtual void freeAll() override;
 
+  u8 getGroupID() const { return mGroupID; }
+  void setGroupID(u8 id) { mGroupID = id; }
+  void freeGroup(u8 id);
+  void freeLevel(u8 id);
+
   protected:
 
-  static constexpr u32 kBlockHead = 0x0D15EA5E;
-  static constexpr u32 kBlockTail = 0x0BADF00D;
-  static constexpr u32 kBlockFree = 0xFEEDFACE;
+  static constexpr u32 kBlockHead = 0x02FEED00;
+  static constexpr u32 kBlockTail = 0x01FACE00;
+  static constexpr u32 kBlockFree = 0x2B00B500;
 
   struct TBlock {
 
@@ -163,12 +168,21 @@ class TBlockHeap final :
       this->next = next;
     }
 
+    u8 getGroupID() const {
+      return (u8)(type & 0xFF);
+    }
+
+    u32 getTypeID() const {
+      return (type & 0xFFFFFF00);
+    }
+
   };
 
   TBlock * mAllocHead { nullptr };
   TBlock * mAllocTail { nullptr };
   TBlock * mFreeList { nullptr };
   u32 mNumAllocTail { 0 };
+  u8 mGroupID { 255 };
 
   void * allocHead(u32, s32);
   void * allocTail(u32, s32);
