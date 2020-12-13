@@ -17,9 +17,9 @@ void TRank::reset() {
   }
 
   // test
-  mTally[TALLY_BALLOONS] = 13;
-  mTally[TALLY_CATS] = 9;
-  mTally[TALLY_CITIZENS] = 3;
+  //mTally[TALLY_BALLOONS] = 13;
+  //mTally[TALLY_CATS] = 9;
+  //mTally[TALLY_CITIZENS] = 3;
 }
 
 // -------------------------------------------------------------------------- //
