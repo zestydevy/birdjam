@@ -15,11 +15,6 @@ void TRank::reset() {
   for (u32 i = 0; i < NUM_TALLY; ++i) {
     mTally[i] = 0;
   }
-
-  // test
-  //mTally[TALLY_BALLOONS] = 13;
-  //mTally[TALLY_CATS] = 9;
-  //mTally[TALLY_CITIZENS] = 3;
 }
 
 // -------------------------------------------------------------------------- //

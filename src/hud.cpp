@@ -1094,8 +1094,14 @@ void THudResults::init(u32 rank) {
     mSprite[SPR_STAR].load(*sRankInfo[rank].star_spr);
   }
 
+  mSprite[SPR_TALLY_UP].load(result_up_sprite);
+  mSprite[SPR_TALLY_UP].setPosition({ 18, 77 });
+  mSprite[SPR_TALLY_DOWN].load(result_down_sprite);
+  mSprite[SPR_TALLY_DOWN].setPosition({ 18, 157 });
+
   mMaxNumTally = 0;
   mNumTally = 0;
+  mTallyOfs = 0;
 
   for (u8 i = 0; i < NUM_TALLY; ++i) {
     if (gRank.get(i) == 0) {
@@ -1107,12 +1113,13 @@ void THudResults::init(u32 rank) {
 
   for (u32 i = 0; i < NUM_SPRITES; ++i) {
     mSprite[i].setAttributes(SP_TRANSPARENT | SP_FRACPOS);
+    setOffSprite(i);
   }
 }
 
 // -------------------------------------------------------------------------- //
 
-void THudResults::update(TPad * pad) {
+void THudResults::update(TPad const * pad) {
   s16 result_x = 134, rank_x = 0;
   TVec2S bird_ofs { 92, -74 };
   TVec2S rank0_pos { 0, 0 };
@@ -1124,7 +1131,7 @@ void THudResults::update(TPad * pad) {
     u32 digits[2];
 
     for (u32 i = 0; i < count; ++i) {
-      tally = mTally[mNumTally - i - 1];
+      tally = mTally[mNumTally - (mTallyOfs + i) - 1];
       value = gRank.get(tally);
 
       THud::splitDigits(value, digits, 2);
@@ -1327,8 +1334,60 @@ void THudResults::update(TPad * pad) {
     }
   }
 
-  if (mResultState == EResultState::WAIT) {
-    // TODO up/down movement
+  if (
+    (mResultState == EResultState::WAIT) &&
+    (mMaxNumTally > NUM_DISP_TALLY)
+  ) {
+    int dir = 0;
+
+    if (isPressUp(pad)) {
+      ++dir;
+    }
+
+    if (isPressDown(pad)) {
+      --dir;
+    }
+
+    if (dir != 0) {
+      bool move = false;
+
+      if (mMenuDir != dir) {
+        mMenuTimer = 0.0F;
+        move = true;
+      } else {
+        mMenuTimer += kInterval;
+
+        if (mMenuTimer >= 0.2F) {
+          mMenuTimer -= 0.2F;
+          move = true;
+        }
+      }
+
+      if (move) {
+        if (dir > 0 && mTallyOfs > 0) {
+          --mTallyOfs;
+        } else if (dir < 0 && mTallyOfs < (mMaxNumTally - NUM_DISP_TALLY)) {
+          ++mTallyOfs;
+        }
+      }
+
+      mMenuDir = dir;
+    } else {
+      mMenuTimer = 0.0F;
+      mMenuDir = 0;
+    }
+
+    if (mTallyOfs == 0) {
+      setOffSprite(SPR_TALLY_UP);
+    } else {
+      setOnSprite(SPR_TALLY_UP);
+    }
+
+    if (mTallyOfs == mMaxNumTally - NUM_DISP_TALLY) {
+      setOffSprite(SPR_TALLY_DOWN);
+    } else {
+      setOnSprite(SPR_TALLY_DOWN);
+    }
   }
 
   if (mState != ST_HIDE) {
@@ -1364,6 +1423,38 @@ void THudResults::draw() {
 
     mSprite[i].draw();
   }
+}
+
+// -------------------------------------------------------------------------- //
+
+bool THudResults::isPressUp(
+  TPad const * pad
+) const {
+  if (pad->getAnalogY() > 20) {
+    return true;
+  }
+
+  if (pad->isHeld((EButton)(EButton::UP | EButton::C_UP))) {
+    return true;
+  }
+
+  return false;
+}
+
+// -------------------------------------------------------------------------- //
+
+bool THudResults::isPressDown(
+  TPad const * pad
+) const {
+  if (pad->getAnalogY() < -20) {
+    return true;
+  }
+
+  if (pad->isHeld((EButton)(EButton::DOWN | EButton::C_DOWN))) {
+    return true;
+  }
+
+  return false;
 }
 
 // -------------------------------------------------------------------------- //
@@ -1468,7 +1559,7 @@ void THud::update() {
       case ST_COUNTDOWN: {
         if (mStateTimer.update()) {
           if (mTimeLimit != 0) {
-            mClock.start((float)(mTimeLimit * 60));
+            mClock.start((float)(mTimeLimit));
             mTime.show(mTimeLimit);
 
             mState = ST_TIME_FLASH;

@@ -38,12 +38,12 @@ class TPad
     static void init();
     void read();
 
-    bool isPressed(EButton const button);
-    bool isHeld(EButton const button);
-    bool isReleased(EButton const button);
+    bool isPressed(EButton button) const;
+    bool isHeld(EButton button) const;
+    bool isReleased(EButton button) const;
 
-    s8 getAnalogX();
-    s8 getAnalogY();
+    s8 getAnalogX() const;
+    s8 getAnalogY() const;
 
     private:
 

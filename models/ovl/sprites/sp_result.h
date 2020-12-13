@@ -807,8 +807,8 @@ extern Sprite result_rank_sprite;
 // -------------------------------------------------------------------------- //
 // @result_up
 
-#define result_upTRUEIMAGEH	14
-#define result_upTRUEIMAGEW	16
+#define result_upTRUEIMAGEH	20
+#define result_upTRUEIMAGEW	18
 #define result_upIMAGEH	32
 #define result_upIMAGEW	32
 #define result_upBLOCKSIZEW	32
@@ -827,8 +827,8 @@ extern Sprite result_up_sprite;
 // -------------------------------------------------------------------------- //
 // @result_down
 
-#define result_downTRUEIMAGEH	14
-#define result_downTRUEIMAGEW	16
+#define result_downTRUEIMAGEH	20
+#define result_downTRUEIMAGEW	18
 #define result_downIMAGEH	32
 #define result_downIMAGEW	32
 #define result_downBLOCKSIZEW	32

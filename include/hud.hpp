@@ -296,7 +296,7 @@ class THudResults {
   void show();
 
   void init(u32 rank);
-  void update(TPad * pad);
+  void update(TPad const * pad);
   void draw();
 
   EResultState getState() const {
@@ -326,6 +326,9 @@ class THudResults {
     SPR_STAR,
     SPR_RANK,
     SPR_RANK_0,
+
+    SPR_TALLY_UP,
+    SPR_TALLY_DOWN,
 
     SPR_TALLY0_TITLE,
     SPR_TALLY0_DIGIT0,
@@ -379,10 +382,16 @@ class THudResults {
   u8 mTally[NUM_TALLY];
   u8 mMaxNumTally { 0 };
   u8 mNumTally { 0 };
+  u8 mTallyOfs { 0 };
   float mWaveTimer { 0.0F };
+  float mMenuTimer { 0.0F };
+  int mMenuDir { 0 };
   u32 mRank { 0 };
 
   static TRankInfo sRankInfo[NUM_RANKS];
+
+  bool isPressUp(TPad const *) const;
+  bool isPressDown(TPad const *) const;
 
   void setOffSprite(u32 i) { mSpriteMask |= (1U << i); }
   void setOnSprite(u32 i) { mSpriteMask &= ~(1U << i); }

@@ -34,21 +34,21 @@ void TPad::read()
 
 // -------------------------------------------------------------------------- //
 
-bool TPad::isPressed(EButton const button)
+bool TPad::isPressed(EButton const button) const
 {
     return (sConts[mPadNum].trigger & (static_cast<u16>(button)));
 }
 
 // -------------------------------------------------------------------------- //
 
-bool TPad::isHeld(EButton const button)
+bool TPad::isHeld(EButton const button) const
 {
     return (sConts[mPadNum].button & static_cast<u16>(button));
 }
 
 // -------------------------------------------------------------------------- //
 
-bool TPad::isReleased(EButton const button)
+bool TPad::isReleased(EButton const button) const
 {
     return (!(sConts[mPadNum].button & static_cast<u16>(button)) && 
         (mPrevButton & static_cast<u16>(button)));
@@ -56,7 +56,7 @@ bool TPad::isReleased(EButton const button)
 
 // -------------------------------------------------------------------------- //
 
-s8 TPad::getAnalogX()
+s8 TPad::getAnalogX() const
 {
     if (mAnalogX > -DEADZONE && mAnalogX < DEADZONE)
         return 0;
@@ -65,7 +65,7 @@ s8 TPad::getAnalogX()
 
 // -------------------------------------------------------------------------- //
 
-s8 TPad::getAnalogY()
+s8 TPad::getAnalogY() const
 {
     if (mAnalogY > -DEADZONE && mAnalogY < DEADZONE)
         return 0;
