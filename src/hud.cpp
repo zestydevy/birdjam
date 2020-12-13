@@ -1119,7 +1119,7 @@ void THudResults::update(TPad * pad) {
   TVec2S star_pos { 0, 0 };
 
   if (mState != ST_HIDE) {
-    u32 count = TMath<u32>::min(8, mNumTally);
+    u32 count = TMath<u32>::min(NUM_DISP_TALLY, mNumTally);
     u32 tally, value;
     u32 digits[2];
 
