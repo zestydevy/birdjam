@@ -71,19 +71,6 @@ void TCamera::jumpToTarget(){
 }
 
 void TCamera::drawWindow(float scale){
-    TMtx44 temp1, temp2, temp3;
-    
-    mWindowPosMtx.translate(mOldPos + (mForward * 1125.0f * 45.0f / mFov));
-
-    temp1.rotateAxisX(0);
-    temp2.rotateAxisY(TSine::atan2(-mForward.z(), mForward.x()));
-    temp3.rotateAxisZ(TSine::acos(mForward.xz().getLength()) * (mForward.y() >= 0.0f ? 1.0f : -1.0f));
-    TMtx44::concat(temp2, temp1, mWindowRotMtx);
-    TMtx44::concat(mWindowRotMtx, temp3, mWindowRotMtx);
-
-    TMtx44::floatToFixed(mWindowPosMtx, mFWindowPosMtx);
-    TMtx44::floatToFixed(mWindowRotMtx, mFWindowRotMtx);
-
     gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFWindowPosMtx),
 	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
     gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFWindowRotMtx),
@@ -173,6 +160,21 @@ void TCamera::render()
 
     mForward = *mTarget - mOldPos;
     mForward.normalize();
+
+
+    // update facing mtx
+    TMtx44 temp1, temp2, temp3;
+    
+    mWindowPosMtx.translate(mOldPos + (mForward * 1125.0f * 45.0f / mFov));
+
+    temp1.rotateAxisX(0);
+    temp2.rotateAxisY(TSine::atan2(-mForward.z(), mForward.x()));
+    temp3.rotateAxisZ(TSine::acos(mForward.xz().getLength()) * (mForward.y() >= 0.0f ? 1.0f : -1.0f));
+    TMtx44::concat(temp2, temp1, mWindowRotMtx);
+    TMtx44::concat(mWindowRotMtx, temp3, mWindowRotMtx);
+
+    TMtx44::floatToFixed(mWindowPosMtx, mFWindowPosMtx);
+    TMtx44::floatToFixed(mWindowRotMtx, mFWindowRotMtx);
 }
 
 // -------------------------------------------------------------------------- //

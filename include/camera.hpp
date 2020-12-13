@@ -29,6 +29,7 @@ class TCamera
     float getFOV() {return mFov;}
     void setFOV(float fovy) {mFov = fovy;}
     void drawWindow(float scale = 1.0f);
+    static const Mtx * getFacingMtx() { return &(sCamera->mFWindowRotMtx); }
 
     void jumpToTarget();
 

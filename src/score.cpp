@@ -425,6 +425,8 @@ void TNestObj::draw() {
 void TNestObj::drawRing() {
   gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFHighlightRingMtx),
       G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
+  gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(TCamera::getFacingMtx()),
+      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
   gSPDisplayList(mDynList->pushDL(), highlightring_HighlightRing_mesh);
   gSPPopMatrix(mDynList->pushDL(), G_MTX_MODELVIEW);
 }
@@ -469,7 +471,7 @@ void TNestObj::updateMtx()
     if (mState == EState::IDLE){
       TMtx44 temp1, mPosMtx, mScaleMtx;
       mPosMtx.translate(mPosition);
-      mScaleMtx.scale(TVec3F(0.007f, 0.007f, 0.007f) * getHalfHeight());
+      mScaleMtx.scale(TVec3F(0.01f, 0.01f, 0.01f) * getHalfHeight());
 
       //Combine mtx
       TMtx44::concat(mPosMtx, mScaleMtx, temp1);

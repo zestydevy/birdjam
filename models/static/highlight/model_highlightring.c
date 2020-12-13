@@ -293,32 +293,20 @@ u8 highlightring_ring_i4[] = {
 	
 };
 
-Vtx highlightring_HighlightRing_mesh_vtx_0[21] = {
-	{{{0, -213, 213},0, {168, 114},{0x7F, 0x0, 0x0, 0xFF}}},
-	{{{0, -213, 0},0, {168, 2275},{0x7F, 0x0, 0x0, 0xFF}}},
-	{{{0, 0, 0},0, {2262, 2275},{0x7F, 0x0, 0x0, 0xFF}}},
-	{{{0, -213, -213},0, {168, 114},{0x7F, 0x0, 0x0, 0xFF}}},
-	{{{0, 0, -213},0, {2262, 114},{0x7F, 0x0, 0x0, 0xFF}}},
-	{{{0, 213, -213},0, {168, 114},{0x7F, 0x0, 0x0, 0xFF}}},
-	{{{0, 213, 0},0, {168, 2275},{0x7F, 0x0, 0x0, 0xFF}}},
-	{{{0, 213, 213},0, {168, 114},{0x7F, 0x0, 0x0, 0xFF}}},
-	{{{0, 0, 213},0, {2262, 114},{0x7F, 0x0, 0x0, 0xFF}}},
-	{{{213, -213, 0},0, {168, 114},{0x0, 0x0, 0x81, 0xFF}}},
-	{{{0, -213, 0},0, {168, 2275},{0x0, 0x0, 0x81, 0xFF}}},
-	{{{0, 0, 0},0, {2262, 2275},{0x0, 0x0, 0x81, 0xFF}}},
-	{{{-213, -213, 0},0, {168, 114},{0x0, 0x0, 0x81, 0xFF}}},
-	{{{-213, 0, 0},0, {2262, 114},{0x0, 0x0, 0x81, 0xFF}}},
-	{{{-213, 213, 0},0, {168, 114},{0x0, 0x0, 0x81, 0xFF}}},
-	{{{0, 213, 0},0, {168, 2275},{0x0, 0x0, 0x81, 0xFF}}},
-	{{{213, 213, 0},0, {168, 114},{0x0, 0x0, 0x81, 0xFF}}},
-	{{{0, 0, 0},0, {2262, 2275},{0x0, 0x0, 0x81, 0xFF}}},
-	{{{0, 213, 0},0, {168, 2275},{0x0, 0x0, 0x81, 0xFF}}},
-	{{{213, 0, 0},0, {2262, 114},{0x0, 0x0, 0x81, 0xFF}}},
-	{{{213, -213, 0},0, {168, 114},{0x0, 0x0, 0x81, 0xFF}}},
+Vtx highlightring_HighlightRing_mesh_vtx_0[9] = {
+	{{{0, -213, 213},0, {-30, -30},{0x7F, 0x0, 0x0, 0xFF}}},
+	{{{0, -213, 0},0, {-30, 2018},{0x7F, 0x0, 0x0, 0xFF}}},
+	{{{0, 0, 0},0, {2018, 2018},{0x7F, 0x0, 0x0, 0xFF}}},
+	{{{0, -213, -213},0, {-30, -30},{0x7F, 0x0, 0x0, 0xFF}}},
+	{{{0, 0, -213},0, {2018, -30},{0x7F, 0x0, 0x0, 0xFF}}},
+	{{{0, 213, -213},0, {-30, -30},{0x7F, 0x0, 0x0, 0xFF}}},
+	{{{0, 213, 0},0, {-30, 2018},{0x7F, 0x0, 0x0, 0xFF}}},
+	{{{0, 213, 213},0, {-30, -30},{0x7F, 0x0, 0x0, 0xFF}}},
+	{{{0, 0, 213},0, {2018, -30},{0x7F, 0x0, 0x0, 0xFF}}},
 };
 
 Gfx highlightring_HighlightRing_mesh_tri_0[] = {
-	gsSPVertex(highlightring_HighlightRing_mesh_vtx_0 + 0, 16, 0),
+	gsSPVertex(highlightring_HighlightRing_mesh_vtx_0 + 0, 9, 0),
 	gsSP1Triangle(0, 1, 2, 0),
 	gsSP1Triangle(3, 2, 1, 0),
 	gsSP1Triangle(3, 4, 2, 0),
@@ -327,18 +315,8 @@ Gfx highlightring_HighlightRing_mesh_tri_0[] = {
 	gsSP1Triangle(7, 2, 6, 0),
 	gsSP1Triangle(7, 8, 2, 0),
 	gsSP1Triangle(0, 2, 8, 0),
-	gsSP1Triangle(9, 10, 11, 0),
-	gsSP1Triangle(12, 11, 10, 0),
-	gsSP1Triangle(12, 13, 11, 0),
-	gsSP1Triangle(14, 11, 13, 0),
-	gsSP1Triangle(14, 15, 11, 0),
-	gsSPVertex(highlightring_HighlightRing_mesh_vtx_0 + 16, 5, 0),
-	gsSP1Triangle(0, 1, 2, 0),
-	gsSP1Triangle(0, 3, 1, 0),
-	gsSP1Triangle(4, 1, 3, 0),
 	gsSPEndDisplayList(),
 };
-
 
 Gfx mat_highlightring_Dither_f3d[] = {
 	gsDPPipeSync(),
