@@ -37,7 +37,7 @@ bool TCamera::checkVisible(const TVec3F & pos, float drawDistance = 100000000.0f
     if (dif.dot(dif) > drawDistance)
         return false;
     dif.normalize();
-    return dif.dot(sCamera->mForward) > 0.1f;
+    return dif.dot(sCamera->mForward) > 0.3f;
 }
 bool TCamera::checkClipping(const TVec3F & pos, float radius, bool ignoreBehind){
     TVec3F dif = pos - sCamera->mOldPos;

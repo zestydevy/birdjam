@@ -107,6 +107,10 @@ void TGame::update()
     initZBuffer();
     initFrameBuffer();
 
+    gDPPipelineMode(mDynList->pushDL(), G_PM_NPRIMITIVE);
+    gDPSetScissor(mDynList->pushDL(), G_SC_NON_INTERLACE, 10, 10, kResWidth - 10, kResHeight - 10);
+    //gDPSetScissor(mDynList->pushDL(), G_SC_NON_INTERLACE, -80, -80, kResWidth + 80, kResHeight + 80);
+
     auto scene = getCurrentScene();
 
     // check for null scene or scene that has not yet been initialized
@@ -301,24 +305,23 @@ void TGame::testRender(u32 taskNum)
     
     auto game = TGame::getInstance();
     auto scene = game->getCurrentScene();
-    
-    if(taskNum < 3)
+    if (taskNum > 1)
+        return; 
+
+    switch(scene->getState())
     {
-        game->update();
-    } if (taskNum == 0) { 
-        switch(scene->getState())
-        {
-            case ESceneState::IDLE:
-                scene->init();
-                break;
-            case ESceneState::RUNNING:
-                scene->update();
-                break;
-            case ESceneState::EXITING:
-                game->setCurrentScene(scene->exit());
-                break;
-        }
+        case ESceneState::IDLE:
+            scene->init();
+            break;
+        case ESceneState::RUNNING:
+            scene->update();
+            break;
+        case ESceneState::EXITING:
+            game->setCurrentScene(scene->exit());
+            break;
     }
+
+    game->update();
 
     game->draw();
 
