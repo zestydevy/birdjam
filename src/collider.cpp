@@ -196,6 +196,10 @@ void TCollider::frameEnd() {
 // -------------------------------------------------------------------------- //
 
 void TCollider::updateBlkMap() {
+  if (!mActive) {
+    return;
+  }
+
   TCollider ** list = blkMapCell(mCenter);
 
   if (list == mBlkMap) {
