@@ -1559,7 +1559,7 @@ void THud::update() {
       case ST_COUNTDOWN: {
         if (mStateTimer.update()) {
           if (mTimeLimit != 0) {
-            mClock.start((float)(mTimeLimit));
+            mClock.start((float)(mTimeLimit * 60));
             mTime.show(mTimeLimit);
 
             mState = ST_TIME_FLASH;
