@@ -21,6 +21,8 @@ void CApp::init()
 {   
     nuGfxInit();
 
+    osViSetEvent(&nusched.retraceMQ, (OSMesg)666, 2);
+    
     TPad::init();
     TSine::startup(10);
     

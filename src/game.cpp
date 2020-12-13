@@ -129,6 +129,8 @@ void TGame::update()
     gDPFullSync(mDynList->pushDL());
 	gSPEndDisplayList(mDynList->pushDL());
 
+    osWritebackDCache(mDynList->getHead(), 2048);
+    
     nuGfxTaskStart(mDynList->getHead(),
         (s32)(mDynList->fetchCmdIndex()) * sizeof (Gfx),
 	    NU_GFX_UCODE_F3DEX, NU_SC_NOSWAPBUFFER);
@@ -153,6 +155,8 @@ void TGame::update()
     gDPFullSync(mDynList->pushDL());
 	gSPEndDisplayList(mDynList->pushDL());
 
+    osWritebackDCache(mDynList->getHead(), 2048);
+    
     nuGfxTaskStart(mDynList->getHead(),
         (s32)(mDynList->fetchCmdIndex()) * sizeof (Gfx),
 	    NU_GFX_UCODE_F3DEX, NU_SC_NOSWAPBUFFER);
@@ -324,9 +328,7 @@ void TGame::testRender(u32 taskNum)
     auto game = TGame::getInstance();
     auto scene = game->getCurrentScene();
 
-    if (taskNum > 1) {
-        return;
-    }
+    if (taskNum > 3) return;
 
     switch(scene->getState())
     {
@@ -343,9 +345,6 @@ void TGame::testRender(u32 taskNum)
 
     game->update();
     game->draw();
-
-    // 30 fps
-    nuGfxRetraceWait(2);
 }
 
 // -------------------------------------------------------------------------- //

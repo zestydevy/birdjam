@@ -16,6 +16,8 @@ TDynList2::TDynList2(
   mHeap = heap;
   mGfxAry = new(mHeap) Gfx[len];
   mGfxAry2 = new(mHeap) Gfx[len];
+  mGfxAry3 = new(mHeap) Gfx[len];
+  mGfxAry4 = new(mHeap) Gfx[len];
   mMaxNumGfx = len;
 
   mProjMtx = getIdentityMtx();
@@ -27,6 +29,8 @@ TDynList2::TDynList2(
 TDynList2::~TDynList2() {
   delete[] mGfxAry;
   delete[] mGfxAry2;
+  delete[] mGfxAry3;
+  delete[] mGfxAry4;
 }
 
 // -------------------------------------------------------------------------- //
@@ -48,10 +52,11 @@ Gfx * TDynList2::getDL() const {
     return nullptr;
   }
 
-  if (mFrameNum) {
-    return &mGfxAry2[mNumGfx];
-  } else {
-    return &mGfxAry[mNumGfx];
+  switch (mFrameNum) {
+    case 0: return &mGfxAry[mNumGfx]; break;
+    case 1: return &mGfxAry2[mNumGfx]; break;
+    case 2: return &mGfxAry3[mNumGfx]; break;
+    case 3: return &mGfxAry4[mNumGfx]; break;
   }
 
 }
@@ -71,10 +76,11 @@ Gfx * TDynList2::pushDL() {
 // -------------------------------------------------------------------------- //
 
 Gfx * TDynList2::getHead() {
-  if (mFrameNum) {
-    return mGfxAry2;
-  } else {
-    return mGfxAry;
+  switch (mFrameNum) {
+    case 0: return mGfxAry; break;
+    case 1: return mGfxAry2; break;
+    case 2: return mGfxAry3; break;
+    case 3: return mGfxAry4; break;
   }
 }
 
