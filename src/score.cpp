@@ -451,6 +451,11 @@ void TNestObj::updateMtx()
     TObject::updateMtx();
     //TMtx44::transpose(mRotMtx, mIRotMtx);
 
+    updateCollider();
+
+    if (!mInCamera)
+      return;
+
     if (mState == EState::CARRYING){
       TMtx44 temp1, temp2, temp3, mMountRotMtx;
       mMountRotMtx.identity();
@@ -471,8 +476,6 @@ void TNestObj::updateMtx()
 
       TMtx44::floatToFixed(temp1, mFHighlightRingMtx);
     }
-
-    updateCollider();
 }
 
 // -------------------------------------------------------------------------- //
