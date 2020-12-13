@@ -104,7 +104,7 @@ void TFlockObj::update() {
   if (mTotalObjects - mCachedObjects <= 50)
     mMaxPickedUpSize = 0.0f;
   
-  mDoHighlight = mHighlightTimer > 0.0f && fmod(mHighlightTimer, 1.0f) > 0.5f;
+  mDoHighlight = gHud->isCountedDown() && !gHud->isTimeUp() && mHighlightTimer > 0.0f && fmod(mHighlightTimer, 1.0f) > 0.5f;
 }
 
 // -------------------------------------------------------------------------- //
