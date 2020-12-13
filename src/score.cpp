@@ -466,7 +466,7 @@ void TNestObj::updateMtx()
       TMtx44::concat(mMountRotMtx, temp3, mMountRotMtx);
       TMtx44::floatToFixed(mMountRotMtx, mFMountRotMtx);
     }
-    if (mState == EState::IDLE || mState == EState::DROPPING){
+    if (mState == EState::IDLE){
       TMtx44 temp1, mPosMtx, mScaleMtx;
       mPosMtx.translate(mPosition);
       mScaleMtx.scale(TVec3F(0.007f, 0.007f, 0.007f) * getHalfHeight());
@@ -569,8 +569,10 @@ void TNestObjSphere::increaseRadius(float threshold){
 // -------------------------------------------------------------------------- //
 
 void TNestObjSphere::updateCollider(){
-  setCollideCenter(mPosition);
-  updateBlkMap();
+  if (mState == EState::IDLE || mState == EState::NESTING){
+    setCollideCenter(mPosition);
+    updateBlkMap();
+  }
 }
 
 // -------------------------------------------------------------------------- //
@@ -659,11 +661,15 @@ void TNestObjBox::updateCollider(){
 
 void TNestObjBox::setCollision(bool set){
   if (set){
+    setCollideActive(true);
     mSendMask = TAG_NESTOBJ; // turn on collision
     updateCollider();
   }
   else
+  {
     mSendMask = 0;
+    setCollideActive(false);
+  }
 }
 
 // -------------------------------------------------------------------------- //
