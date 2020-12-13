@@ -239,14 +239,10 @@ bool TFlockObj::cacheAllObjects() {
   mCarrySize = 0.0f;
 
 
-  if (mTotalObjects - mCachedObjects <= 30){
+  if (mTotalObjects - mCachedObjects <= 50){
     mPrevLevel = 0.0f;
     mHighlightTimer = 99999.0f;
     TNest::startEndGame();
-  }
-
-  if (mCachedObjects >= mTotalObjects){
-    //gHud->stopTimer();
   }
 
   return true;
