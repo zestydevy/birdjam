@@ -53,6 +53,7 @@ Gfx * TDynList2::getDL() const {
   }
 
   switch (mFrameNum) {
+    default:
     case 0: return &mGfxAry[mNumGfx]; break;
     case 1: return &mGfxAry2[mNumGfx]; break;
     case 2: return &mGfxAry3[mNumGfx]; break;
@@ -77,6 +78,7 @@ Gfx * TDynList2::pushDL() {
 
 Gfx * TDynList2::getHead() {
   switch (mFrameNum) {
+    default:
     case 0: return mGfxAry; break;
     case 1: return mGfxAry2; break;
     case 2: return mGfxAry3; break;

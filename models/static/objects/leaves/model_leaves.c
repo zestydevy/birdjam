@@ -79,6 +79,3 @@ Gfx leaves_Leaves_mesh[] = {
 	gsSPTexture(65535, 65535, 0, 0, 0),
 	gsSPEndDisplayList(),
 };
-
-
-

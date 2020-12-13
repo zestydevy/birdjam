@@ -69,7 +69,8 @@ enum EObjType : s16
 enum EDrawLayer : s16
 {
     PREWINDOW,
-    POSTWINDOW
+    POSTWINDOW,
+    LAYERNONE
 };
 
 // -------------------------------------------------------------------------- //
@@ -85,7 +86,8 @@ class TObject
     void setPosition(TVec3<f32> const & pos);
     void setRotation(TVec3<f32> const & rot);
     void setScale(TVec3<f32> const & scale);
-    inline void setMesh(Gfx * mesh) {mMesh = mesh;}
+    inline void setMesh(Gfx * mesh, Gfx * initializer = nullptr) { mMesh = mesh; mInitializer = initializer; }
+    const Gfx * getGraphicsInitializer(){ return mInitializer; };
 
     TVec3<f32> const & getPosition() {return mPosition;}
     TVec3<s16> const & getRotation() {return mRotation;}
@@ -96,6 +98,7 @@ class TObject
     virtual void init();
     virtual void update();
     virtual void draw();
+    virtual void drawRing();
 
     virtual void increaseRadius(float threshold);
 
@@ -104,7 +107,7 @@ class TObject
 
     bool mAlwaysDraw{false};
 
-    int mDrawLayer {EDrawLayer::PREWINDOW};
+    EDrawLayer mDrawLayer {EDrawLayer::PREWINDOW};
 
     protected:
     bool mInCamera{false};
@@ -121,6 +124,7 @@ class TObject
     Mtx mFRotMtx{}; //Only used for storing rotation matrix when carrying an object
     
     u32 mTag{0};
+    Gfx * mInitializer{nullptr};
     Gfx * mMesh{nullptr};
     TDynList2 * mDynList{nullptr};
 

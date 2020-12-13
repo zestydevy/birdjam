@@ -362,5 +362,3 @@ Gfx burger_Burger_mesh[] = {
 	gsSPEndDisplayList(),
 };
 
-
-

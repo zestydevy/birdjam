@@ -103,6 +103,8 @@ class TTestScene final
     virtual TScene * exit() override;
     virtual TPlayer * getPlayer() override;
 
+    void drawObjects(EDrawLayer layer);
+
     void clearCollisions(int start, int end);
 
     private:

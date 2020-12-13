@@ -300,9 +300,9 @@ void TNestObj::init() {
   TObject::init();
 
   if (TMenuScene::isFreedomMode())
-    setMesh(burger_Burger_mesh);
+    setMesh(burger_Burger_mesh_tri_0, mat_burger_burger_f3d);
   else
-    setMesh(mData->mesh);
+    setMesh(mData->mesh, mData->initializer);
   mObjWeight = mData->mass;
 
   TFlockObj::trackObject();
@@ -415,20 +415,22 @@ void TNestObj::draw() {
   }
 
   gSPPopMatrix(mDynList->pushDL(), G_MTX_MODELVIEW);
-
-  if (mState == EState::IDLE && TFlockObj::canDrawHighlightRing(mData->mass))
-    drawRing();
 }
 
 // -------------------------------------------------------------------------- //
 
 void TNestObj::drawRing() {
-  gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFHighlightRingMtx),
-      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
-  gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(TCamera::getFacingMtx()),
-      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
-  gSPDisplayList(mDynList->pushDL(), highlightring_HighlightRing_mesh);
-  gSPPopMatrix(mDynList->pushDL(), G_MTX_MODELVIEW);
+  if (!mInCamera)
+        return;
+
+  if (mState == EState::IDLE && TFlockObj::canDrawHighlightRing(mData->mass)){
+    gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFHighlightRingMtx),
+        G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
+    gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(TCamera::getFacingMtx()),
+        G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
+    gSPDisplayList(mDynList->pushDL(), highlightring_HighlightRing_mesh_tri_0);
+    gSPPopMatrix(mDynList->pushDL(), G_MTX_MODELVIEW);
+  }
 }
 
 // -------------------------------------------------------------------------- //

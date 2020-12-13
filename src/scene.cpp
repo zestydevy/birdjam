@@ -31,6 +31,8 @@
 #include "../models/ovl/sprites/sprite_numfont.h"
 #include "../models/ovl/sprites/sp_hud.h"
 
+#include "../models/static/highlight/model_highlightring.h"
+
 
 // -------------------------------------------------------------------------- //
 
@@ -452,6 +454,61 @@ void TTestScene::update()
 
 // -------------------------------------------------------------------------- //
 
+const Gfx dlCleanup[] = {
+    gsDPPipeSync(),
+    gsDPSetAlphaCompare(G_AC_NONE),
+    gsDPSetTextureLUT(G_TT_NONE),
+    gsSPSetGeometryMode(G_CULL_BACK),
+	gsSPSetGeometryMode(G_LIGHTING),
+	gsSPClearGeometryMode(G_TEXTURE_GEN),
+	gsDPSetCombineLERP(0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT, 0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT),
+	gsSPTexture(65535, 65535, 0, 0, 0),
+	gsSPEndDisplayList(),
+};
+
+const Gfx dlCleanup2[] = {
+    gsDPPipeSync(),
+    gsDPSetRenderMode(G_RM_AA_ZB_OPA_SURF, G_RM_AA_ZB_OPA_SURF2),
+    gsDPSetTextureLUT(G_TT_NONE),
+    gsSPSetGeometryMode(G_CULL_BACK),
+	gsSPSetGeometryMode(G_LIGHTING),
+	gsSPClearGeometryMode(G_TEXTURE_GEN),
+	gsDPSetCombineLERP(0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT, 0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT),
+	gsSPTexture(65535, 65535, 0, 0, 0),
+	gsSPEndDisplayList(),
+};
+
+// -------------------------------------------------------------------------- //
+
+void TTestScene::drawObjects(EDrawLayer layer){
+    const Gfx * last = nullptr;
+    for (int i = 0; i < mObjList.capacity(); ++i) {
+        //Check if this object is to be drawn on this layer
+        if (mObjList[i]->mDrawLayer == layer){
+            const Gfx * type = mObjList[i]->getGraphicsInitializer();
+            //Check if we are drawing the same object as the previous iteration
+            if (type != last){
+                //Check if the previous object needs to be deinitialized first
+                if (last != nullptr)
+                    gSPDisplayList(mDynList->pushDL(), dlCleanup2);
+
+                //Check if we need to initialize the new one
+                if (type != nullptr)      
+                    gSPDisplayList(mDynList->pushDL(), type);
+
+                last = type;
+            }
+
+            //Draw like normal
+            mObjList[i]->draw();
+        }
+    }
+    if (last != nullptr)   //Deinitialize last object if needed
+        gSPDisplayList(mDynList->pushDL(), dlCleanup);
+}
+
+// -------------------------------------------------------------------------- //
+
 void TTestScene::draw()
 {
     gSPDisplayList(mDynList->pushDL(), letters_setup_dl);
@@ -470,10 +527,12 @@ void TTestScene::draw()
 
     mSky->draw();
 
-    for (int i = 0; i < mObjList.capacity(); ++i) {
-        if (mObjList[i]->mDrawLayer == EDrawLayer::PREWINDOW)
-            mObjList[i]->draw();
-    }
+    gSPDisplayList(mDynList->pushDL(), highlightring_HighlightRing_init);
+    for (int i = 0; i < mObjList.capacity(); ++i)
+        mObjList[i]->drawRing();
+    gSPDisplayList(mDynList->pushDL(), highlightring_HighlightRing_cleanup);
+
+    drawObjects(EDrawLayer::PREWINDOW);
 
     mBird->draw();
     mFlock->draw();
@@ -481,10 +540,7 @@ void TTestScene::draw()
     if (TFlockObj::getFlockObj()->getCapacity() > 0.0f)
         mCamera->drawWindow();
 
-    for (int i = 0; i < mObjList.capacity(); ++i) {
-        if (mObjList[i]->mDrawLayer == EDrawLayer::POSTWINDOW)
-            mObjList[i]->draw();
-    }
+    drawObjects(EDrawLayer::POSTWINDOW);
 }
 
 void TTestScene::draw2D() {

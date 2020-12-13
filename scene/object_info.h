@@ -47,6 +47,7 @@ const float POWER_LEVELS[] = {
 #define DRAWDIST_SIXTEENTH 1000.0f
 
 struct TObjectData{
+    Gfx * initializer;
     Gfx * mesh;
     char name[16];
     s16 colType;

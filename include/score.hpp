@@ -103,7 +103,7 @@ class TNestObj :
   virtual void init() override;
   virtual void update() override;
   virtual void draw() override;
-  virtual void drawRing();
+  virtual void drawRing() override;
 
   virtual void increaseRadius(float threshold) override;
 
