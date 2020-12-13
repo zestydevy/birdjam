@@ -829,7 +829,8 @@ void TPlayer::moveCameraRelative(TVec3F & move, TVec3F & forward, TVec3F & right
 
     // Smooth acceleration
     mDirection.lerpTime(move, 0.1f, kInterval);
-    mRotation = TVec3<s16>((s16)0, (s16)TSine::atan2(mDirection.x(), mDirection.z()), (s16)0);
+    if (mPad->getAnalogX() != 0 || mPad->getAnalogY() != 0)
+        mRotation = TVec3<s16>((s16)0, (s16)TSine::atan2(move.x(), move.z()), (s16)0);
     mPosition += mDirection;
 }
 
