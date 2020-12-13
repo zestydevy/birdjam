@@ -74,6 +74,8 @@ class TFlockObj :
   TNestObj * mHeldObjects[32];
   bool mEnabled{true};
 
+  float mMaxPickedUpSize{0.0f};
+
   static TFlockObj * sFlockObj;
 
 };
@@ -142,6 +144,8 @@ class TNestObj :
 
   TVec3S mMountRot{0, 0, 0};
   Mtx mFMountRotMtx{};
+
+  Mtx mFHighlightRingMtx{};
 
   const TObjectData * mData{nullptr};
 

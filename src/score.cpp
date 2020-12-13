@@ -51,7 +51,7 @@ TFlockObj * TFlockObj::getFlockObj(){
 // -------------------------------------------------------------------------- //
 
 bool TFlockObj::canDrawHighlightRing(float weight){
-  return sFlockObj->mDoHighlight && weight > sFlockObj->mPrevLevel && weight < sFlockObj->mStrength;
+  return sFlockObj->mDoHighlight && weight > sFlockObj->mMaxPickedUpSize && weight < sFlockObj->mStrength;
 }
 
 void TFlockObj::startHighlightTimer(){
@@ -96,10 +96,15 @@ void TFlockObj::update() {
     mHeldObjects[i]->setVelocity(gPlayer->getHeldVelocity(i));
   }
 
-  mDoHighlight = sFlockObj->mHighlightTimer > 0.0f && fmod(sFlockObj->mHighlightTimer, 1.0f) > 0.5f;
-
-  if (mHighlightTimer > 0.0f)
+  if (mHighlightTimer < 0)
+    mHighlightTimer = 1.0f;
+  else if (mHighlightTimer >= 0.0f)
     mHighlightTimer -= kInterval;
+
+  if (mTotalObjects - mCachedObjects <= 50)
+    mMaxPickedUpSize = 0.0f;
+  
+  mDoHighlight = mHighlightTimer > 0.0f && fmod(mHighlightTimer, 1.0f) > 0.5f;
 }
 
 // -------------------------------------------------------------------------- //
@@ -140,12 +145,16 @@ float TFlockObj::getChainLength(){
 // -------------------------------------------------------------------------- //
 
 bool TFlockObj::grabObject(TNestObj * obj) {
+  float weight = obj->getObjWeight();
   if (!gPlayer->canPickupObjects())
     return false;
-  if (!canGrabObject(obj->getObjWeight()))
+  if (!canGrabObject(weight))
     return false;
   mHeldObjects[mHeldNum++] = obj;
-  mCarrySize += obj->getObjWeight();
+  mCarrySize += weight;
+
+  if (weight > mMaxPickedUpSize)
+    mMaxPickedUpSize = weight;
   return true;
 }
 
@@ -238,12 +247,8 @@ bool TFlockObj::cacheAllObjects() {
   mHeldNum = 0;
   mCarrySize = 0.0f;
 
-
-  if (mTotalObjects - mCachedObjects <= 50){
-    mPrevLevel = 0.0f;
-    mHighlightTimer = 99999.0f;
+  if (mTotalObjects - mCachedObjects <= 50)
     TNest::startEndGame();
-  }
 
   return true;
 }
@@ -409,16 +414,19 @@ void TNestObj::draw() {
       gSPDisplayList(mDynList->pushDL(), mMesh);
   }
 
+  gSPPopMatrix(mDynList->pushDL(), G_MTX_MODELVIEW);
+
   if (mState == EState::IDLE && TFlockObj::canDrawHighlightRing(mData->mass))
     drawRing();
-
-  gSPPopMatrix(mDynList->pushDL(), G_MTX_MODELVIEW);
 }
 
 // -------------------------------------------------------------------------- //
 
 void TNestObj::drawRing() {
+  gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFHighlightRingMtx),
+      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_PUSH);
   gSPDisplayList(mDynList->pushDL(), highlightring_HighlightRing_mesh);
+  gSPPopMatrix(mDynList->pushDL(), G_MTX_MODELVIEW);
 }
 
 // -------------------------------------------------------------------------- //
@@ -452,6 +460,16 @@ void TNestObj::updateMtx()
       TMtx44::concat(temp2, temp1, mMountRotMtx);
       TMtx44::concat(mMountRotMtx, temp3, mMountRotMtx);
       TMtx44::floatToFixed(mMountRotMtx, mFMountRotMtx);
+    }
+    if (mState == EState::IDLE || mState == EState::DROPPING){
+      TMtx44 temp1, mPosMtx, mScaleMtx;
+      mPosMtx.translate(mPosition);
+      mScaleMtx.scale(TVec3F(0.007f, 0.007f, 0.007f) * getHalfHeight());
+
+      //Combine mtx
+      TMtx44::concat(mPosMtx, mScaleMtx, temp1);
+
+      TMtx44::floatToFixed(temp1, mFHighlightRingMtx);
     }
 
     updateCollider();

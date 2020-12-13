@@ -135,6 +135,7 @@ void TObject::init()
 {
     mInCamera = true;
     updateMtx();
+    mMtxNeedsUpdate = true;
 }
 
 void TObject::increaseRadius(float threshold){
