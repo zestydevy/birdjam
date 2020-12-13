@@ -668,9 +668,9 @@ extern Sprite result_sticks_sprite;
 // @result_stones
 
 #define result_stonesTRUEIMAGEH	14
-#define result_stonesTRUEIMAGEW	133
+#define result_stonesTRUEIMAGEW	57
 #define result_stonesIMAGEH	32
-#define result_stonesIMAGEW	160
+#define result_stonesIMAGEW	64
 #define result_stonesBLOCKSIZEW	32
 #define result_stonesBLOCKSIZEH	32
 #define result_stonesSCALEX	1.0
