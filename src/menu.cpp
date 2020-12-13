@@ -96,7 +96,8 @@ void TMenuScene::init() {
   mSprite[SPR_MENU_LEFT].load(menu_left_sprite);
   mSprite[SPR_MENU_RIGHT].load(menu_right_sprite);
 
-  mSprite[SPR_START].load(menu_ok_sprite);
+  mSprite[SPR_START].load(menu_start_sprite);
+  mSprite[SPR_OK].load(menu_ok_sprite);
 
   mStateTimer.set(1.0F);
 
@@ -104,6 +105,7 @@ void TMenuScene::init() {
   mMenuList[1] = OPT_TIME;
   mMenuList[2] = OPT_FREEDOM;
   mNumMenuOpts = 3;
+  mMenuOpt = 1;
 }
 
 // -------------------------------------------------------------------------- //
@@ -366,7 +368,7 @@ void TMenuScene::update() {
           mStateTimer.set(0.5F);
         } else {
           mState = ST_START_IN;
-          mStateTimer.set(0.5F);
+          mStateTimer.set(0.75F);
         }
       }
 
@@ -507,7 +509,7 @@ void TMenuScene::update() {
         setOnSprite(SPR_SUBMENU_0);
 
         mState = ST_START_IN;
-        mStateTimer.set(0.5F);
+        mStateTimer.set(0.75F);
       }
 
       break;
@@ -637,29 +639,71 @@ void TMenuScene::update() {
     case ST_START_IN: {
       setOnSprite(SPR_FLASH);
       setOnSprite(SPR_START);
+      setOnSprite(SPR_OK);
 
-      s16 x, y, w;
+      s16 x, y, w, h;
+      float t;
       u8 a;
 
       w = (s16)(menu_okTRUEIMAGEW / 2);
-      x = Lagrange<s16>(-300, 320, (140 - w), mStateTimer.get());
-      y = (s16)(120 - menu_okTRUEIMAGEH / 2);
-      a = Lerp<u8>(0, 200, mStateTimer.get());
+      x = Lagrange<s16>(-300, 320, (160 - w), mStateTimer.get());
+      y = (s16)(100 - menu_okTRUEIMAGEH / 2);
 
-      mSprite[SPR_START].setPosition({ x, y });
+      mSprite[SPR_OK].setPosition({ x, y });
+
+      a = Lerp<u8>(0, 200, mStateTimer.get());
       mSprite[SPR_FLASH].setColor({ 255, 255, 255, a });
 
+      w = (s16)(menu_startTRUEIMAGEW / 2);
+      h = (s16)(menu_startTRUEIMAGEH / 2);
+      t = Lagrange<float>(0.0F, 3.0F, 1.0F, mStateTimer.get(0.5F, 1.0F));
+      x = (160 - (s16)((float)w * t));
+      y = (160 - (s16)((float)h * t));
+      mSprite[SPR_START].setPosition({ x, y });
+      mSprite[SPR_START].setScale({ t, t });
+
       if (mStateTimer.update()) {
+        mMenuTimer = 0.0F;
         mState = ST_START_WAIT;
       }
 
       break;
     }
     case ST_START_WAIT: {
+      s16 x, y, w, h;
+      float t;
+
+      w = (s16)(menu_startTRUEIMAGEW / 2);
+      h = (s16)(menu_startTRUEIMAGEH / 2);
+
+      t = (1.0F + 0.1F * TSine::ssin(
+        TSine::fromDeg((mMenuTimer + 0.5F) * 360.0F)
+      ));
+
+      x = (160 - (s16)((float)w * t));
+      y = (160 - (s16)((float)h * t));
+      mSprite[SPR_START].setPosition({ x, y });
+      mSprite[SPR_START].setScale({ t, t });
+
+      x = (s16)(160 - menu_okTRUEIMAGEW / 2);
+      y = (s16)(100 - menu_okTRUEIMAGEH / 2);
+
+      y += (s16)(5.0F * TSine::ssin(
+        TSine::fromDeg(mMenuTimer * 180.0F)
+      ));
+
+      mSprite[SPR_OK].setPosition({ x, y });
+
+      mMenuTimer += kInterval;
+
       if (isPressSelect()) {
+        mMenuTimer = 0.0F;
+
         mState = ST_START_OUT;
-        mStateTimer.set(0.5F);
+        mStateTimer.set(0.75F);
       } else if (isPressCancel()) {
+        mMenuTimer = 0.0F;
+
         mState = ST_START_CANCEL;
         mStateTimer.set(0.5F);
       }
@@ -667,16 +711,25 @@ void TMenuScene::update() {
       break;
     }
     case ST_START_OUT: {
-      s16 x, y, w;
+      s16 x, y, w, h;
+      float t;
       u8 a;
 
       w = (s16)(menu_okTRUEIMAGEW / 2);
       x = Lagrange<s16>((160 - w), 0, 400, mStateTimer.get());
-      y = (s16)(120 - menu_okTRUEIMAGEH / 2);
-      a = Lerp<u8>(200, 255, mStateTimer.get(0.0F, 0.5F));
+      y = (s16)(100 - menu_okTRUEIMAGEH / 2);
+      mSprite[SPR_OK].setPosition({ x, y });
 
-      mSprite[SPR_START].setPosition({ x, y });
+      a = Lerp<u8>(200, 255, mStateTimer.get(0.0F, 0.5F));
       mSprite[SPR_FLASH].setColor({ 255, 255, 255, a });
+
+      w = (s16)(menu_startTRUEIMAGEW / 2);
+      h = (s16)(menu_startTRUEIMAGEH / 2);
+      t = Lagrange<float>(1.0F, 3.0F, 0.0F, mStateTimer.get(0.0F, 0.5F));
+      x = (160 - (s16)((float)w * t));
+      y = (160 - (s16)((float)h * t));
+      mSprite[SPR_START].setPosition({ x, y });
+      mSprite[SPR_START].setScale({ t, t });
 
       if (mStateTimer.update()) {
         mStatus = ESceneState::EXITING;
@@ -686,6 +739,7 @@ void TMenuScene::update() {
     }
     case ST_START_CANCEL: {
       setOffSprite(SPR_START);
+      setOffSprite(SPR_OK);
       u8 a;
 
       a = Lerp<u8>(200, 0, mStateTimer.get());

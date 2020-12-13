@@ -182,7 +182,6 @@ class THudCountDown {
   THudCountDown() = default;
   ~THudCountDown() = default;
 
-  void hide();
   void show();
   void timeup();
 
@@ -195,6 +194,7 @@ class THudCountDown {
   enum {
 
     ST_HIDE,
+    ST_FLASH_OUT,
     ST_READY_IN,
     ST_READY,
     ST_READY_3,
@@ -212,6 +212,7 @@ class THudCountDown {
 
     SPR_HEADER,
     SPR_DIGIT,
+    SPR_FLASH,
 
     NUM_SPRITES
 

@@ -68,6 +68,7 @@ class TMenuScene :
     SPR_SUBMENU_1,
     SPR_FLASH,
     SPR_START,
+    SPR_OK,
 
     NUM_SPRITES
 

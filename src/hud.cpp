@@ -16,6 +16,7 @@
 #include "../models/ovl/sprites/sp_rankd.h"
 #include "../models/ovl/sprites/sp_rankf.h"
 #include "../models/ovl/sprites/sp_result.h"
+#include "../models/static/sprites/black_sprite.h"
 
 // -------------------------------------------------------------------------- //
 
@@ -630,29 +631,9 @@ void THudTime::draw() {
 
 // -------------------------------------------------------------------------- //
 
-void THudCountDown::hide() {
-  mState = ST_HIDE;
-}
-
-// -------------------------------------------------------------------------- //
-
 void THudCountDown::show() {
-  TUtil::toMemory(
-    _countdown_ovlSegmentStart,
-    _countdown_ovlSegmentRomStart, (s32)(
-      _countdown_ovlSegmentRomEnd -
-      _countdown_ovlSegmentRomStart
-    )
-  );
-
-  for (u32 i = 0; i < NUM_SPRITES; ++i) {
-    setOffSprite(i);
-  }
-
-  mSprite[SPR_HEADER].load(hud_ready_sprite);
-
-  mState = ST_READY_IN;
-  mStateTimer.set(0.7F);
+  mState = ST_FLASH_OUT;
+  mStateTimer.set(0.5F);
 }
 
 // -------------------------------------------------------------------------- //
@@ -681,7 +662,21 @@ void THudCountDown::timeup() {
 void THudCountDown::init() {
   for (u32 i = 0; i < NUM_SPRITES; ++i) {
     mSprite[i].setAttributes(SP_TRANSPARENT | SP_FRACPOS);
+    setOffSprite(i);
   }
+
+  TUtil::toMemory(
+    _countdown_ovlSegmentStart,
+    _countdown_ovlSegmentRomStart, (s32)(
+      _countdown_ovlSegmentRomEnd -
+      _countdown_ovlSegmentRomStart
+    )
+  );
+
+  setOnSprite(SPR_FLASH);
+  mSprite[SPR_FLASH].load(black_sprite);
+  mSprite[SPR_FLASH].setScale({ 10.0F, 7.5F });
+  mSprite[SPR_HEADER].load(hud_ready_sprite);
 }
 
 // -------------------------------------------------------------------------- //
@@ -692,6 +687,21 @@ void THudCountDown::update() {
   s16 digit_y = 92;
 
   switch (mState) {
+    case ST_FLASH_OUT: {
+      u8 a;
+
+      a = Lerp<u8>(255, 0, mStateTimer.get());
+      mSprite[SPR_FLASH].setColor({ 255, 255, 255, a });
+
+      if (mStateTimer.update()) {
+        setOffSprite(SPR_FLASH);
+
+        mState = ST_READY_IN;
+        mStateTimer.set(0.7F);
+      }
+
+      break;
+    }
     case ST_READY_IN: {
       setOnSprite(SPR_HEADER);
       setOffSprite(SPR_DIGIT);
@@ -1476,7 +1486,7 @@ void THud::startCountDown() {
   mTime.hide();
 
   mState = ST_COUNTDOWN;
-  mStateTimer.set(3.0F);
+  mStateTimer.set(3.3F);
 }
 
 // -------------------------------------------------------------------------- //
