@@ -3,6 +3,7 @@
 
 #include "staticobj.hpp"
 #include "rank.hpp"
+#include "menu.hpp"
 
 // -------------------------------------------------------------------------- //
 
@@ -68,16 +69,42 @@ u8 TRank::get(u32 tally) const {
 // -------------------------------------------------------------------------- //
 
 u32 TRank::calcRank(u32 score) {
-  if (score >= 57500)
-    return RANK_A;
-  else if (score >= 40000)
-    return RANK_B;
-  else if (score >= 20000)
-    return RANK_C;
-  else if (score >= 10000)
-    return RANK_D;
-  else
-    return RANK_F;
+  if (TMenuScene::getTimeLimit() <= 3){
+    if (score >= 30000)
+      return RANK_A;
+    else if (score >= 20000)
+      return RANK_B;
+    else if (score >= 10000)
+      return RANK_C;
+    else if (score >= 5000)
+      return RANK_D;
+    else
+      return RANK_F;
+  }
+  else if (TMenuScene::getTimeLimit() <= 5){
+    if (score >= 55000)
+      return RANK_A;
+    else if (score >= 40000)
+      return RANK_B;
+    else if (score >= 20000)
+      return RANK_C;
+    else if (score >= 10000)
+      return RANK_D;
+    else
+      return RANK_F;
+  }
+  else{
+    if (score >= 65000)
+      return RANK_A;
+    else if (score >= 50000)
+      return RANK_B;
+    else if (score >= 30000)
+      return RANK_C;
+    else if (score >= 20000)
+      return RANK_D;
+    else
+      return RANK_F;
+  }
 }
 
 // -------------------------------------------------------------------------- //
