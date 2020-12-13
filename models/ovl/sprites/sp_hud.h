@@ -305,5 +305,45 @@ extern Gfx hud_ft_dl[];
 extern Sprite hud_ft_sprite;
 
 // -------------------------------------------------------------------------- //
+// @hud_start
+
+#define hud_startTRUEIMAGEH	45
+#define hud_startTRUEIMAGEW	42
+#define hud_startIMAGEH	64
+#define hud_startIMAGEW	64
+#define hud_startBLOCKSIZEW	32
+#define hud_startBLOCKSIZEH	32
+#define hud_startSCALEX	1.0
+#define hud_startSCALEY	1.0
+#define hud_startMODE	SP_Z | SP_OVERLAP | SP_TRANSPARENT
+
+extern Bitmap hud_start_bitmaps[];
+extern Gfx hud_start_dl[];
+
+#define NUM_hud_start_BMS  (sizeof(hud_start_bitmaps)/sizeof(Bitmap))
+
+extern Sprite hud_start_sprite;
+
+// -------------------------------------------------------------------------- //
+// @hud_exit
+
+#define hud_exitTRUEIMAGEH	14
+#define hud_exitTRUEIMAGEW	37
+#define hud_exitIMAGEH	32
+#define hud_exitIMAGEW	64
+#define hud_exitBLOCKSIZEW	32
+#define hud_exitBLOCKSIZEH	32
+#define hud_exitSCALEX	1.0
+#define hud_exitSCALEY	1.0
+#define hud_exitMODE	SP_Z | SP_OVERLAP | SP_TRANSPARENT
+
+extern Bitmap hud_exit_bitmaps[];
+extern Gfx hud_exit_dl[];
+
+#define NUM_hud_exit_BMS  (sizeof(hud_exit_bitmaps)/sizeof(Bitmap))
+
+extern Sprite hud_exit_sprite;
+
+// -------------------------------------------------------------------------- //
 
 #endif

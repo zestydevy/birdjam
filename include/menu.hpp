@@ -27,16 +27,21 @@ class TMenuScene :
   virtual void draw2D() override;
   virtual TScene * exit() override;
 
-  static u32 getTimeLimit();
   static bool isFreedomMode();
+  static void unlockFreedomMode();
+
+  static u32 getTimeLimit();
 
   private:
 
   enum {
 
+    ST_FADE_OUT,
     ST_BIRD_IN,
     ST_FLASH_IN,
     ST_FLASH_OUT,
+    ST_TITLE,
+    ST_MENU_IN,
     ST_MENU_WAIT,
     ST_MENU_LEFT,
     ST_MENU_RIGHT,
@@ -94,7 +99,7 @@ class TMenuScene :
 
   };
 
-  int mState { ST_BIRD_IN };
+  int mState { ST_FADE_OUT };
   THudAlarm mStateTimer;
   TSprite mSprite[NUM_SPRITES];
   u32 mSpriteMask { 0 };

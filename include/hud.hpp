@@ -4,6 +4,7 @@
 
 #include <nusys.h>
 
+#include "pad.hpp"
 #include "rank.hpp"
 #include "score.hpp"
 #include "sprite.hpp"
@@ -175,6 +176,50 @@ class THudTime {
 
 // -------------------------------------------------------------------------- //
 
+class THudExit {
+
+  public:
+
+  THudExit() = default;
+  ~THudExit() = default;
+
+  void hide();
+  void show();
+
+  void init();
+  void update();
+  void draw();
+
+  private:
+
+  enum {
+
+    ST_HIDE,
+    ST_SHOW
+
+  };
+
+  enum : u32 {
+
+    SPR_BUTTON,
+    SPR_TEXT,
+
+    NUM_SPRITES
+
+  };
+
+  int mState { ST_HIDE };
+  float mStateTimer { 0.0F };
+  TSprite mSprite[NUM_SPRITES];
+  u32 mSpriteMask { 0 };
+
+  void setOffSprite(u32 i) { mSpriteMask |= (1U << i); }
+  void setOnSprite(u32 i) { mSpriteMask &= ~(1U << i); }
+
+};
+
+// -------------------------------------------------------------------------- //
+
 class THudCountDown {
 
   public:
@@ -184,6 +229,7 @@ class THudCountDown {
 
   void show();
   void timeup();
+  void fade(float secs);
 
   void init();
   void update();
@@ -204,7 +250,8 @@ class THudCountDown {
     ST_FLY_OUT,
     ST_TIMEUP_IN,
     ST_TIMEUP_WAIT,
-    ST_TIMEUP_OUT
+    ST_TIMEUP_OUT,
+    ST_FADE_IN,
 
   };
 
@@ -230,6 +277,14 @@ class THudCountDown {
 
 // -------------------------------------------------------------------------- //
 
+enum class EResultState {
+
+  IN,
+  WAIT,
+  OUT,
+
+};
+
 class THudResults {
 
   public:
@@ -241,8 +296,12 @@ class THudResults {
   void show();
 
   void init(u32 rank);
-  void update();
+  void update(TPad * pad);
   void draw();
+
+  EResultState getState() const {
+    return mResultState;
+  }
 
   private:
 
@@ -312,6 +371,7 @@ class THudResults {
 
   };
 
+  EResultState mResultState { EResultState::IN };
   int mState { ST_HIDE };
   THudAlarm mStateTimer;
   TSprite mSprite[NUM_SPRITES];
@@ -338,7 +398,7 @@ class THud {
 
   public:
 
-  THud() = default;
+  explicit THud(TPad * pad);
   ~THud() = default;
 
   void init();
@@ -354,6 +414,7 @@ class THud {
 
   bool isCountedDown() const;
   bool isTimeUp() const;
+  bool isExit() const;
 
   static void splitDigits(u32, u32[], u32);
   static Sprite const & getDigitSprite(u32);
@@ -368,7 +429,8 @@ class THud {
     ST_TIME_FLASH,
     ST_TIME_UP,
     ST_RESULTS,
-    ST_SCORE
+    ST_SCORE,
+    ST_EXIT
 
   };
 
@@ -380,8 +442,11 @@ class THud {
   THudCountDown mCountDown;
   THudScore mScore;
   THudTime mTime;
+  THudExit mExit;
   bool mScoreDown { false };
   bool mTimeUp { false };
+  bool mExitFlag { false };
+  TPad * mPad { nullptr };
 
 };
 

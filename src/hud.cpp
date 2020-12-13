@@ -3,6 +3,7 @@
 
 #include "hud.hpp"
 #include "menu.hpp"
+#include "pad.hpp"
 #include "rank.hpp"
 #include "segment.h"
 #include "sprite.hpp"
@@ -631,6 +632,85 @@ void THudTime::draw() {
 
 // -------------------------------------------------------------------------- //
 
+void THudExit::hide() {
+  mState = ST_HIDE;
+}
+
+// -------------------------------------------------------------------------- //
+
+void THudExit::show() {
+  for (u32 i = 0; i < NUM_SPRITES; ++i) {
+    setOffSprite(i);
+  }
+
+  mState = ST_SHOW;
+  mStateTimer = 0.0F;
+}
+
+// -------------------------------------------------------------------------- //
+
+void THudExit::init() {
+  for (u32 i = 0; i < NUM_SPRITES; ++i) {
+    mSprite[i].setAttributes(SP_TRANSPARENT | SP_FRACPOS);
+    setOffSprite(i);
+  }
+
+  mSprite[SPR_BUTTON].load(hud_start_sprite);
+  mSprite[SPR_TEXT].load(hud_exit_sprite);
+  mSprite[SPR_TEXT].setPosition({ 47, 204 });
+}
+
+// -------------------------------------------------------------------------- //
+
+void THudExit::update() {
+  switch (mState) {
+    case ST_SHOW: {
+      setOnSprite(SPR_BUTTON);
+      s16 x, y, w, h;
+      float t;
+
+      w = (s16)(hud_startTRUEIMAGEW / 2);
+      h = (s16)(hud_startTRUEIMAGEH / 2);
+
+      t = (0.6F + 0.1F * TSine::ssin(
+        TSine::fromDeg((mStateTimer + 0.5F) * 360.0F)
+      ));
+
+      x = (28 - (s16)((float)w * t));
+      y = (211 - (s16)((float)h * t));
+      mSprite[SPR_BUTTON].setPosition({ x, y });
+      mSprite[SPR_BUTTON].setScale({ t, t });
+
+      if (TMath<float>::mod(mStateTimer, 0.5F) >= 0.25F) {
+        setOnSprite(SPR_TEXT);
+      } else {
+        setOffSprite(SPR_TEXT);
+      }
+
+      mStateTimer += kInterval;
+      break;
+    }
+  }
+}
+
+// -------------------------------------------------------------------------- //
+
+void THudExit::draw() {
+  if (mState == ST_HIDE) {
+    return;
+  }
+
+  for (u32 i = 0; i < NUM_SPRITES; ++i) {
+    if (mSpriteMask & (1U << i)) {
+      continue;
+    }
+
+    mSprite[i].draw();
+  }
+}
+
+// -------------------------------------------------------------------------- //
+
 void THudCountDown::show() {
   mState = ST_FLASH_OUT;
   mStateTimer.set(0.5F);
@@ -655,6 +735,17 @@ void THudCountDown::timeup() {
 
   mState = ST_TIMEUP_IN;
   mStateTimer.set(0.3F);
+}
+
+// -------------------------------------------------------------------------- //
+
+void THudCountDown::fade(float secs) {
+  for (u32 i = 0; i < NUM_SPRITES; ++i) {
+    setOffSprite(i);
+  }
+
+  mState = ST_FADE_IN;
+  mStateTimer.set(secs);
 }
 
 // -------------------------------------------------------------------------- //
@@ -861,6 +952,21 @@ void THudCountDown::update() {
 
       break;
     }
+    case ST_FADE_IN: {
+      setOnSprite(SPR_FLASH);
+
+      u8 a;
+
+      a = Lerp<u8>(0, 255, mStateTimer.get());
+      mSprite[SPR_FLASH].setColor({ 255, 255, 255, a });
+
+      if (mStateTimer.update()) {
+        mSprite[SPR_FLASH].setColor({ 255, 255, 255, 255 });
+        mState = ST_HIDE;
+      }
+
+      break;
+    }
   }
 
   mSprite[SPR_HEADER].setPosition({ header_x, header_y });
@@ -887,11 +993,13 @@ void THudCountDown::draw() {
 
 void THudResults::hide() {
   mState = ST_HIDE;
+  mResultState = EResultState::IN;
 }
 
 // -------------------------------------------------------------------------- //
 
 void THudResults::show() {
+  mResultState = EResultState::IN;
   mState = ST_RESULTS_IN;
   mStateTimer.set(0.85F);
 
@@ -1004,7 +1112,7 @@ void THudResults::init(u32 rank) {
 
 // -------------------------------------------------------------------------- //
 
-void THudResults::update() {
+void THudResults::update(TPad * pad) {
   s16 result_x = 134, rank_x = 0;
   TVec2S bird_ofs { 92, -74 };
   TVec2S rank0_pos { 0, 0 };
@@ -1166,6 +1274,7 @@ void THudResults::update() {
       mSprite[SPR_RANK_0].setScale({ t1, t1 });
 
       if (mStateTimer.update()) {
+        mResultState = EResultState::WAIT;
         mState = ST_RANK_WAIT;
       }
 
@@ -1207,8 +1316,19 @@ void THudResults::update() {
       mSprite[SPR_STAR].setScale({ t0, t0 });
       mSprite[SPR_RANK_0].setScale({ t1, t1 });
       mStateTimer.update();
+
+      if (pad->isPressed((EButton)(
+        EButton::START | EButton::A | EButton::B
+      ))) {
+        mResultState = EResultState::OUT;
+      }
+
       break;
     }
+  }
+
+  if (mResultState == EResultState::WAIT) {
+    // TODO up/down movement
   }
 
   if (mState != ST_HIDE) {
@@ -1299,10 +1419,17 @@ THudResults::getDigitSprite(u32 digit) {
 
 // -------------------------------------------------------------------------- //
 
+THud::THud(TPad * pad) :
+  mPad { pad }
+{}
+
+// -------------------------------------------------------------------------- //
+
 void THud::init() {
   mCountDown.init();
   mScore.init();
   mTime.init();
+  mExit.init();
 }
 
 // -------------------------------------------------------------------------- //
@@ -1311,106 +1438,146 @@ void THud::update() {
   mCountDown.update();
   mScore.update();
   mTime.update(&mClock);
+  mExit.update();
 
   if (mResults != nullptr) {
-    mResults->update();
+    EResultState old = mResults->getState();
+    mResults->update(mPad);
+    EResultState state = mResults->getState();
+
+    if (old != state) {
+      switch (state) {
+        case EResultState::WAIT: {
+          mExit.show();
+          break;
+        }
+        case EResultState::OUT: {
+          mExit.hide();
+          mCountDown.fade(1.0F);
+
+          mState = ST_EXIT;
+          mStateTimer.set(1.0F);
+          break;
+        }
+      }
+    }
   }
 
-  switch (mState) {
-    case ST_COUNTDOWN: {
-      if (mStateTimer.update()) {
-        if (mTimeLimit != 0) {
-          mClock.start((float)(mTimeLimit * 60));
-          mTime.show(mTimeLimit);
+  if (mState != ST_EXIT) {
+    switch (mState) {
+      case ST_COUNTDOWN: {
+        if (mStateTimer.update()) {
+          if (mTimeLimit != 0) {
+            mClock.start((float)(mTimeLimit * 60));
+            mTime.show(mTimeLimit);
 
-          mState = ST_TIME_FLASH;
-          mStateTimer.set(3.5F);
-        } else {
+            mState = ST_TIME_FLASH;
+            mStateTimer.set(3.5F);
+          } else {
+            mExit.show();
+
+            mState = ST_SHOW;
+          }
+        }
+
+        break;
+      }
+      case ST_TIME_FLASH: {
+        if (mStateTimer.update()) {
+          if (mScoreDown) {
+            mScore.raise();
+          }
+
+          mTime.raise();
           mState = ST_SHOW;
         }
-      }
 
-      break;
-    }
-    case ST_TIME_FLASH: {
-      if (mStateTimer.update()) {
-        if (mScoreDown) {
+        break;
+      }
+      case ST_SCORE: {
+        if (mStateTimer.update()) {
           mScore.raise();
+
+          if (mTimeLimit != 0) {
+            mTime.raise();
+          }
+
+          mState = ST_SHOW;
         }
 
-        mTime.raise();
-        mState = ST_SHOW;
+        break;
       }
+      case ST_TIME_UP: {
+        if (mStateTimer.update()) {
+          u32 rank;
 
-      break;
-    }
-    case ST_SCORE: {
-      if (mStateTimer.update()) {
-        mScore.raise();
+          if (mScoreDown) {
+            mScore.lower();
+          } else {
+            mScoreDown = true;
+            mScore.show();
+          }
 
-        if (mTimeLimit != 0) {
-          mTime.raise();
+          mTime.scram();
+          mResults = new THudResults {};
+          rank = TRank::calcRank(getScore());
+          mResults->init(rank);
+
+          if (rank == RANK_A) {
+            TMenuScene::unlockFreedomMode();
+          }
+
+          mState = ST_RESULTS;
+          mStateTimer.set(1.5F);
         }
 
-        mState = ST_SHOW;
+        break;
       }
+      case ST_RESULTS: {
+        if (mStateTimer.update()) {
+          mResults->show();
+        }
 
-      break;
+        break;
+      }
     }
-    case ST_TIME_UP: {
-      if (mStateTimer.update()) {
-        u32 rank;
 
-        if (mScoreDown) {
+    if (mState >= ST_SHOW) {
+      if (mTimeLimit != 0) {
+        float t;
+        u32 before, after;
+
+        mClock.get(&before);
+        mClock.update();
+        t = mClock.get(&after);
+
+        if (t == 0.0F && !mTimeUp) {
+          mCountDown.timeup();
+          mTimeUp = true;
+
+          mState = ST_TIME_UP;
+          mStateTimer.set(1.0F);
+        }
+
+        if (mState == ST_SHOW && after < before) {
+          mTime.flash(before);
           mScore.lower();
-        } else {
-          mScoreDown = true;
-          mScore.show();
+          mTime.lower();
+
+          mState = ST_TIME_FLASH;
+          mStateTimer.set(4.5F);
         }
+      } else if (mPad->isPressed(EButton::START)) {
+        mExit.hide();
+        mCountDown.fade(1.0F);
 
-        mTime.scram();
-        mResults = new THudResults {};
-        rank = TRank::calcRank(getScore());
-        mResults->init(rank);
-
-        mState = ST_RESULTS;
-        mStateTimer.set(1.5F);
+        mState = ST_EXIT;
+        mStateTimer.set(1.0F);
       }
-
-      break;
     }
-    case ST_RESULTS: {
-      if (mStateTimer.update()) {
-        mResults->show();
-      }
-
-      break;
-    }
-  }
-
-  if (mState >= ST_SHOW && mTimeLimit != 0) {
-    float t;
-    u32 before, after;
-
-    mClock.get(&before);
-    mClock.update();
-    t = mClock.get(&after);
-
-    if (t == 0.0F && !mTimeUp) {
-      mCountDown.timeup();
-      mTimeUp = true;
-
-      mState = ST_TIME_UP;
-      mStateTimer.set(1.0F);
-    }
-
-    if (mState == ST_SHOW && after < before) {
-      mTime.flash(before);
-      mScore.lower();
-      mTime.lower();
-
-      mState = ST_TIME_FLASH;
-      mStateTimer.set(4.5F);
+  } else {
+    if (mStateTimer.update()) {
+      mExitFlag = true;
     }
   }
 }
@@ -1420,11 +1587,13 @@ void THud::update() {
 void THud::draw() {
   mScore.draw();
   mTime.draw();
-  mCountDown.draw();
+  mExit.draw();
 
   if (mResults != nullptr) {
     mResults->draw();
   }
+
+  mCountDown.draw();
 }
 
 // -------------------------------------------------------------------------- //
@@ -1454,8 +1623,10 @@ void THud::addScore(u32 pts) {
       mTime.lower();
     }
 
-    mState = ST_SCORE;
-    mStateTimer.set(2.5F);
+    if (mState != ST_EXIT) {
+      mState = ST_SCORE;
+      mStateTimer.set(2.5F);
+    }
   }
 
   mScore.setScore(score + pts);
@@ -1515,6 +1686,12 @@ bool THud::isTimeUp() const {
   }
 
   return (mClock.get() == 0.0F);
+}
+
+// -------------------------------------------------------------------------- //
+
+bool THud::isExit() const {
+  return mExitFlag;
 }
 
 // -------------------------------------------------------------------------- //

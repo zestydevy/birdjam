@@ -271,10 +271,10 @@ void TTestScene::init()
 
     gRank.reset();
 
-    gHud = new THud {};
+    mPad = new TPad { 0 };
+    gHud = new THud { mPad };
     gHud->init();
 
-    mPad = new TPad(0);
     mCamera = new TCamera(mDynList);
     mBird = new TPlayer(mDynList);
     mFlock = new TFlockObj(mDynList);
@@ -385,10 +385,6 @@ void TTestScene::update()
     //    mCurrentLayer--;
     //}
 
-    if (mPad->isPressed(EButton::START)) {
-        mStatus = ESceneState::EXITING;
-    }
-
     //Remove layers
     if (mCurrentLayer == 0 && TFlockObj::getFlockObj()->canGrabObject(SIZE_LAYER1)){
         clearCollisions(mColL2Start, mColL2End);
@@ -434,6 +430,10 @@ void TTestScene::update()
     mFlock->update();
     gHud->update();
 
+    if (gHud->isExit()) {
+        mStatus = ESceneState::EXITING;
+        return;
+    }
 
     if (mPad->isPressed(CACHE_CODE[mCheatState])){
         mCheatState++;

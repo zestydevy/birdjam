@@ -805,5 +805,45 @@ extern Gfx result_rank_dl[];
 extern Sprite result_rank_sprite;
 
 // -------------------------------------------------------------------------- //
+// @result_up
+
+#define result_upTRUEIMAGEH	14
+#define result_upTRUEIMAGEW	16
+#define result_upIMAGEH	32
+#define result_upIMAGEW	32
+#define result_upBLOCKSIZEW	32
+#define result_upBLOCKSIZEH	32
+#define result_upSCALEX	1.0
+#define result_upSCALEY	1.0
+#define result_upMODE	SP_Z | SP_OVERLAP | SP_TRANSPARENT
+
+extern Bitmap result_up_bitmaps[];
+extern Gfx result_up_dl[];
+
+#define NUM_result_up_BMS  (sizeof(result_up_bitmaps)/sizeof(Bitmap))
+
+extern Sprite result_up_sprite;
+
+// -------------------------------------------------------------------------- //
+// @result_down
+
+#define result_downTRUEIMAGEH	14
+#define result_downTRUEIMAGEW	16
+#define result_downIMAGEH	32
+#define result_downIMAGEW	32
+#define result_downBLOCKSIZEW	32
+#define result_downBLOCKSIZEH	32
+#define result_downSCALEX	1.0
+#define result_downSCALEY	1.0
+#define result_downMODE	SP_Z | SP_OVERLAP | SP_TRANSPARENT
+
+extern Bitmap result_down_bitmaps[];
+extern Gfx result_down_dl[];
+
+#define NUM_result_down_BMS  (sizeof(result_down_bitmaps)/sizeof(Bitmap))
+
+extern Sprite result_down_sprite;
+
+// -------------------------------------------------------------------------- //
 
 #endif

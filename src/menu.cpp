@@ -15,6 +15,7 @@
 // -------------------------------------------------------------------------- //
 
 static bool sFreedomMode { false };
+static bool sUnlockFreedomMode { false };
 static u32 sTimeLimit { 0 };
 
 // -------------------------------------------------------------------------- //
@@ -85,12 +86,12 @@ void TMenuScene::init() {
   mSprite[SPR_LOGO].load(menu_logo_sprite);
   mSprite[SPR_LOGO].setPosition({ 24, 25 });
 
-  mSprite[SPR_FLASH].load(white_sprite);
+  mSprite[SPR_FLASH].load(black_sprite);
   mSprite[SPR_FLASH].setPosition({ 0, 0 });
   mSprite[SPR_FLASH].setScale({ 10.0F, 7.5F });
+  setOnSprite(SPR_FLASH);
 
   mSprite[SPR_MENU_SWOOP].load(menu_swoop_sprite);
-  mSprite[SPR_MENU_SWOOP].setPosition({ 45, 162 });
   mSprite[SPR_MENU_SWOOP].setColor({ 255, 255, 255, 127 });
 
   mSprite[SPR_MENU_LEFT].load(menu_left_sprite);
@@ -99,13 +100,18 @@ void TMenuScene::init() {
   mSprite[SPR_START].load(menu_start_sprite);
   mSprite[SPR_OK].load(menu_ok_sprite);
 
-  mStateTimer.set(1.0F);
-
   mMenuList[0] = OPT_PRACTICE;
   mMenuList[1] = OPT_TIME;
-  mMenuList[2] = OPT_FREEDOM;
-  mNumMenuOpts = 3;
+
+  if (sUnlockFreedomMode) {
+    mMenuList[2] = OPT_FREEDOM;
+    mNumMenuOpts = 3;
+  } else {
+    mNumMenuOpts = 2;
+  }
+
   mMenuOpt = 1;
+  mStateTimer.set(0.5F);
 }
 
 // -------------------------------------------------------------------------- //
@@ -114,6 +120,22 @@ void TMenuScene::update() {
   mPad->read();
 
   switch (mState) {
+    case ST_FADE_OUT: {
+      u8 a;
+
+      a = Lerp<u8>(255, 0, mStateTimer.get());
+      mSprite[SPR_FLASH].setColor({ 255, 255, 255, a });
+
+      if (mStateTimer.update()) {
+        mSprite[SPR_FLASH].load(white_sprite);
+        setOffSprite(SPR_FLASH);
+
+        mState = ST_BIRD_IN;
+        mStateTimer.set(1.0F);
+      }
+
+      break;
+    }
     case ST_BIRD_IN: {
       setOnSprite(SPR_BIRD);
       s16 x, y;
@@ -146,7 +168,6 @@ void TMenuScene::update() {
 
       if (mStateTimer.update()) {
         setOnSprite(SPR_BG);
-        setOnSprite(SPR_MENU_SWOOP);
         setOnSprite(SPR_LOGO);
 
         mState = ST_FLASH_OUT;
@@ -157,7 +178,10 @@ void TMenuScene::update() {
     }
     case ST_FLASH_OUT: {
       setOnSprite(SPR_FLASH);
-      u8 a = Lerp<u8>(255, 0, mStateTimer.get());
+
+      u8 a;
+
+      a = Lerp<u8>(255, 0, mStateTimer.get());
       mSprite[SPR_FLASH].setColor({ 255, 255, 255, a });
 
       if (mStateTimer.update()) {
@@ -165,6 +189,74 @@ void TMenuScene::update() {
         mSprite[SPR_FLASH].load(black_sprite);
         mSprite[SPR_MENU_0].load(getOptSprite(mMenuList[mMenuOpt]));
 
+        mState = ST_TITLE;
+      }
+
+      break;
+    }
+    case ST_TITLE: {
+      setOnSprite(SPR_START);
+
+      s16 x, y, w, h;
+      float t;
+
+      w = (s16)(menu_startTRUEIMAGEW / 2);
+      h = (s16)(menu_startTRUEIMAGEH / 2);
+
+      t = (1.0F + 0.1F * TSine::ssin(
+        TSine::fromDeg((mMenuTimer + 0.5F) * 360.0F)
+      ));
+
+      x = (160 - (s16)((float)w * t));
+      y = (180 - (s16)((float)h * t));
+      mSprite[SPR_START].setPosition({ x, y });
+      mSprite[SPR_START].setScale({ t, t });
+
+      mMenuTimer += kInterval;
+
+      if (isPressSelect()) {
+        mMenuTimer = 0.0F;
+
+        mState = ST_MENU_IN;
+        mStateTimer.set(1.0F);
+      }
+
+      break;
+    }
+    case ST_MENU_IN: {
+      setOnSprite(SPR_MENU_0);
+      setOnSprite(SPR_MENU_LEFT);
+      setOnSprite(SPR_MENU_RIGHT);
+      setOnSprite(SPR_MENU_SWOOP);
+
+      s16 x, y, w, h;
+      float t;
+
+      w = (s16)(menu_startTRUEIMAGEW / 2);
+      h = (s16)(menu_startTRUEIMAGEH / 2);
+      t = Lagrange<float>(1.0F, 3.0F, 0.0F, mStateTimer.get(0.0F, 0.4F));
+      x = (160 - (s16)((float)w * t));
+      y = (180 - (s16)((float)h * t));
+      mSprite[SPR_START].setPosition({ x, y });
+      mSprite[SPR_START].setScale({ t, t });
+
+      x = (s16)(160 - getOptWidth(mMenuList[mMenuOpt]) / 2);
+      y = Sinerp<s16>(280, 151, mStateTimer.get());
+      mSprite[SPR_MENU_0].setPosition({ x, y });
+
+      x = TMath<s16>::abs((s16)(5.0F * TSine::ssin(
+        TSine::fromDeg(mMenuTimer * 360.0F)
+      )));
+
+      y = Sinerp<s16>(289, 160, mStateTimer.get());
+      mSprite[SPR_MENU_LEFT].setPosition({ (s16)46, y });
+      mSprite[SPR_MENU_RIGHT].setPosition({ (s16)260, y });
+
+      y = Sinerp<s16>(291, 162, mStateTimer.get());
+      mSprite[SPR_MENU_SWOOP].setPosition({ (s16)45, y });
+
+      if (mStateTimer.update()) {
+        mSprite[SPR_MENU_SWOOP].setPosition({ 45, 162 });
         mState = ST_MENU_WAIT;
       }
 
@@ -175,6 +267,7 @@ void TMenuScene::update() {
       setOffSprite(SPR_MENU_1);
       setOnSprite(SPR_MENU_LEFT);
       setOnSprite(SPR_MENU_RIGHT);
+
       s16 x, y, x0;
 
       y = (s16)(5.0F * TSine::ssin(
@@ -769,7 +862,7 @@ void TMenuScene::draw() {
     osVirtualToPhysical(nuGfxCfb_ptr)
   );
 
-  u32 color = GPACK_RGBA5551(20, 60, 100, 1); // (108, 48, 142, 1);
+  u32 color = GPACK_RGBA5551(255, 255, 255, 1); // (20, 60, 100, 1); // (108, 48, 142, 1);
 
   gDPSetFillColor(mDynList->pushDL(),
     ((color << 16) | color)
@@ -823,14 +916,20 @@ TMenuScene::exit() {
 
 // -------------------------------------------------------------------------- //
 
-u32 TMenuScene::getTimeLimit() {
-  return sTimeLimit;
+bool TMenuScene::isFreedomMode() {
+  return sFreedomMode;
 }
 
 // -------------------------------------------------------------------------- //
 
-bool TMenuScene::isFreedomMode() {
-  return sFreedomMode;
+void TMenuScene::unlockFreedomMode() {
+  sUnlockFreedomMode = true;
+}
+
+// -------------------------------------------------------------------------- //
+
+u32 TMenuScene::getTimeLimit() {
+  return sTimeLimit;
 }
 
 // -------------------------------------------------------------------------- //
