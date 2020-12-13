@@ -340,7 +340,7 @@ void TPlayer::update()
         mHeldVel[i] = TVec3F(0.0f, 0.0f, 0.0f);
     }
 
-    float camDist = TMath<float>::clamp(TFlockObj::getFlockObj()->getChainLength(), 0.0f, 500.0f);
+    float camDist = TMath<float>::clamp(TFlockObj::getFlockObj()->getChainLength(), 0.0f, 300.0f);
 
     switch (mState){
         

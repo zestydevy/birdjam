@@ -42,7 +42,7 @@ class TCamera
     LookAt mLookAtMtx[2];
     Hilite mHilite[2];
 
-    float mFov{44.0f};
+    float mFov{45.0f};
     TDynList2 * mDynList{nullptr};
 
     static bool checkVisible(const TVec3F & pos, float drawDistance);

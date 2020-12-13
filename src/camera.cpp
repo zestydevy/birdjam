@@ -70,7 +70,7 @@ void TCamera::jumpToTarget(){
 void TCamera::drawWindow(float scale){
     TMtx44 temp1, temp2, temp3;
     
-    mWindowPosMtx.translate(mOldPos + (mForward * 750.0f));
+    mWindowPosMtx.translate(mOldPos + (mForward * 1125.0f * 45.0f / mFov));
 
     temp1.rotateAxisX(0);
     temp2.rotateAxisY(TSine::atan2(-mForward.z(), mForward.x()));
