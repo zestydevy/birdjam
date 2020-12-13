@@ -149,6 +149,13 @@ bool TFlockObj::grabObject(TNestObj * obj) {
   return true;
 }
 
+
+// -------------------------------------------------------------------------- //
+
+void TFlockObj::trackObject(){
+  sFlockObj->mTotalObjects++;
+}
+
 // -------------------------------------------------------------------------- //
 
 bool TFlockObj::canGrabObject(float size) {
@@ -218,6 +225,8 @@ bool TFlockObj::cacheAllObjects() {
 
     gRank.record(mHeldObjects[i]->getObjType());
     gHud->addScore((mHeldObjects[i]->getScore()));
+
+    mCachedObjects++;
   }
 
   int lvl = getPowerLevel();
@@ -228,6 +237,18 @@ bool TFlockObj::cacheAllObjects() {
 
   mHeldNum = 0;
   mCarrySize = 0.0f;
+
+
+  if (mTotalObjects - mCachedObjects <= 30){
+    mPrevLevel = 0.0f;
+    mHighlightTimer = 99999.0f;
+    TNest::startEndGame();
+  }
+
+  if (mCachedObjects >= mTotalObjects){
+    //gHud->stopTimer();
+  }
+
   return true;
 }
 
@@ -282,6 +303,8 @@ void TNestObj::init() {
   else
     setMesh(mData->mesh);
   mObjWeight = mData->mass;
+
+  TFlockObj::trackObject();
 
   // mDebugCube = new TObject { mDynList };
   // mDebugCube->init();
@@ -805,7 +828,25 @@ TNestArea::TNestArea(
 
 // -------------------------------------------------------------------------- //
 
+void TNest::startEndGame(){
+  sNest->mNestArea->startEndGame();
+}
+
+// -------------------------------------------------------------------------- //
+
+void TNestArea::startEndGame(){
+  mEndGame = true;
+
+  setCollideRadius(5000.0f);
+  setCollideCenter(mNest->getPosition());
+}
+
+// -------------------------------------------------------------------------- //
+
 void TNestArea::updateSize(float size){
+  if (mEndGame)
+    return;
+
   TVec3F center = mNest->getPosition();
   center.y() = mNest->getTopY() + 2500.0f;
 

@@ -68,15 +68,13 @@ u8 TRank::get(u32 tally) const {
 // -------------------------------------------------------------------------- //
 
 u32 TRank::calcRank(u32 score) {
-  return RANK_D;
-
-  if (score >= 550)
+  if (score >= 57500)
     return RANK_A;
-  else if (score >= 450)
+  else if (score >= 40000)
     return RANK_B;
-  else if (score >= 250)
+  else if (score >= 20000)
     return RANK_C;
-  else if (score >= 100)
+  else if (score >= 10000)
     return RANK_D;
   else
     return RANK_F;

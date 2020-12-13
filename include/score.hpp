@@ -36,6 +36,7 @@ class TFlockObj :
   float getRadius(float min = 0.0f);
   float getObjRadius(int idx);
 
+  static void trackObject();
   bool grabObject(TNestObj * obj);
   bool dropTopObject();
   bool dropAllObjects();
@@ -63,6 +64,9 @@ class TFlockObj :
 
   float mHighlightTimer{0.0f};
   bool mDoHighlight{false};
+
+  int mTotalObjects{0};
+  int mCachedObjects{0};
 
   private:
 
@@ -157,11 +161,13 @@ class TNestArea :
   virtual ~TNestArea() = default;
 
   void updateSize(float size);
+  void startEndGame();
 
   virtual void draw() override;
 
   protected:
   TNest * mNest{nullptr};
+  bool mEndGame{false};
   
   virtual void onCollide(TCollider *) override;
 };
@@ -183,6 +189,7 @@ class TNest :
 
   static float getTopY();
   static TVec3F getRandomPointInside();
+  static void startEndGame();
 
   virtual void init() override;
   virtual void update() override;

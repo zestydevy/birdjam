@@ -695,7 +695,7 @@ void TPlayer::update()
     if (mPosition.y() < -BIRD_RADIUS && (mState == playerstate_t::PLAYERSTATE_FALLING || mState == playerstate_t::PLAYERSTATE_WALKING))
         startFlying();  //no more jesus bird
     mPosition.x() = TMath<float>::clamp(mPosition.x(), -4500.0f, 3600.0f);
-    mPosition.y() = TMath<float>::clamp(mPosition.y(), -BIRD_RADIUS, 2000.0f);
+    mPosition.y() = TMath<float>::clamp(mPosition.y(), -BIRD_RADIUS, 3000.0f);
     mPosition.z() = TMath<float>::clamp(mPosition.z(), -4200.0f, 4200.0f);
 
     //Game state and HUD check

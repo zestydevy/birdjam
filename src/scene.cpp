@@ -435,6 +435,7 @@ void TTestScene::update()
 
         if (mCheatState == sizeof(CACHE_CODE) / sizeof(EButton)){
             TFlockObj::getFlockObj()->incFlock(0, SIZE_LAYER3);
+            TNest::startEndGame();
             mCheatState = 0;
         }
     }
