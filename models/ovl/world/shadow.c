@@ -274,7 +274,7 @@ Gfx mat_revert_shadow_sm64_material[] = {
 
 Gfx shadow_Plane_mesh[] = {
 	gsDPPipeSync(),
-	gsDPSetRenderMode(G_RM_AA_ZB_XLU_SURF, G_RM_AA_ZB_XLU_SURF2),
+	gsDPSetRenderMode(G_RM_AA_ZB_XLU_DECAL, G_RM_AA_ZB_XLU_DECAL2),
 	gsSPDisplayList(mat_shadow_sm64_material),
 	gsSPDisplayList(shadow_Plane_mesh_tri_0),
 	gsSPDisplayList(mat_revert_shadow_sm64_material),
