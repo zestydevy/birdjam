@@ -1486,7 +1486,7 @@ void THud::startCountDown() {
   mTime.hide();
 
   mState = ST_COUNTDOWN;
-  mStateTimer.set(3.3F);
+  mStateTimer.set(3.8F);
 }
 
 // -------------------------------------------------------------------------- //
