@@ -67,6 +67,9 @@ void TMenuScene::init() {
   mStatus = ESceneState::RUNNING;
   nuGfxDisplayOn();
 
+  // sUnlockMask = UNLOCK_FREEDOM;
+  // sUnlockPending = UNLOCK_FREEDOM;
+
   TAudio::playMusic(BGM_FUNK);
   TAudio::fadeMusic(1.0F);
 
@@ -173,6 +176,7 @@ void TMenuScene::update() {
       mSprite[SPR_FLASH].setColor({ 255, 255, 255, a });
 
       if (mStateTimer.update()) {
+        TAudio::playSound(SFX_CAW);
         setOnSprite(SPR_BG);
         setOnSprite(SPR_LOGO);
 
@@ -222,6 +226,7 @@ void TMenuScene::update() {
 
       if (isPressSelect()) {
         mMenuTimer = 0.0F;
+        TAudio::playSound(SFX_MENU_SELECT);
 
         mState = ST_MENU_IN;
         mStateTimer.set(1.0F);
@@ -265,6 +270,8 @@ void TMenuScene::update() {
         mSprite[SPR_MENU_SWOOP].setPosition({ 45, 162 });
 
         if (sUnlockPending != 0) {
+          TAudio::playSound(SFX_WOOSH);
+
           switch (sUnlockPending) {
             case UNLOCK_FREEDOM: {
               mSprite[SPR_UNLOCK_0].load(menu_unlock0_sprite);
@@ -313,6 +320,7 @@ void TMenuScene::update() {
       mSprite[SPR_UNLOCK_1].setColor({ 255, 255, 255, a });
 
       if (mStateTimer.update()) {
+        TAudio::playSound(SFX_FREEDOM);
         setOffSprite(SPR_UNLOCK_1);
         mMenuTimer = 0.0F;
 
@@ -334,6 +342,7 @@ void TMenuScene::update() {
       mMenuTimer += kInterval;
 
       if (isPressSelect() || isPressCancel()) {
+        TAudio::playSound(SFX_BORGAR);
         setOffSprite(SPR_UNLOCK_0);
         setOffSprite(SPR_UNLOCK_1);
         setOffSprite(SPR_START);
@@ -386,7 +395,12 @@ void TMenuScene::update() {
 
       if (isPressSelect()) {
         mMenuTimer = 0.0F;
-        TAudio::playSound(SFX_MENU_SELECT);
+
+        if (mMenuList[mMenuOpt] == OPT_FREEDOM) {
+          TAudio::playSound(SFX_FREEDOM);
+        } else {
+          TAudio::playSound(SFX_MENU_SELECT);
+        }
 
         mState = ST_MENU_FLASH;
         mStateTimer.set(1.0F);
@@ -562,6 +576,7 @@ void TMenuScene::update() {
           mState = ST_SUBMENU_IN;
           mStateTimer.set(0.5F);
         } else {
+          TAudio::playSound(SFX_WOOSH);
           TAudio::fadeMusic(0.75F, 0.5F);
 
           mState = ST_START_IN;
@@ -707,6 +722,7 @@ void TMenuScene::update() {
       }
 
       if (mStateTimer.update()) {
+        TAudio::playSound(SFX_WOOSH);
         TAudio::fadeMusic(0.75F, 0.5F);
         setOnSprite(SPR_SUBMENU_0);
 
@@ -899,12 +915,15 @@ void TMenuScene::update() {
       mMenuTimer += kInterval;
 
       if (isPressSelect()) {
+        TAudio::playSound(SFX_WOOSH);
+        TAudio::playSound(SFX_MENU_SELECT);
         TAudio::fadeMusic(0.0F, 0.5F);
         mMenuTimer = 0.0F;
 
         mState = ST_START_OUT;
         mStateTimer.set(0.75F);
       } else if (isPressCancel()) {
+        TAudio::playSound(SFX_MENU_BACK);
         TAudio::fadeMusic(1.0F, 0.5F);
         mMenuTimer = 0.0F;
 

@@ -2,6 +2,7 @@
 #include <nusys.h>
 #include <math.h>
 
+#include "audio.hpp"
 #include "collider.hpp"
 #include "collision.hpp"
 #include "dynlist.hpp"
@@ -808,6 +809,7 @@ void TNest::assimilateObject(TNestObj * obj){
   //setCollideCenter(mPosition + TVec3F(0.0f, -9.0f, 0.0f));
 
   mNestArea->updateSize(mSize);
+  TAudio::playSound(SFX_POP);
 }
 
 // -------------------------------------------------------------------------- //
