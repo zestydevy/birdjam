@@ -103,7 +103,7 @@ void TPlayer::setAnimation(int length, playeranim_t anim, bool loop, float times
 void TPlayer::startFlying(){
     // Set state and animation
     mState = PLAYERSTATE_FLYING;
-    setAnimation(bird_Bird_GlideFlap_Length, ANIM_GLIDEFLAP, false, 0.25f);
+    setAnimation(bird_Bird_GlideFlap_Length, ANIM_GLIDEFLAP, false, 1.0f);
 
     mPosition += TVec3F(0.0f, BIRD_RADIUS, 0.0f);
 
@@ -498,7 +498,7 @@ void TPlayer::update()
             if (mPad->isPressed(Z)){    //Start flying
                 // Set state and animation
                 mState = PLAYERSTATE_FLYING;
-                setAnimation(bird_Bird_GlideFlap_Length, ANIM_GLIDEFLAP, false, 0.25f);
+                setAnimation(bird_Bird_GlideFlap_Length, ANIM_GLIDEFLAP, false, 1.00f);
 
                 mFlappingWings = true;
 
