@@ -93,7 +93,7 @@ void TAudio::playMusic(EBgm const music)
     mBgmR = MusStartEffect(music+1);
 }
 
-void TAudio::stopMusic(EBgm const music)
+void TAudio::stopMusic()
 {
     MusHandleStop(mBgmL, 0);
     MusHandleStop(mBgmR, 0);
