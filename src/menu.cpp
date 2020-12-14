@@ -987,6 +987,7 @@ void TMenuScene::update() {
 // -------------------------------------------------------------------------- //
 
 void TMenuScene::draw() {
+  /*
   gDPSetColorImage(mDynList->pushDL(),
     G_IM_FMT_RGBA, G_IM_SIZ_16b, kResWidth,
     osVirtualToPhysical(nuGfxCfb_ptr)
@@ -1001,6 +1002,7 @@ void TMenuScene::draw() {
   gDPFillRectangle(mDynList->pushDL(),
     0, 0, (kResWidth - 1), (kResHeight - 1)
   );
+  */
 }
 
 // -------------------------------------------------------------------------- //
@@ -1010,7 +1012,21 @@ void TMenuScene::draw2D() {
     if (mSpriteMask & (1U << i)) {
       continue;
     }
+    
+    TSprite logo = TSprite();
 
+    if (mState >= ST_FLASH_IN) {
+      logo.setColor({255,255,255,0});
+    } else {
+      logo.setColor({255,255,255,255});
+    }
+
+    logo.load(white_sprite);
+    logo.setPosition(TVec2S{0, 0});
+    logo.setScale(TVec2F{320.0f, 250.0f});
+    logo.setAttributes(SP_FRACPOS | SP_TRANSPARENT);
+    logo.draw();
+    
     mSprite[i].draw();
   }
 }
