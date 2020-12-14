@@ -1,6 +1,7 @@
 
 #include <nusys.h>
 
+#include "audio.hpp"
 #include "hud.hpp"
 #include "menu.hpp"
 #include "pad.hpp"
@@ -1545,6 +1546,7 @@ void THud::update() {
         case EResultState::OUT: {
           mExit.hide();
           mCountDown.fade(1.0F);
+          TAudio::fadeMusic(0.0F, 1.0F);
 
           mState = ST_EXIT;
           mStateTimer.set(1.0F);
@@ -1643,6 +1645,7 @@ void THud::update() {
         t = mClock.get(&after);
 
         if (t == 0.0F && !mTimeUp) {
+          TAudio::fadeMusic(0.5F, 1.0F);
           mCountDown.timeup();
           mTimeUp = true;
 
@@ -1661,6 +1664,7 @@ void THud::update() {
       } else if (mPad->isPressed(EButton::START)) {
         mExit.hide();
         mCountDown.fade(1.0F);
+        TAudio::fadeMusic(0.0F, 1.0F);
 
         mState = ST_EXIT;
         mStateTimer.set(1.0F);

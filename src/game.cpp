@@ -330,6 +330,8 @@ void TGame::testRender(u32 taskNum)
 
     if (taskNum > 3) return;
 
+    TAudio::update();
+
     switch(scene->getState())
     {
         case ESceneState::IDLE:

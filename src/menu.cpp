@@ -1,5 +1,6 @@
 
 #include "app.hpp"
+#include "audio.hpp"
 #include "dynlist.hpp"
 #include "hud.hpp"
 #include "menu.hpp"
@@ -65,6 +66,9 @@ TMenuScene::TMenuScene(TDynList2 * dl) :
 void TMenuScene::init() {
   mStatus = ESceneState::RUNNING;
   nuGfxDisplayOn();
+
+  TAudio::playMusic(BGM_FUNK);
+  TAudio::fadeMusic(1.0F);
 
   TUtil::toMemory(
     _menu_ovlSegmentStart,
@@ -382,11 +386,14 @@ void TMenuScene::update() {
 
       if (isPressSelect()) {
         mMenuTimer = 0.0F;
+        TAudio::playSound(SFX_MENU_SELECT);
+
         mState = ST_MENU_FLASH;
         mStateTimer.set(1.0F);
       } else if (isPressLeft()) {
         mMenuTimer = 0.0F;
         mOldMenuOpt = mMenuOpt;
+        TAudio::playSound(SFX_MENU_PAGE);
 
         if (mMenuOpt == 0) {
           mMenuOpt = (mNumMenuOpts - 1);
@@ -408,6 +415,7 @@ void TMenuScene::update() {
       } else if (isPressRight()) {
         mMenuTimer = 0.0F;
         mOldMenuOpt = mMenuOpt;
+        TAudio::playSound(SFX_MENU_PAGE);
 
         if (mMenuOpt == (mNumMenuOpts - 1)) {
           mMenuOpt = 0;
@@ -554,6 +562,8 @@ void TMenuScene::update() {
           mState = ST_SUBMENU_IN;
           mStateTimer.set(0.5F);
         } else {
+          TAudio::fadeMusic(0.75F, 0.5F);
+
           mState = ST_START_IN;
           mStateTimer.set(0.75F);
         }
@@ -611,17 +621,20 @@ void TMenuScene::update() {
 
       if (isPressSelect()) {
         mMenuTimer = 0.0F;
+        TAudio::playSound(SFX_MENU_SELECT);
 
         mState = ST_SUBMENU_FLASH;
         mStateTimer.set(1.0F);
       } else if (isPressCancel()) {
         mMenuTimer = 0.0F;
+        TAudio::playSound(SFX_MENU_BACK);
 
         mState = ST_SUBMENU_OUT;
         mStateTimer.set(0.5F);
       } else if (isPressLeft()) {
         mMenuTimer = 0.0F;
         mOldSubMenuOpt = mSubMenuOpt;
+        TAudio::playSound(SFX_MENU_PAGE);
 
         if (mSubMenuOpt == 0) {
           mSubMenuOpt = (mNumSubMenuOpts - 1);
@@ -649,6 +662,7 @@ void TMenuScene::update() {
       } else if (isPressRight()) {
         mMenuTimer = 0.0F;
         mOldSubMenuOpt = mSubMenuOpt;
+        TAudio::playSound(SFX_MENU_PAGE);
 
         if (mSubMenuOpt == (mNumSubMenuOpts - 1)) {
           mSubMenuOpt = 0;
@@ -693,6 +707,7 @@ void TMenuScene::update() {
       }
 
       if (mStateTimer.update()) {
+        TAudio::fadeMusic(0.75F, 0.5F);
         setOnSprite(SPR_SUBMENU_0);
 
         mState = ST_START_IN;
@@ -884,11 +899,13 @@ void TMenuScene::update() {
       mMenuTimer += kInterval;
 
       if (isPressSelect()) {
+        TAudio::fadeMusic(0.0F, 0.5F);
         mMenuTimer = 0.0F;
 
         mState = ST_START_OUT;
         mStateTimer.set(0.75F);
       } else if (isPressCancel()) {
+        TAudio::fadeMusic(1.0F, 0.5F);
         mMenuTimer = 0.0F;
 
         mState = ST_START_CANCEL;

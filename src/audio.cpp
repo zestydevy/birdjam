@@ -17,6 +17,10 @@ u8 * TAudio::sSfxBuffer{nullptr};
 musHandle TAudio::mBgmL;
 musHandle TAudio::mBgmR;
 
+float TAudio::sBgmCurVol = { 0.0F };
+float TAudio::sBgmToVol = { 0.0F };
+float TAudio::sBgmFadeVol = { 0.0F };
+
 TArray<musHandle> TAudio::sHandleList;
 
 // -------------------------------------------------------------------------- //
@@ -82,19 +86,70 @@ void TAudio::init()
 
 // -------------------------------------------------------------------------- //
 
+void TAudio::update() {
+    setVolume();
+
+    if (sBgmCurVol > sBgmToVol) {
+        sBgmCurVol += sBgmFadeVol;
+
+        if (sBgmCurVol <= sBgmToVol) {
+            sBgmCurVol = sBgmToVol;
+            sBgmFadeVol = 0.0F;
+        }
+    } else {
+        sBgmCurVol += sBgmFadeVol;
+
+        if (sBgmCurVol >= sBgmToVol) {
+            sBgmCurVol = sBgmToVol;
+            sBgmFadeVol = 0.0F;
+        }
+    }
+}
+
+// -------------------------------------------------------------------------- //
+
 void TAudio::playSound(ESfxType const sound)
 {
     MusStartEffect(sound);
 }
 
+// -------------------------------------------------------------------------- //
+
 void TAudio::playMusic(EBgm const music)
 {
     mBgmL = MusStartEffect(music);
     mBgmR = MusStartEffect(music+1);
+    setVolume();
 }
+
+// -------------------------------------------------------------------------- //
+
+void TAudio::fadeMusic(float to, float time) {
+    sBgmToVol = to;
+
+    if (time <= 0.001F) {
+        sBgmCurVol = to;
+        sBgmFadeVol = 0.0F;
+    } else {
+        sBgmFadeVol = ((to - sBgmCurVol) / (kFrameRate * time));
+    }
+}
+
+// -------------------------------------------------------------------------- //
 
 void TAudio::stopMusic()
 {
     MusHandleStop(mBgmL, 0);
     MusHandleStop(mBgmR, 0);
 }
+
+// -------------------------------------------------------------------------- //
+
+void TAudio::setVolume() {
+    int volume = (int)(sBgmCurVol * 0.5F * 128.0F);
+
+    MusHandleSetVolume(mBgmL, volume);
+    MusHandleSetVolume(mBgmR, volume);
+}
+
+// -------------------------------------------------------------------------- //

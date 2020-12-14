@@ -204,7 +204,6 @@ void TLogoScene::runBootTimer()
         mShowTimer = nullptr;
         mLogoX = 40;        // move logo on screen
         TAudio::playSound(ESfxType::SFX_CAW);
-        TAudio::playMusic(EBgm::BGM_FUNK);
     }
 }
 
@@ -250,6 +249,10 @@ const EButton CACHE_CODE[] = {UP, UP, DOWN, DOWN, LEFT, RIGHT, LEFT, RIGHT, B, A
 void TTestScene::init()
 {
     mStatus = ESceneState::RUNNING;
+
+    TAudio::stopMusic();
+    TAudio::playMusic(EBgm::BGM_FLY);
+    TAudio::fadeMusic(1.0F);
 
     // turn on screen
     nuGfxDisplayOn();

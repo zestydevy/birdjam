@@ -42,10 +42,14 @@ enum EBgm : musHandle
 class TAudio
 {
     public:
-    
+
     static void init();
-    static void playSound(ESfxType const sound);
-    static void playMusic(EBgm const music);
+    static void update();
+
+    static void playSound(ESfxType sound);
+
+    static void playMusic(EBgm music);
+    static void fadeMusic(float to, float time = 0.0F);
     static void stopMusic();
 
     private:
@@ -56,8 +60,14 @@ class TAudio
 
     static musHandle mBgmL;
     static musHandle mBgmR;
-    
+
+    static float sBgmCurVol;
+    static float sBgmToVol;
+    static float sBgmFadeVol;
+
     static TArray<musHandle> sHandleList;
+
+    static void setVolume();
 
 };
 
