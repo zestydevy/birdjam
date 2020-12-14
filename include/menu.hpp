@@ -12,6 +12,14 @@
 
 // -------------------------------------------------------------------------- //
 
+enum : u32 {
+
+  UNLOCK_FREEDOM = 0x0000'0001,
+
+};
+
+// -------------------------------------------------------------------------- //
+
 class TMenuScene :
   public TScene
 {
@@ -55,7 +63,10 @@ class TMenuScene :
     ST_START_IN,
     ST_START_WAIT,
     ST_START_OUT,
-    ST_START_CANCEL
+    ST_START_CANCEL,
+    ST_UNLOCK_IN,
+    ST_UNLOCK_WAIT,
+    ST_UNLOCK_OUT,
 
   };
 
@@ -72,6 +83,8 @@ class TMenuScene :
     SPR_SUBMENU_0,
     SPR_SUBMENU_1,
     SPR_FLASH,
+    SPR_UNLOCK_1,
+    SPR_UNLOCK_0,
     SPR_START,
     SPR_OK,
 

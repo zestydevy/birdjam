@@ -285,5 +285,25 @@ extern Gfx menu_ok_dl[];
 extern Sprite menu_ok_sprite;
 
 // -------------------------------------------------------------------------- //
+// @menu_unlock0
+
+#define menu_unlock0TRUEIMAGEH	60
+#define menu_unlock0TRUEIMAGEW	137
+#define menu_unlock0IMAGEH	64
+#define menu_unlock0IMAGEW	160
+#define menu_unlock0BLOCKSIZEW	32
+#define menu_unlock0BLOCKSIZEH	32
+#define menu_unlock0SCALEX	1.0
+#define menu_unlock0SCALEY	1.0
+#define menu_unlock0MODE	SP_Z | SP_OVERLAP | SP_TRANSPARENT
+
+extern Bitmap menu_unlock0_bitmaps[];
+extern Gfx menu_unlock0_dl[];
+
+#define NUM_menu_unlock0_BMS  (sizeof(menu_unlock0_bitmaps)/sizeof(Bitmap))
+
+extern Sprite menu_unlock0_sprite;
+
+// -------------------------------------------------------------------------- //
 
 #endif
