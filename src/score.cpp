@@ -521,12 +521,12 @@ bool TNestObj::onPickup(
 
   if (mState == EState::NESTING || !TFlockObj::getFlockObj()->grabObject(this)){
     TVec3F modifiedCenter = mPosition;
-    modifiedCenter.y() = mPlayer->getPosition().y();
+    modifiedCenter.y() = TMath<float>::min(modifiedCenter.y() + getHalfHeight(), mPlayer->getPosition().y());
     TVec3F point = mPlayer->getPosition() - modifiedCenter;
     point.normalize();
     point *= getHalfWidth();
 
-    if ((point - modifiedCenter).getSqrLength() > (mPlayer->getPosition() - modifiedCenter).getSqrLength())
+    if (getHalfWidth() * getHalfWidth() > (mPlayer->getPosition() - modifiedCenter).getSqrLength())
       point = TVec3F(0.0f,0.0f,0.0f);   //keep player from getting stuck inside of objects while flying
 
     if (!mData->hasMeshCol)
