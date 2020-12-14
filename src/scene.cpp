@@ -176,19 +176,14 @@ void TLogoScene::draw()
 
 void TLogoScene::draw2D()
 {
-#if 0 // please help me fix this zest
-    gSPDisplayList(mDynList->pushDL(), rdpinit_spr_dl);
-    TSprite::init(mDynList);
 
-    TSprite timeSpr = TSprite(&logo_sprite, mLogoX, mLogoY);
-    timeSpr.mScale = {1.0f,1.0f};
-    timeSpr.mColor = {255,255,255,mAlpha};
-    timeSpr.mAttributes = SP_TRANSPARENT;
-    timeSpr.render();
-
-    gSPDisplayList(mDynList->pushDL(), rdpinit_dl);
-	gSPDisplayList(mDynList->pushDL(), rspinit_dl);
-#endif
+    TSprite logo = TSprite();
+    logo.load(logo_sprite);
+    logo.setPosition(TVec2S{mLogoX, mLogoY});
+    logo.setScale(TVec2F{1.0f, 1.0f});
+    logo.setColor({255,255,255,mAlpha});
+    logo.setAttributes(SP_FRACPOS | SP_TRANSPARENT);
+    logo.draw();
 }
 
 TScene * TLogoScene::exit()
@@ -196,10 +191,7 @@ TScene * TLogoScene::exit()
     // turn off screen
     //nuGfxDisplayOff();
 
-    // destroy scene
-    delete this;
-
-    return new TTestScene("world", mDynList);
+    return new TMenuScene { mDynList };
 
 }
 
@@ -212,6 +204,7 @@ void TLogoScene::runBootTimer()
         mShowTimer = nullptr;
         mLogoX = 40;        // move logo on screen
         TAudio::playSound(ESfxType::SFX_CAW);
+        TAudio::playMusic(EBgm::BGM_FUNK);
     }
 }
 

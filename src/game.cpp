@@ -88,7 +88,7 @@ void TGame::init()
     //mCamera = new TCamera(mDynList);
 
     mBlockHeap = (TBlockHeap *)THeap::getCurrentHeap();
-    mScene = new TMenuScene(mDynList);
+    mScene = new TLogoScene("logo", mDynList);
     mBlockHeap->setGroupID(69);
 
     //initAudio();
@@ -345,6 +345,12 @@ void TGame::testRender(u32 taskNum)
 
     game->update();
     game->draw();
+
+    if (scene->getName() == "game") {
+        nuGfxRetraceWait(1);
+    } else {
+        nuGfxRetraceWait(2);
+    }
 }
 
 // -------------------------------------------------------------------------- //

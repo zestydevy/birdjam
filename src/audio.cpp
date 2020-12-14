@@ -14,6 +14,9 @@ u8 * TAudio::sBankBuffer{nullptr};
 u8 * TAudio::sMusicBuffer{nullptr};
 u8 * TAudio::sSfxBuffer{nullptr};
 
+musHandle TAudio::mBgmL;
+musHandle TAudio::mBgmR;
+
 TArray<musHandle> TAudio::sHandleList;
 
 // -------------------------------------------------------------------------- //
@@ -82,4 +85,16 @@ void TAudio::init()
 void TAudio::playSound(ESfxType const sound)
 {
     MusStartEffect(sound);
+}
+
+void TAudio::playMusic(EBgm const music)
+{
+    mBgmL = MusStartEffect(music);
+    mBgmR = MusStartEffect(music+1);
+}
+
+void TAudio::stopMusic(EBgm const music)
+{
+    MusHandleStop(mBgmL, 0);
+    MusHandleStop(mBgmR, 0);
 }
