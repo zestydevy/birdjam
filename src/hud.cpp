@@ -786,6 +786,7 @@ void THudCountDown::update() {
       mSprite[SPR_FLASH].setColor({ 255, 255, 255, a });
 
       if (mStateTimer.update()) {
+        TAudio::playSound(SFX_WOOSH);
         setOffSprite(SPR_FLASH);
 
         mState = ST_READY_IN;
@@ -815,6 +816,7 @@ void THudCountDown::update() {
 
       if (mStateTimer.update()) {
         mSprite[SPR_DIGIT].load(hud_count3_sprite);
+        TAudio::playSound(SFX_COUNTDOWN_NUMBER);
 
         mState = ST_READY_3;
         mStateTimer.set(0.66F);
@@ -834,6 +836,7 @@ void THudCountDown::update() {
 
       if (mStateTimer.update()) {
         mSprite[SPR_DIGIT].load(hud_count2_sprite);
+        TAudio::playSound(SFX_COUNTDOWN_NUMBER);
 
         mState = ST_READY_2;
         mStateTimer.set(0.66F);
@@ -853,6 +856,7 @@ void THudCountDown::update() {
 
       if (mStateTimer.update()) {
         mSprite[SPR_DIGIT].load(hud_count1_sprite);
+        TAudio::playSound(SFX_COUNTDOWN_NUMBER);
 
         mState = ST_READY_1;
         mStateTimer.set(0.66F);
@@ -873,6 +877,7 @@ void THudCountDown::update() {
       if (mStateTimer.update()) {
         setOffSprite(SPR_HEADER);
         mSprite[SPR_HEADER].load(hud_fly_sprite);
+        TAudio::playSound(SFX_COUNTDOWN_GO);
 
         mState = ST_FLY;
         mStateTimer.set(0.35F);
@@ -891,6 +896,8 @@ void THudCountDown::update() {
       mSprite[SPR_HEADER].setScale({ t, t });
 
       if (mStateTimer.update()) {
+        TAudio::playSound(SFX_WOOSH);
+
         mState = ST_FLY_OUT;
         mStateTimer.set(0.75F);
       }
@@ -1024,6 +1031,8 @@ void THudResults::show() {
     mSprite[SPR_TALLY0_DIGIT1 + 3 * i].load(result_digit0_sprite);
     mSprite[SPR_TALLY0_DIGIT1 + 3 * i].setPosition({ (s16)201, y });
   }
+
+  TAudio::playSound(SFX_WOOSH);
 }
 
 // -------------------------------------------------------------------------- //
@@ -1175,6 +1184,7 @@ void THudResults::update(TPad const * pad) {
     }
     case ST_RESULTS_WAIT: {
       if (mStateTimer.update()) {
+        TAudio::playSound(SFX_WOOSH);
         mState = ST_TALLY;
       }
 
@@ -1220,6 +1230,8 @@ void THudResults::update(TPad const * pad) {
           mStateTimer.set(0.1F);
         } else {
           ++mNumTally;
+          TAudio::playSound(SFX_WOOSH);
+          TAudio::playSound(SFX_POP);
           mStateTimer.set(0.5F);
         }
       }
@@ -1228,6 +1240,8 @@ void THudResults::update(TPad const * pad) {
     }
     case ST_TALLY_WAIT: {
       if (mStateTimer.update()) {
+        TAudio::playSound(SFX_WOOSH);
+
         mState = ST_RANK_IN;
         mStateTimer.set(0.8F);
       }
@@ -1239,6 +1253,8 @@ void THudResults::update(TPad const * pad) {
       rank_x = Sinerp<s16>(480, 147, mStateTimer.get());
 
       if (mStateTimer.update()) {
+        TAudio::playSound(SFX_STAMP);
+
         mState = ST_RANK_STAR;
         mStateTimer.set(0.5F);
       }
@@ -1547,6 +1563,7 @@ void THud::update() {
           mExit.hide();
           mCountDown.fade(1.0F);
           TAudio::fadeMusic(0.0F, 1.0F);
+          TAudio::playSound(SFX_MENU_SELECT);
 
           mState = ST_EXIT;
           mStateTimer.set(1.0F);
@@ -1645,6 +1662,7 @@ void THud::update() {
         t = mClock.get(&after);
 
         if (t == 0.0F && !mTimeUp) {
+          TAudio::playSound(SFX_TIMEOUT);
           TAudio::fadeMusic(0.5F, 1.0F);
           mCountDown.timeup();
           mTimeUp = true;
@@ -1665,6 +1683,7 @@ void THud::update() {
         mExit.hide();
         mCountDown.fade(1.0F);
         TAudio::fadeMusic(0.0F, 1.0F);
+        TAudio::playSound(SFX_MENU_SELECT);
 
         mState = ST_EXIT;
         mStateTimer.set(1.0F);

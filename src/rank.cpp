@@ -15,6 +15,14 @@ void TRank::reset() {
   for (u32 i = 0; i < NUM_TALLY; ++i) {
     mTally[i] = 0;
   }
+
+  // mTally[TALLY_VEHICLES] = 1;
+  // mTally[TALLY_TIRES] = 1;
+  // mTally[TALLY_BOARDS] = 1;
+  // mTally[TALLY_STORE_LOGOS] = 1;
+  // mTally[TALLY_BALLOONS] = 1;
+  // mTally[TALLY_STONES] = 1;
+  // mTally[TALLY_CITIZENS] = 1;
 }
 
 // -------------------------------------------------------------------------- //
