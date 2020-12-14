@@ -15,8 +15,10 @@
 // -------------------------------------------------------------------------- //
 
 static bool sFreedomMode { false };
-static bool sUnlockFreedomMode { false };
 static u32 sTimeLimit { 0 };
+
+static u32 sUnlockMask { 0 };
+static u32 sUnlockPending { 0 };
 
 // -------------------------------------------------------------------------- //
 
@@ -62,6 +64,7 @@ TMenuScene::TMenuScene(TDynList2 * dl) :
 
 void TMenuScene::init() {
   mStatus = ESceneState::RUNNING;
+  sUnlockPending = UNLOCK_FREEDOM;
   nuGfxDisplayOn();
 
   TUtil::toMemory(
@@ -103,7 +106,7 @@ void TMenuScene::init() {
   mMenuList[0] = OPT_PRACTICE;
   mMenuList[1] = OPT_TIME;
 
-  if (sUnlockFreedomMode) {
+  if (sUnlockMask & UNLOCK_FREEDOM) {
     mMenuList[2] = OPT_FREEDOM;
     mNumMenuOpts = 3;
   } else {
@@ -257,6 +260,98 @@ void TMenuScene::update() {
 
       if (mStateTimer.update()) {
         mSprite[SPR_MENU_SWOOP].setPosition({ 45, 162 });
+
+        if (sUnlockPending != 0) {
+          switch (sUnlockPending) {
+            case UNLOCK_FREEDOM: {
+              mSprite[SPR_UNLOCK_0].load(menu_unlock0_sprite);
+              mSprite[SPR_UNLOCK_1].load(menu_unlock0_sprite);
+              break;
+            }
+          }
+
+          sUnlockPending = 0;
+
+          mState = ST_UNLOCK_IN;
+          mStateTimer.set(1.0F);
+        } else {
+          mState = ST_MENU_WAIT;
+        }
+      }
+
+      break;
+    }
+    case ST_UNLOCK_IN: {
+      setOnSprite(SPR_UNLOCK_0);
+      setOnSprite(SPR_UNLOCK_1);
+      setOnSprite(SPR_FLASH);
+
+      s16 x, y, w, h;
+      float t;
+      u8 a;
+
+      a = Lerp<u8>(0, 128, mStateTimer.get(0.0F, 0.5F));
+      mSprite[SPR_FLASH].setColor({ 255, 255, 255, a });
+
+      w = (s16)(menu_unlock0TRUEIMAGEW / 2);
+      h = (s16)(menu_unlock0TRUEIMAGEH / 2);
+      t = Lerp<float>(0.0F, 1.0F, mStateTimer.get(0.0F, 0.5F));
+      x = (160 - (s16)((float)w * t));
+      y = (120 - (s16)((float)h * t));
+      mSprite[SPR_UNLOCK_0].setPosition({ x, y });
+      mSprite[SPR_UNLOCK_0].setScale({ t, t });
+
+      t = Lerp<float>(0.0F, 2.0F, mStateTimer.get());
+      a = Lerp<u8>(128, 0, mStateTimer.get(0.5F, 1.0F));
+      x = (160 - (s16)((float)w * t));
+      y = (120 - (s16)((float)h * t));
+      mSprite[SPR_UNLOCK_1].setPosition({ x, y });
+      mSprite[SPR_UNLOCK_1].setScale({ t, t });
+      mSprite[SPR_UNLOCK_1].setColor({ 255, 255, 255, a });
+
+      if (mStateTimer.update()) {
+        setOffSprite(SPR_UNLOCK_1);
+        mMenuTimer = 0.0F;
+
+        mState = ST_UNLOCK_WAIT;
+      }
+
+      break;
+    }
+    case ST_UNLOCK_WAIT: {
+      mSprite[SPR_START].setPosition({ 210, 128 });
+      mSprite[SPR_START].setScale({ 0.75F, 0.75F });
+
+      if (TMath<float>::mod(mMenuTimer, 0.5F) >= 0.25F) {
+        setOffSprite(SPR_START);
+      } else {
+        setOnSprite(SPR_START);
+      }
+
+      mMenuTimer += kInterval;
+
+      if (isPressSelect() || isPressCancel()) {
+        setOffSprite(SPR_UNLOCK_0);
+        setOffSprite(SPR_UNLOCK_1);
+        setOffSprite(SPR_START);
+        mMenuTimer = 0.0F;
+
+        mState = ST_UNLOCK_OUT;
+        mStateTimer.set(0.5F);
+      }
+
+      break;
+    }
+    case ST_UNLOCK_OUT: {
+      u8 a;
+
+      a = Lerp<u8>(128, 0, mStateTimer.get());
+      mSprite[SPR_FLASH].setColor({ 255, 255, 255, a });
+
+      if (mStateTimer.update()) {
+        setOffSprite(SPR_FLASH);
+        mMenuTimer = 0.0F;
+
         mState = ST_MENU_WAIT;
       }
 
@@ -923,7 +1018,12 @@ bool TMenuScene::isFreedomMode() {
 // -------------------------------------------------------------------------- //
 
 void TMenuScene::unlockFreedomMode() {
-  sUnlockFreedomMode = true;
+  if (sUnlockMask & UNLOCK_FREEDOM) {
+    return;
+  }
+
+  sUnlockMask |= UNLOCK_FREEDOM;
+  sUnlockPending |= UNLOCK_FREEDOM;
 }
 
 // -------------------------------------------------------------------------- //
