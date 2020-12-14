@@ -7,6 +7,8 @@
 #include "hud.hpp"
 #include "menu.hpp"
 #include "segment.h"
+#include <nusys.h>
+#include <nualstl_n.h>
 #include "audio.hpp"
 
 #include "score.hpp"
@@ -260,7 +262,8 @@ void TPlayer::collectObject(EObjType type){
         //    playBalloonPopSFX();
         //    break;
         default:
-        TAudio::playSound(ESfxType::SFX_GRAB);
+        if (!gHud->isTimeUp())
+            TAudio::playSound(ESfxType::SFX_GRAB);
             break;
         //case EObjType::CHICKEN:
         //    playChickenSFX();
@@ -286,17 +289,24 @@ void TPlayer::playCawSFX(){
     mCawTimer = 0.4f;
     if (!TMenuScene::isFreedomMode())
         TAudio::playSound(ESfxType::SFX_CAW);
-    else
-        TAudio::playSound(ESfxType::SFX_FREEDOM);
+    else{
+        TAudio::playSound(ESfxType::SFX_REALEAGLE1); //too quiet :(
+        TAudio::playSound(ESfxType::SFX_REALEAGLE1); //we literally have 1 hour left please forgive me
+        TAudio::playSound(ESfxType::SFX_REALEAGLE1); //im sorry
+        TAudio::playSound(ESfxType::SFX_REALEAGLE1); //i couldnt get MusStartEffect2 working
+    }
 }
 void TPlayer::playStumbleSFX(){
-    TAudio::playSound(ESfxType::SFX_BIRD_WALL_HIT);
+    if (!gHud->isTimeUp())
+        TAudio::playSound(ESfxType::SFX_BIRD_WALL_HIT);
 }
 void TPlayer::playCrashSFX(){
-    TAudio::playSound(ESfxType::SFX_BIRD_WALL_HIT);
+    if (!gHud->isTimeUp())
+        TAudio::playSound(ESfxType::SFX_BIRD_WALL_HIT);
 }
 void TPlayer::playBalloonPopSFX(){
-    //TAudio::playSound(ESfxType::SFX_CAW);
+    if (!gHud->isTimeUp())
+        TAudio::playSound(ESfxType::SFX_POP);
 }
 void TPlayer::playCatSFX(){}
 void TPlayer::playChickenSFX(){}
@@ -563,7 +573,8 @@ void TPlayer::update()
                     float wflapspeed = 0.25f;
                     if (!mPad->isHeld(A))
                         wflapspeed = 0.1f;
-                    TAudio::playSound(ESfxType::SFX_BIRD_FLAP);
+                    if (!gHud->isTimeUp())
+                        TAudio::playSound(ESfxType::SFX_BIRD_FLAP);
                     setAnimation(bird_Bird_GlideFlap_Length, ANIM_GLIDEFLAP, false, wflapspeed);
                     mFlappingWings = true;
                 }
