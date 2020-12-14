@@ -30,6 +30,7 @@ enum ESfxType : musHandle
     BGM_SONG_COMP_R          = 18,
     SFX_TIMEOUT              = 19,
     SFX_WOOSH                = 20,
+    SFX_STAMP                = 21,
 };
 
 enum EBgm : musHandle
