@@ -72,6 +72,7 @@ class TMenuScene :
 
   enum : u32 {
 
+    SPR_FILL,
     SPR_BG,
     SPR_BIRD,
     SPR_LOGO,

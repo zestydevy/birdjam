@@ -121,6 +121,11 @@ void TMenuScene::init() {
 
   mMenuOpt = 1;
   mStateTimer.set(0.5F);
+
+  mSprite[SPR_FILL].load(white_sprite);
+  mSprite[SPR_FILL].setPosition(TVec2S{0, 0});
+  mSprite[SPR_FILL].setScale(TVec2F{320.0f, 250.0f});
+  setOnSprite(SPR_FILL);
 }
 
 // -------------------------------------------------------------------------- //
@@ -1012,21 +1017,7 @@ void TMenuScene::draw2D() {
     if (mSpriteMask & (1U << i)) {
       continue;
     }
-    
-    TSprite logo = TSprite();
 
-    if (mState >= ST_FLASH_IN) {
-      logo.setColor({255,255,255,0});
-    } else {
-      logo.setColor({255,255,255,255});
-    }
-
-    logo.load(white_sprite);
-    logo.setPosition(TVec2S{0, 0});
-    logo.setScale(TVec2F{320.0f, 250.0f});
-    logo.setAttributes(SP_FRACPOS | SP_TRANSPARENT);
-    logo.draw();
-    
     mSprite[i].draw();
   }
 }
