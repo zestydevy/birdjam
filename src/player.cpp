@@ -539,7 +539,10 @@ void TPlayer::update()
             if (((canMove() && mPad->isHeld(A)) || mSpeed < BIRD_SLOWSPEED) && !mSlowingDown && mSpeed < BIRD_FASTSPEED){ // Flapping speed - when you hold A, or when going too slow. Can't do this when going too fast.
                 mGoingFast = false;
                 if (mFlapTimer < 0.0f && mFlappingWings == false){
-                    setAnimation(bird_Bird_GlideFlap_Length, ANIM_GLIDEFLAP, false, 0.25f);
+                    float wflapspeed = 0.25f;
+                    if (!mPad->isHeld(A))
+                        wflapspeed = 0.1f;
+                    setAnimation(bird_Bird_GlideFlap_Length, ANIM_GLIDEFLAP, false, wflapspeed);
                     mFlappingWings = true;
                 }
                 mSpeed += BIRD_ACCEL;
@@ -739,7 +742,6 @@ void TPlayer::update()
     }
 
     updateBlkMap();
-    mAnim->update();
 }
 
 void TPlayer::updateMtx()
@@ -766,6 +768,8 @@ void TPlayer::updateMtx()
 
 void TPlayer::draw()
 {
+    mAnim->update();
+    
     if (mGroundFace != nullptr) {
         mShadow->draw();
     }
