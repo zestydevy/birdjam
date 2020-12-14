@@ -64,7 +64,6 @@ TMenuScene::TMenuScene(TDynList2 * dl) :
 
 void TMenuScene::init() {
   mStatus = ESceneState::RUNNING;
-  sUnlockPending = UNLOCK_FREEDOM;
   nuGfxDisplayOn();
 
   TUtil::toMemory(
