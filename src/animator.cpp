@@ -48,10 +48,14 @@ void TAnimator::setTimescale(float dt){
 }
 
 bool TAnimator::isAnimationCompleted(){
-    if (mTimescale >= 0.0f)
-        return !loop && mTime >= mLength - 1;
-    else
-        return !loop && mTime < 0;
+    if (loop)
+        return mTime + mTimescale >= mLength;
+        
+    if (mTimescale > 0.0f)
+        return mTime >= mLength - 1;
+    else if (mTimescale < 0.0f)
+        return mTime < 0;
+    return false;
 }
 bool TAnimator::isAnimationLooping(){
     return loop;

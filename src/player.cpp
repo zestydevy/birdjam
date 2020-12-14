@@ -7,6 +7,7 @@
 #include "hud.hpp"
 #include "menu.hpp"
 #include "segment.h"
+#include "audio.hpp"
 
 #include "score.hpp"
 
@@ -116,6 +117,8 @@ void TPlayer::startFlying(){
     mCawing = false;
 
     mCamera->setMode(true);
+
+    TAudio::playSound(ESfxType::SFX_BIRD_FLAP);
 }
 
 void TPlayer::startIdle(){
@@ -247,19 +250,27 @@ void TPlayer::hitObject(TVec3F point, EObjType type){
 }
 
 void TPlayer::collectObject(EObjType type){
+    if (TMenuScene::isFreedomMode()){
+        TAudio::playSound(ESfxType::SFX_BORGAR);
+        return;
+    }
+
     switch (type){
-        case EObjType::BALLOON:
-            playBalloonPopSFX();
+        //case EObjType::BALLOON:
+        //    playBalloonPopSFX();
+        //    break;
+        default:
+        TAudio::playSound(ESfxType::SFX_GRAB);
             break;
-        case EObjType::CHICKEN:
-            playChickenSFX();
-            break;
-        case EObjType::CAT:
-            playCatSFX();
-            break;
-        case EObjType::CRITIC:
-            playCriticSFX();
-            break;
+        //case EObjType::CHICKEN:
+        //    playChickenSFX();
+        //    break;
+        //case EObjType::CAT:
+        //    playCatSFX();
+        //    break;
+        //case EObjType::CRITIC:
+        //    playCriticSFX();
+        //    break;
     }
 }
 void TPlayer::passthroughObject(EObjType type){
@@ -273,10 +284,20 @@ void TPlayer::passthroughObject(EObjType type){
 /* SFX */
 void TPlayer::playCawSFX(){
     mCawTimer = 0.4f;
+    if (!TMenuScene::isFreedomMode())
+        TAudio::playSound(ESfxType::SFX_CAW);
+    else
+        TAudio::playSound(ESfxType::SFX_FREEDOM);
 }
-void TPlayer::playStumbleSFX(){}
-void TPlayer::playCrashSFX(){}
-void TPlayer::playBalloonPopSFX(){}
+void TPlayer::playStumbleSFX(){
+    TAudio::playSound(ESfxType::SFX_BIRD_WALL_HIT);
+}
+void TPlayer::playCrashSFX(){
+    TAudio::playSound(ESfxType::SFX_BIRD_WALL_HIT);
+}
+void TPlayer::playBalloonPopSFX(){
+    //TAudio::playSound(ESfxType::SFX_CAW);
+}
 void TPlayer::playCatSFX(){}
 void TPlayer::playChickenSFX(){}
 void TPlayer::playLeavesShuffleSFX(){}
@@ -542,6 +563,7 @@ void TPlayer::update()
                     float wflapspeed = 0.25f;
                     if (!mPad->isHeld(A))
                         wflapspeed = 0.1f;
+                    TAudio::playSound(ESfxType::SFX_BIRD_FLAP);
                     setAnimation(bird_Bird_GlideFlap_Length, ANIM_GLIDEFLAP, false, wflapspeed);
                     mFlappingWings = true;
                 }
@@ -558,6 +580,8 @@ void TPlayer::update()
                     if (mPitchModifier > 15.0f)
                         mPitchModifier = 15.0f;
                 }
+                if (mAnim->isAnimationCompleted())
+                    TAudio::playSound(ESfxType::SFX_BIRD_FLAP);
                 mSpeed -= BIRD_SLOWACCEL;
                 mSlowingDown = true;
             }
@@ -566,6 +590,7 @@ void TPlayer::update()
                 mGoingFast = false;
                 mSlowingDown = false;
                 setAnimation(bird_Bird_GlideFlap_Length, ANIM_GLIDEFLAP, false, 0.25f);
+                TAudio::playSound(ESfxType::SFX_BIRD_FLAP);
                 mFlappingWings = true;
             }
             else
@@ -769,7 +794,7 @@ void TPlayer::updateMtx()
 void TPlayer::draw()
 {
     mAnim->update();
-    
+
     if (mGroundFace != nullptr) {
         mShadow->draw();
     }
@@ -828,12 +853,12 @@ void TPlayer::moveCameraRelative(TVec3F & move, TVec3F & forward, TVec3F & right
         move = move * BIRD_FLAPSPEED * multiplier;
     }
 
-    if (!canMove())
+    if (!canMove() || mCawing)
         move = TVec3F(0.0f, 0.0f, 0.0f);
 
     // Smooth acceleration
     mDirection.lerpTime(move, 0.1f, kInterval);
-    if (mPad->getAnalogX() != 0 || mPad->getAnalogY() != 0)
+    if ((mPad->getAnalogX() != 0 || mPad->getAnalogY() != 0) && !mCawing)
         mRotation = TVec3<s16>((s16)0, (s16)TSine::atan2(move.x(), move.z()), (s16)0);
     mPosition += mDirection;
 }
