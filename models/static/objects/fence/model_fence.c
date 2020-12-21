@@ -28,6 +28,17 @@ u8 fence_fence_ci4_pal_rgba16[] = {
 	0x61, 0x8B, 0x72, 0xF, 0x8A, 0x8F, 
 };
 
+Vtx fence_Fence_mesh_vtx_cull[8] = {
+	{{{-6, -130, -158},0, {-16, -16},{0x0, 0x0, 0x0, 0x0}}},
+	{{{-6, -130, 155},0, {-16, -16},{0x0, 0x0, 0x0, 0x0}}},
+	{{{-6, 144, 155},0, {-16, -16},{0x0, 0x0, 0x0, 0x0}}},
+	{{{-6, 144, -158},0, {-16, -16},{0x0, 0x0, 0x0, 0x0}}},
+	{{{6, -130, -158},0, {-16, -16},{0x0, 0x0, 0x0, 0x0}}},
+	{{{6, -130, 155},0, {-16, -16},{0x0, 0x0, 0x0, 0x0}}},
+	{{{6, 144, 155},0, {-16, -16},{0x0, 0x0, 0x0, 0x0}}},
+	{{{6, 144, -158},0, {-16, -16},{0x0, 0x0, 0x0, 0x0}}},
+};
+
 Vtx fence_Fence_mesh_vtx_0[47] = {
 	{{{-6, 129, -153},0, {143, 20},{0x81, 0x0, 0x0, 0xFF}}},
 	{{{-6, 130, -154},0, {-15, 15},{0xB7, 0x4B, 0xB7, 0xFF}}},
@@ -79,38 +90,23 @@ Vtx fence_Fence_mesh_vtx_0[47] = {
 };
 
 Gfx fence_Fence_mesh_tri_0[] = {
-	gsSPVertex(fence_Fence_mesh_vtx_0 + 0, 16, 0),
-	gsSP1Triangle(0, 1, 2, 0),
-	gsSP1Triangle(3, 4, 5, 0),
-	gsSP1Triangle(6, 7, 8, 0),
-	gsSP1Triangle(9, 10, 11, 0),
-	gsSP1Triangle(12, 9, 11, 0),
-	gsSP1Triangle(13, 12, 11, 0),
-	gsSP1Triangle(14, 13, 11, 0),
-	gsSP1Triangle(13, 14, 0, 0),
-	gsSP1Triangle(15, 13, 0, 0),
-	gsSPVertex(fence_Fence_mesh_vtx_0 + 16, 16, 0),
-	gsSP1Triangle(0, 1, 2, 0),
-	gsSP1Triangle(0, 3, 1, 0),
-	gsSP1Triangle(1, 3, 4, 0),
-	gsSP1Triangle(1, 4, 5, 0),
-	gsSP1Triangle(6, 7, 8, 0),
-	gsSP1Triangle(6, 8, 9, 0),
-	gsSP1Triangle(9, 10, 6, 0),
-	gsSP1Triangle(9, 11, 10, 0),
-	gsSP1Triangle(12, 13, 14, 0),
-	gsSP1Triangle(12, 14, 15, 0),
+	gsSPVertex(fence_Fence_mesh_vtx_0 + 0, 32, 0),
+	gsSP2Triangles(0, 1, 2, 0, 3, 4, 5, 0),
+	gsSP2Triangles(6, 7, 8, 0, 9, 10, 11, 0),
+	gsSP2Triangles(12, 9, 11, 0, 13, 12, 11, 0),
+	gsSP2Triangles(14, 13, 11, 0, 13, 14, 0, 0),
+	gsSP2Triangles(15, 13, 0, 0, 16, 17, 18, 0),
+	gsSP2Triangles(16, 19, 17, 0, 17, 19, 20, 0),
+	gsSP2Triangles(17, 20, 21, 0, 22, 23, 24, 0),
+	gsSP2Triangles(22, 24, 25, 0, 25, 26, 22, 0),
+	gsSP2Triangles(25, 27, 26, 0, 28, 29, 30, 0),
+	gsSP1Triangle(28, 30, 31, 0),
 	gsSPVertex(fence_Fence_mesh_vtx_0 + 32, 15, 0),
-	gsSP1Triangle(0, 1, 2, 0),
-	gsSP1Triangle(1, 3, 2, 0),
-	gsSP1Triangle(3, 1, 4, 0),
-	gsSP1Triangle(1, 5, 4, 0),
-	gsSP1Triangle(6, 7, 8, 0),
-	gsSP1Triangle(9, 7, 6, 0),
-	gsSP1Triangle(9, 6, 10, 0),
-	gsSP1Triangle(6, 11, 10, 0),
-	gsSP1Triangle(6, 12, 11, 0),
-	gsSP1Triangle(12, 13, 11, 0),
+	gsSP2Triangles(0, 1, 2, 0, 1, 3, 2, 0),
+	gsSP2Triangles(3, 1, 4, 0, 1, 5, 4, 0),
+	gsSP2Triangles(6, 7, 8, 0, 9, 7, 6, 0),
+	gsSP2Triangles(9, 6, 10, 0, 6, 11, 10, 0),
+	gsSP2Triangles(6, 12, 11, 0, 12, 13, 11, 0),
 	gsSP1Triangle(12, 14, 13, 0),
 	gsSPEndDisplayList(),
 };
@@ -147,6 +143,10 @@ Gfx mat_revert_fence_fence_f3d[] = {
 
 
 Gfx fence_Fence_mesh[] = {
+	gsSPClearGeometryMode(G_LIGHTING),
+	gsSPVertex(fence_Fence_mesh_vtx_cull + 0, 8, 0),
+	gsSPSetGeometryMode(G_LIGHTING),
+	gsSPCullDisplayList(0, 7),
 	gsSPDisplayList(mat_fence_fence_f3d),
 	gsSPDisplayList(fence_Fence_mesh_tri_0),
 	gsSPDisplayList(mat_revert_fence_fence_f3d),
@@ -157,6 +157,3 @@ Gfx fence_Fence_mesh[] = {
 	gsSPTexture(65535, 65535, 0, 0, 0),
 	gsSPEndDisplayList(),
 };
-
-
-
