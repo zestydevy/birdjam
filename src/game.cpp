@@ -323,12 +323,18 @@ void TGame::initFrameBuffer()
 
 // -------------------------------------------------------------------------- //
 
+static int frameState = 0;
+
 void TGame::testRender(u32 taskNum)
 {
     auto game = TGame::getInstance();
     auto scene = game->getCurrentScene();
 
-    if (taskNum > 3) return;
+    frameState++;
+
+    if (frameState % 2 == 0){
+        return;
+    }
 
     TAudio::update();
 
@@ -345,13 +351,17 @@ void TGame::testRender(u32 taskNum)
             break;
     }
 
+    if (taskNum > 4){   //2 graphics tasks per framebuffer
+        return;
+    }
+
     game->update();
     game->draw();
 
     if (scene->getName() == "game") {
-        nuGfxRetraceWait(1);
+        //nuGfxRetraceWait(1);
     } else {
-        nuGfxRetraceWait(2);
+       // nuGfxRetraceWait(2);
     }
 }
 

@@ -777,6 +777,8 @@ void TPlayer::update()
         mEndCameraTimer += kInterval;
     }
 
+    mAnim->update();
+
     updateBlkMap();
 }
 
@@ -804,7 +806,7 @@ void TPlayer::updateMtx()
 
 void TPlayer::draw()
 {
-    mAnim->update();
+    mAnim->draw();
 
     if (mGroundFace != nullptr) {
         mShadow->draw();
