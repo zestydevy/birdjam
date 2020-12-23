@@ -21,7 +21,7 @@ const float BIRD_MAXSPEED = 600.0f * kInterval;
 const float BIRD_INITSPEED = 420.0f * kInterval;
 const float BIRD_FASTSPEED = 450.0f * kInterval; //When you start fast animation
 const float BIRD_SLOWSPEED = 300.0f * kInterval; //When you start slow animation and speed up
-const float BIRD_ACCEL = 0.7f * kInterval;    //Acceleration when below slowspeed
+const float BIRD_ACCEL = 1.0f * kInterval;    //Acceleration when below slowspeed
 const float BIRD_SLOWACCEL = 1.2f * kInterval; //Acceleration when slowing down
 const float BIRD_MINSPEED = 240.0f * kInterval;
 const float BIRD_FLAPSPEED = 240.0f * kInterval;
@@ -584,7 +584,10 @@ void TPlayer::update()
                     setAnimation(bird_Bird_GlideFlap_Length, ANIM_GLIDEFLAP, false, wflapspeed);
                     mFlappingWings = true;
                 }
-                mSpeed += BIRD_ACCEL;
+                if (mPad->isHeld(A))
+                    mSpeed += BIRD_ACCEL;
+                else
+                    mSpeed += BIRD_ACCEL / 2.0f;
             }
             if (canMove() && mPad->isHeld(B)){
                 animRate = 0.25f;
