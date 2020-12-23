@@ -86,3 +86,4 @@ extern Vtx* bird_eagle_Bird_GlideUTurn_2[];
 extern Vtx* bird_eagle_Bird_GlideUTurn_3[];
 
 extern Gfx bird_eagle_Bird_mesh[];
+extern Gfx bird_eagle_Shadow_mesh[];

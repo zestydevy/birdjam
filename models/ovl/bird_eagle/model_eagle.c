@@ -1021,3 +1021,30 @@ Gfx bird_eagle_Bird_mesh[] = {
 	gsSPTexture(65535, 65535, 0, 0, 0),
 	gsSPEndDisplayList(),
 };
+
+Gfx mat_bird_eagle_Shadow_f3d[] = {
+	gsDPPipeSync(),
+	gsDPSetPrimColor(0, 0, 0, 0, 0, 196),
+	gsDPSetCombineLERP(0, 0, 0, 0, 0, 0, 0, PRIMITIVE, 0, 0, 0, 0, 0, 0, 0, PRIMITIVE),
+	gsSPTexture(65535, 65535, 0, 0, 1),
+	gsDPSetAlphaCompare(G_AC_DITHER),
+	gsSPEndDisplayList(),
+};
+
+Gfx bird_eagle_Shadow_mesh[] = {
+	gsDPSetRenderMode(G_RM_AA_ZB_XLU_DECAL, G_RM_AA_ZB_XLU_DECAL2),
+	gsSPDisplayList(mat_bird_eagle_Shadow_f3d),
+	gsSPDisplayList(bird_eagle_Bird_mesh_tri_3),
+	gsSPDisplayList(bird_eagle_Bird_mesh_tri_0),
+	gsSPDisplayList(bird_eagle_Bird_mesh_tri_1),
+	gsSPDisplayList(bird_eagle_Bird_mesh_tri_2),
+	gsDPPipeSync(),
+	gsDPSetRenderMode(G_RM_AA_ZB_OPA_SURF, G_RM_AA_ZB_OPA_SURF2),
+	gsDPSetPrimColor(0, 0, 255, 255, 255, 255),
+	gsDPSetAlphaCompare(G_AC_NONE),
+	gsSPSetGeometryMode(G_LIGHTING),
+	gsSPClearGeometryMode(G_TEXTURE_GEN),
+	gsDPSetCombineLERP(0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT, 0, 0, 0, SHADE, 0, 0, 0, ENVIRONMENT),
+	gsSPTexture(65535, 65535, 0, 0, 0),
+	gsSPEndDisplayList(),
+};

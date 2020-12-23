@@ -77,11 +77,17 @@ void TPlayer::init()
     mState = PLAYERSTATE_FALLING;
 
     // shadow
-    mShadow = new TObject(mDynList);
+    mShadow = new TShadow(mDynList);
     mShadow->init();
+    mShadow->setParent(this);
     mShadow->setPosition({0.0f,0.0f,0.0f});
-    mShadow->setScale(TVec3F(0.10f, 0.10f, 0.10f));
-    mShadow->setMesh(shadow_Plane_mesh);
+    mShadow->setScale(mScale);
+    if (TMenuScene::isFreedomMode()) {
+        mShadow->setMesh(bird_eagle_Shadow_mesh);
+    }
+    else {
+        mShadow->setMesh(bird_Shadow_mesh);
+    }
 
     initCollider(TAG_PLAYER, TAG_PLAYER, 0, 1);
     setCollideRadius(BIRD_RADIUS);
@@ -808,14 +814,14 @@ void TPlayer::draw()
 {
     mAnim->draw();
 
-    if (mGroundFace != nullptr) {
-        mShadow->draw();
-    }
-
     //setMesh(bird_Bird_mesh);
     
     updateMtx();
     TObject::draw();
+
+    if (mGroundFace != nullptr) {
+        mShadow->draw();
+    }
     
 #if 0
     TMtx44 temp1, temp2, temp3;
