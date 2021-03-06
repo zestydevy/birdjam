@@ -9,6 +9,7 @@ class TAnimator
     ~TAnimator();
 
     void update();
+    void draw();
     
     void setAnimation(int length, Vtx** animation[], bool loop = true, float speed = 0.25f);
     void setTimescale(float dt);

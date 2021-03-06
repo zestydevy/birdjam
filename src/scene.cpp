@@ -446,6 +446,8 @@ void TTestScene::update()
         mCheatState = 0;
 
     TCollider::frameEnd();
+
+    mCamera->update();
 }
 
 // -------------------------------------------------------------------------- //

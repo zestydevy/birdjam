@@ -21,7 +21,7 @@ const float BIRD_MAXSPEED = 600.0f * kInterval;
 const float BIRD_INITSPEED = 420.0f * kInterval;
 const float BIRD_FASTSPEED = 450.0f * kInterval; //When you start fast animation
 const float BIRD_SLOWSPEED = 300.0f * kInterval; //When you start slow animation and speed up
-const float BIRD_ACCEL = 0.7f * kInterval;    //Acceleration when below slowspeed
+const float BIRD_ACCEL = 1.0f * kInterval;    //Acceleration when below slowspeed
 const float BIRD_SLOWACCEL = 1.2f * kInterval; //Acceleration when slowing down
 const float BIRD_MINSPEED = 240.0f * kInterval;
 const float BIRD_FLAPSPEED = 240.0f * kInterval;
@@ -77,11 +77,17 @@ void TPlayer::init()
     mState = PLAYERSTATE_FALLING;
 
     // shadow
-    mShadow = new TObject(mDynList);
+    mShadow = new TShadow(mDynList);
     mShadow->init();
+    mShadow->setParent(this);
     mShadow->setPosition({0.0f,0.0f,0.0f});
-    mShadow->setScale(TVec3F(0.10f, 0.10f, 0.10f));
-    mShadow->setMesh(shadow_Plane_mesh);
+    mShadow->setScale(mScale);
+    if (TMenuScene::isFreedomMode()) {
+        mShadow->setMesh(bird_eagle_Shadow_mesh);
+    }
+    else {
+        mShadow->setMesh(bird_Shadow_mesh);
+    }
 
     initCollider(TAG_PLAYER, TAG_PLAYER, 0, 1);
     setCollideRadius(BIRD_RADIUS);
@@ -578,7 +584,10 @@ void TPlayer::update()
                     setAnimation(bird_Bird_GlideFlap_Length, ANIM_GLIDEFLAP, false, wflapspeed);
                     mFlappingWings = true;
                 }
-                mSpeed += BIRD_ACCEL;
+                if (mPad->isHeld(A))
+                    mSpeed += BIRD_ACCEL;
+                else
+                    mSpeed += BIRD_ACCEL / 2.0f;
             }
             if (canMove() && mPad->isHeld(B)){
                 animRate = 0.25f;
@@ -777,6 +786,8 @@ void TPlayer::update()
         mEndCameraTimer += kInterval;
     }
 
+    mAnim->update();
+
     updateBlkMap();
 }
 
@@ -804,16 +815,16 @@ void TPlayer::updateMtx()
 
 void TPlayer::draw()
 {
-    mAnim->update();
-
-    if (mGroundFace != nullptr) {
-        mShadow->draw();
-    }
+    mAnim->draw();
 
     //setMesh(bird_Bird_mesh);
     
     updateMtx();
     TObject::draw();
+
+    if (mGroundFace != nullptr) {
+        mShadow->draw();
+    }
     
 #if 0
     TMtx44 temp1, temp2, temp3;

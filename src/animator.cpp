@@ -38,7 +38,9 @@ void TAnimator::update(){
                 mTime = 0.0f;
         }
     }
+}
 
+void TAnimator::draw(){
     for (int i = 0; i < mMeshCount; i++)
         lerpVertexPos(mMeshSizes[i], mMeshes[i], mAnim[i], mTime);
 }

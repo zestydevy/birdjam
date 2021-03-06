@@ -224,3 +224,65 @@ const TObjectData & TObject::getNestObjectInfo(
 }
 
 // -------------------------------------------------------------------------- //
+
+void TShadow::init() {
+    TObject::init();
+}
+
+void TShadow::update() {
+    TObject::update();
+}
+
+void TShadow::updateMtx()
+{
+    if (!mInCamera){
+        mMtxNeedsUpdate = true;
+        return;
+    }
+
+    TMtx44 temp1, temp2, temp3, mPosMtx, mScaleMtx, mScaleMtx2;
+    
+    mPosMtx.translate(mPosition);
+    temp1.rotateAxisX(mRotation.x());
+    temp2.rotateAxisY(mRotation.y());
+    temp3.rotateAxisZ(mRotation.z());
+    TMtx44::concat(temp2, temp1, mRotMtx);
+    TMtx44::concat(mRotMtx, temp3, mRotMtx);
+    mScaleMtx.scale(mScale);
+    mScaleMtx2.scale({1.0f, 0.0f, 1.0f});
+
+    //Combine mtx
+    TMtx44::floatToFixed(mPosMtx, mFMtx);
+    TMtx44::floatToFixed(mScaleMtx, mFScaleMtx1);
+    TMtx44::floatToFixed(mScaleMtx2, mFScaleMtx2);
+    TMtx44::floatToFixed(mRotMtx, mFRotMtx);
+
+    mMtxNeedsUpdate = false;
+}
+
+void TShadow::draw() {
+    if (!mInCamera)
+        return;
+
+    if (mMtxNeedsUpdate)
+        updateMtx();
+
+    gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFMtx),
+	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
+    gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFRotMtx),
+            G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
+    gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFScaleMtx2),
+	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
+    if (mParent != nullptr){
+        gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mParent->getRotMtx()),
+            G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
+    }
+    gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFScaleMtx1),
+	      G_MTX_MODELVIEW|G_MTX_MUL|G_MTX_NOPUSH);
+        
+    if (mMesh != nullptr) {
+        gSPDisplayList(mDynList->pushDL(), mMesh);
+    }
+
+    gSPPopMatrix(mDynList->pushDL(), G_MTX_MODELVIEW);
+}

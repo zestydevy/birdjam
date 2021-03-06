@@ -81,26 +81,12 @@ void TCamera::drawWindow(float scale){
     gSPPopMatrix(mDynList->pushDL(), G_MTX_MODELVIEW);
 }
 
-void TCamera::render()
+void TCamera::update()
 {    
     if (mDistance < 150.0f)
         mDistance = 150.0f;
     if (mDistance > 600.0f)
         mDistance = 600.0f;
-
-    guPerspective(&mProjectionMtx, &mPersp,
-		      mFov, 320.0/240.0, 5, 8000, 1.0);
-    guLookAtReflect(&mFViewMtx, mLookAtMtx,
-		       50, 0, 400,
-		       0, 0, 0,
-		       0, 1, 0);
-	
-    gSPLookAt(mDynList->pushDL(), mLookAtMtx);
-    gSPPerspNormalize(mDynList->pushDL(), mPersp);
-    gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mProjectionMtx),
-		  G_MTX_PROJECTION|G_MTX_LOAD|G_MTX_NOPUSH);
-    gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFViewMtx),
-		  G_MTX_PROJECTION|G_MTX_MUL|G_MTX_NOPUSH);
 
     //get current target distance
     TVec3F dif = (*mTarget - mPosition);
@@ -142,6 +128,75 @@ void TCamera::render()
     }
 
     mOldPos.lerpTime({x, y, z}, 0.0667f, kInterval);
+    mViewMtx.lookAt(mOldPos * 0.1f, mTarget->xyz() * 0.1f, {0.0f,1.0f,0.0f});
+    mRotMtx.rotateAxis(mRotation, 0);
+    mScaleMtx.scale(mScale * 0.1f);
+
+    mForward = *mTarget - mOldPos;
+    mForward.normalize();
+}
+
+void TCamera::render()
+{    
+    if (mDistance < 150.0f)
+        mDistance = 150.0f;
+    if (mDistance > 600.0f)
+        mDistance = 600.0f;
+
+    guPerspective(&mProjectionMtx, &mPersp,
+		      mFov, 320.0/240.0, 5, 8000, 1.0);
+    guLookAtReflect(&mFViewMtx, mLookAtMtx,
+		       50, 0, 400,
+		       0, 0, 0,
+		       0, 1, 0);
+	
+    gSPLookAt(mDynList->pushDL(), mLookAtMtx);
+    gSPPerspNormalize(mDynList->pushDL(), mPersp);
+    gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mProjectionMtx),
+		  G_MTX_PROJECTION|G_MTX_LOAD|G_MTX_NOPUSH);
+    gSPMatrix(mDynList->pushDL(), OS_K0_TO_PHYSICAL(&mFViewMtx),
+		  G_MTX_PROJECTION|G_MTX_MUL|G_MTX_NOPUSH);
+
+    //get current target distance
+    TVec3F dif = (*mTarget - mPosition);
+    float pdist = dif.getLength();
+
+    bool moveCamera = mPad->isHeld(EButton::C_LEFT) || mPad->isHeld(EButton::C_RIGHT) || mPad->isHeld(EButton::C_UP) || mPad->isHeld(EButton::C_DOWN);
+    if (mPad->isHeld(EButton::C_LEFT))
+        mAngle += 18000.0f * 0.0f;
+    if (mPad->isHeld(EButton::C_RIGHT))
+        mAngle -= 18000.0f * 0.0f;
+    if (mPad->isHeld(EButton::C_UP))
+        mDistance -= 210.0f * 0.0f;
+    if (mPad->isHeld(EButton::C_DOWN))
+        mDistance += 210.0f * 0.0f;
+
+    float x = mPosition.x();
+    float y = mPosition.y();
+    float z = mPosition.z();
+    if (!mExternallyControlled && (moveCamera || pdist > mDistance || pdist < mDistance * 0.75f)){
+        if (pdist > mDistance)      // Clamp camera distance between max and half max;
+            pdist = mDistance;
+        if (pdist < mDistance * 0.75f)
+            pdist = mDistance * 0.75f;
+
+        if (!moveCamera)
+            mAngle = TSine::atan2(dif.x(), dif.z());
+        x = mTarget->x() - TSine::ssin(mAngle) * pdist;
+        y = mTarget->y() + 20.00f;
+        z = mTarget->z() - TSine::scos(mAngle) * pdist;
+        mPosition.set(x, y, z);
+    }
+
+    //Don't let the camera clip in the ground
+    mGroundFace = TCollision::findGroundBelow(mOldPos, 50.0f);
+    if (mGroundFace != nullptr){
+        float y = mGroundFace->calcYAt(mOldPos.xz()) + 50.0f;
+        if (mOldPos.y() < y)
+            mOldPos.y() = y;
+    }
+
+    mOldPos.lerpTime({x, y, z}, 0.0667f, 0.0f);
     mViewMtx.lookAt(mOldPos * 0.1f, mTarget->xyz() * 0.1f, {0.0f,1.0f,0.0f});
     mRotMtx.rotateAxis(mRotation, 0);
     mScaleMtx.scale(mScale * 0.1f);

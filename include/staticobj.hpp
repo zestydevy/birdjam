@@ -93,6 +93,9 @@ class TObject
     TVec3<s16> const & getRotation() {return mRotation;}
     TVec3<f32> const & getScale() {return mScale;}
 
+    const Mtx & getDrawMtx() { return mFMtx; }
+    const Mtx & getRotMtx() { return mFRotMtx; }
+
     virtual void updateMtx();
 
     virtual void init();
@@ -129,6 +132,34 @@ class TObject
     TDynList2 * mDynList{nullptr};
 
     float mDrawDistanceSquared{100000000.0f};
+};
+
+// -------------------------------------------------------------------------- //
+
+class TShadow : public TObject
+{
+    public:
+
+    TShadow(TDynList2 * dl) :
+        TObject { dl }
+    {
+    }
+
+    virtual ~TShadow() = default;
+
+    virtual void updateMtx() override;
+
+    virtual void init() override;
+    virtual void update() override;
+    virtual void draw() override;
+
+    void setParent(TObject * obj) {mParent = obj;}
+
+    protected:
+    Mtx mFScaleMtx1{};
+    Mtx mFScaleMtx2{};
+
+    TObject * mParent {nullptr};
 };
 
 // -------------------------------------------------------------------------- //

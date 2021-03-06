@@ -134,7 +134,7 @@ class TPlayer :
     TAnimator * mAnim{nullptr};
     TPad * mPad{nullptr};
 
-    TObject * mShadow{nullptr};
+    TShadow * mShadow{nullptr};
 
     TCamera * mCamera;
     TVec3<f32> mCameraTarget{};

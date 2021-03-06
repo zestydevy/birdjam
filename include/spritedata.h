@@ -6,11 +6,11 @@
 
 #include "spritedata.h"
 
-typedef struct TSpriteExEntry
+typedef struct spriteExEntry
 {
     uObjTxtr * textureData;
     uObjMtx * spriteMtx;
     uObjSprite * spriteData;
-};
+} TSpriteExEntry;
 
 #endif

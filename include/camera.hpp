@@ -17,6 +17,7 @@ class TCamera
     TCamera(TDynList2 * list);
     ~TCamera() = default;
 
+    void update();
     void render();
     void setPad(TPad * pad) {mPad = pad;}
     void setTarget(const TVec3<f32> * target) {mTarget = target;}
