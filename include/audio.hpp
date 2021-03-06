@@ -22,15 +22,13 @@ enum ESfxType : musHandle
     SFX_MENU_BACK            = 10,
     SFX_MENU_PAGE            = 11,
     SFX_MENU_SELECT          = 12,
-    BGM_N64_L                = 13,
-    BGM_N64_R                = 14,
-    SFX_POP                  = 15,
-    SFX_REALEAGLE1           = 16,
-    BGM_SONG_COMP_L          = 17,
-    BGM_SONG_COMP_R          = 18,
-    SFX_TIMEOUT              = 19,
-    SFX_WOOSH                = 20,
-    SFX_STAMP                = 21,
+    SFX_POP                  = 13,
+    SFX_REALEAGLE1           = 14,
+    BGM_SONG_COMP_L          = 15,
+    BGM_SONG_COMP_R          = 16,
+    SFX_TIMEOUT              = 17,
+    SFX_WOOSH                = 18,
+    SFX_STAMP                = 19,
 };
 
 enum EBgm : musHandle
